@@ -1,0 +1,105 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+
+        # ── Auth Service — public, pas de filtre JWT ──────────────
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+
+        # ── Chambre Service ─────────────────────────────
+        - id: chambre-service
+          uri: lb://chambre-service
+          predicates:
+            - Path=/api/chambres/**
+          filters:
+            - name: JwtAuthFilter
+
+        # ── Réservation Service ─────────────────────────
+        - id: reservation-service
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/reservations/**
+          filters:
+            - name: JwtAuthFilter
+
+        # ── Client Service ──────────────────────────────
+        - id: client-service
+          uri: lb://client-service
+          predicates:
+            - Path=/api/clients/**
+          filters:
+            - name: JwtAuthFilter
+
+        # ── Facture Service ─────────────────────────────
+        - id: facture-service
+          uri: lb://facture-service
+          predicates:
+            - Path=/api/factures/**
+          filters:
+            - name: JwtAuthFilter
+
+        # ── Personnel Service ───────────────────────────
+        - id: personnel-service
+          uri: lb://personnel-service
+          predicates:
+            - Path=/api/personnel/**
+          filters:
+            - name: JwtAuthFilter
+
+        # ── Housekeeping Service ────────────────────────
+        - id: housekeeping-service
+          uri: lb://housekeeping-service
+          predicates:
+            - Path=/api/housekeeping/**
+          filters:
+            - name: JwtAuthFilter
+
+        # ── Rapport Service ─────────────────────────────
+        - id: rapport-service
+          uri: lb://rapport-service
+          predicates:
+            - Path=/api/rapports/**
+          filters:
+            - name: JwtAuthFilter
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
