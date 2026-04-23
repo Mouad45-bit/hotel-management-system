@@ -1,0 +1,174 @@
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  RÉSEAU DOCKER
+#  Tous les services communiquent par leur nom de container (ex: config-server)
+#  Aucun service n'a besoin de connaître une IP — Docker résout les noms.
+# ═══════════════════════════════════════════════════════════════════════════════
+networks:
+  hotel-network:
+    driver: bridge
+    name: hotel-network
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  VOLUMES
+#  Persistance des données MariaDB entre les redémarrages de containers.
+# ═══════════════════════════════════════════════════════════════════════════════
+volumes:
+  db-auth-data:
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  SERVICES — ordre de démarrage garanti par depends_on + healthcheck
+#
+#  1. config-server   → démarre en premier, aucune dépendance
+#  2. eureka-server   → attend que config-server soit healthy
+#  3. db-auth         → démarre en parallèle d'eureka (pas de dépendance)
+#  4. auth-service    → attend eureka + db-auth
+#  5. api-gateway     → attend eureka + auth-service
+# ═══════════════════════════════════════════════════════════════════════════════
+services:
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  #  1. CONFIG SERVER
+  #  Sert les fichiers configs/*.yml aux autres services au démarrage.
+  #  Doit être le premier service opérationnel.
+  # ─────────────────────────────────────────────────────────────────────────────
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - hotel-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  #  2. EUREKA SERVER
+  #  Registre de découverte — tous les services s'y enregistrent au démarrage.
+  #  Récupère sa config depuis config-server via SPRING_CONFIG_IMPORT.
+  # ─────────────────────────────────────────────────────────────────────────────
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"       # Dashboard Eureka : http://localhost:8761
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  #  3. BASE DE DONNÉES AUTH
+  #  MariaDB dédiée à l'auth-service (isolation : 1 BDD par service).
+  #  Port 3307 en local pour éviter le conflit avec un MariaDB/MySQL local.
+  # ─────────────────────────────────────────────────────────────────────────────
+  db-auth:
+    image: mariadb:11
+    container_name: db-auth
+    ports:
+      - "3307:3306"
+    networks:
+      - hotel-network
+    environment:
+      MYSQL_ROOT_PASSWORD: root_hotel
+      MYSQL_DATABASE:      db_auth
+      MYSQL_USER:          hotel_user
+      MYSQL_PASSWORD:      hotel_pass
+    volumes:
+      - db-auth-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  #  4. AUTH SERVICE
+  #  Gère l'authentification JWT.
+  #  Attend Eureka (pour s'enregistrer) et db-auth (pour persister les users).
+  #
+  #  Les variables d'environnement surchargent les valeurs du config-server
+  #  pour les données sensibles (credentials BDD, secret JWT).
+  # ─────────────────────────────────────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    networks:
+      - hotel-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      db-auth:
+        condition: service_healthy
+    environment:
+      # Bootstrap → récupère auth-service.yml depuis le config-server
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      # Surcharge les valeurs du config-server pour la BDD
+      SPRING_DATASOURCE_URL:      "jdbc:mariadb://db-auth:3306/db_auth"
+      SPRING_DATASOURCE_USERNAME: hotel_user
+      SPRING_DATASOURCE_PASSWORD: hotel_pass
+      # Surcharge pour le JWT (secret partagé avec la Gateway)
+      JWT_SECRET:     "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+      JWT_EXPIRATION: "86400000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  #  5. API GATEWAY
+  #  Point d'entrée unique de l'application — reçoit toutes les requêtes
+  #  du frontend (Next.js port 3000) et les route vers les bons services.
+  #
+  #  Attend auth-service pour que le filtre JWT puisse fonctionner
+  #  dès le premier démarrage.
+  # ─────────────────────────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"       # Point d'entrée du frontend : http://localhost:8080
+    networks:
+      - hotel-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    environment:
+      # Bootstrap → récupère api-gateway.yml depuis le config-server
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      # JWT_SECRET doit être identique à celui de l'auth-service
+      JWT_SECRET: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    restart: unless-stopped
