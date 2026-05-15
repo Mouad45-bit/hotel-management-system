@@ -1,9 +1,0 @@
-hms:
-  name: Hotel Management System
-  config-source: config-server
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
