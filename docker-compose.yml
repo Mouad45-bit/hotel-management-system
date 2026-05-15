@@ -40,7 +40,33 @@ services:
       start_period: 40s
     restart: unless-stopped
 
+  db-auth:
+    image: mariadb:11.4
+    container_name: db-auth
+    ports:
+      - "3307:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${MYSQL_DATABASE:-db_auth}
+      MARIADB_USER: ${MYSQL_USER:-hotel_user}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD:-hotel_pass}
+    volumes:
+      - db-auth-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
 networks:
   hotel-network:
     name: hotel-network
     driver: bridge
+
+volumes:
+  db-auth-data:
+    name: db-auth-data
