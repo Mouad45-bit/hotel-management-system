@@ -57,3 +57,43 @@ http://localhost:8761
 Expected result:
 
 The Eureka dashboard is accessible.
+
+## Client registration test
+
+Command:
+
+```bash
+curl -X POST http://localhost:8761/eureka/apps/TEST-CLIENT \
+  -H "Content-Type: application/json" \
+  -d '{
+    "instance": {
+      "instanceId": "test-client-1",
+      "hostName": "localhost",
+      "app": "TEST-CLIENT",
+      "ipAddr": "127.0.0.1",
+      "status": "UP",
+      "port": {
+        "$": 9999,
+        "@enabled": "true"
+      },
+      "dataCenterInfo": {
+        "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+        "name": "MyOwn"
+      }
+    }
+  }'
+```
+
+Verification:
+
+```bash
+curl http://localhost:8761/eureka/apps/TEST-CLIENT
+```
+
+Expected result:
+
+The registered application `TEST-CLIENT` appears in the Eureka registry.
+
+Note:
+
+This test simulates a Eureka client registration. A real Spring Boot client registration will be tested again when auth-service or api-gateway is added.
