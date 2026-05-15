@@ -1,0 +1,6 @@
+name: hotel-management-system
+
+networks:
+  hotel-network:
+    name: hotel-network
+    driver: bridge
