@@ -50,6 +50,7 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_hotel}
       MARIADB_DATABASE: ${MYSQL_DATABASE:-db_auth}
+      MARIADB_USER: ${MYSQL_USER:-hotel_user}
     healthcheck:
       test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent"]
       interval: 10s
