@@ -1,0 +1,14 @@
+# HMS-4 - Config Server Tests
+
+## Local test
+
+Command:
+
+```bash
+mvn -f config-server/pom.xml clean package
+java -jar config-server/target/config-server-0.0.1-SNAPSHOT.jar
+curl http://localhost:8888/actuator/health
+
+Expected result:
+
+git commit -m "HMS-13 document config-server health t
