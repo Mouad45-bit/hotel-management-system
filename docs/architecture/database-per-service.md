@@ -53,3 +53,23 @@ reservation-service → direct SQL query → db-auth
 reservation-service → REST/API call → auth-service
 ```
 
+## Database naming convention
+
+| Microservice         | Database container | Database name   | Volume name          |
+|----------------------|--------------------|-----------------|----------------------|
+| auth-service         | db-auth            | db_auth         | db-auth-data         |
+| room-service         | db-room            | db_room         | db-room-data         |
+| client-service       | db-client          | db_client       | db-client-data       |
+| reservation-service  | db-reservation     | db_reservation  | db-reservation-data  |
+| billing-service      | db-billing         | db_billing      | db-billing-data      |
+| housekeeping-service | db-housekeeping    | db_housekeeping | db-housekeeping-data |
+| staff-service        | db-staff           | db_staff        | db-staff-data        |
+| report-service       | db-report          | db_report       | db-report-data       |
+
+## Rules
+
+- Docker service names use kebab-case: `db-auth`.
+- Database names use snake_case: `db_auth`.
+- Docker volume names use kebab-case and end with `-data`: `db-auth-data`.
+- Application services must use a dedicated database user.
+- Application services must not use the database root user.
