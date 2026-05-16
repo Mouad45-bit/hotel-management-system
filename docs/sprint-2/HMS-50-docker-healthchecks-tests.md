@@ -112,3 +112,70 @@ docker compose logs --tail=100 db-auth
 Docker healthchecks are configured and validated for the available infrastructure services.
 
 `auth-service` healthcheck is deferred until the Auth epic.
+
+## Diagnostic commands
+
+### Show all containers
+
+```bash
+docker compose ps
+```
+
+### Follow logs for one service
+
+```bash
+docker compose logs -f config-server
+docker compose logs -f eureka-server
+docker compose logs -f api-gateway
+docker compose logs -f db-auth
+```
+
+### Show last logs only
+
+```bash
+docker compose logs --tail=100 api-gateway
+```
+
+### Inspect healthcheck status
+
+```bash
+docker inspect config-server --format '{{json .State.Health}}'
+docker inspect eureka-server --format '{{json .State.Health}}'
+docker inspect api-gateway --format '{{json .State.Health}}'
+docker inspect db-auth --format '{{json .State.Health}}'
+```
+
+### Inspect healthcheck logs
+
+```bash
+docker inspect api-gateway --format '{{range .State.Health.Log}}{{.End}} {{.ExitCode}} {{.Output}}{{println}}{{end}}'
+```
+
+### Restart one service
+
+```bash
+docker compose restart api-gateway
+```
+
+### Rebuild one service
+
+```bash
+docker compose build api-gateway
+docker compose up -d api-gateway
+```
+
+### Full clean restart
+
+```bash
+docker compose down
+docker compose up --build -d
+```
+
+### Full clean restart with database volume deletion
+
+Warning: this deletes local database data.
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
