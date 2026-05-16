@@ -55,3 +55,24 @@ Reason:
 auth-service is not implemented yet in the clean project restart.
 The objective of HMS-22 is to prepare the API Gateway route, not to validate the final auth-service endpoint.
 Full validation will be done when auth-service is implemented and registered in Eureka.
+
+## Eureka test
+
+Open:
+
+```bash
+http://localhost:8761
+```
+
+Expected result:
+
+API-GATEWAY appears in Eureka applications.
+
+## Conclusion
+
+The api-gateway starts successfully on port 8080.
+
+It loads its configuration from config-server and registers itself in Eureka as API-GATEWAY.
+
+The route `/api/auth/**` is configured to use `lb://auth-service`.
+Full route validation requires auth-service to be running and registered in Eureka.
