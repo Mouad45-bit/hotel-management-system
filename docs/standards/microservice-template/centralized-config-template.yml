@@ -1,0 +1,37 @@
+# service-name.yml
+#
+# Fichier de configuration centralisé à placer dans :
+# config-server/src/main/resources/configs/service-name.yml
+
+server:
+  port: ${SERVICE_NAME_PORT:808X}
+
+spring:
+  application:
+    name: service-name
+
+# À activer uniquement si le service possède sa propre base de données.
+# datasource:
+#   url: jdbc:mariadb://${SERVICE_NAME_DB_HOST:localhost}:${SERVICE_NAME_DB_PORT:3306}/${SERVICE_NAME_DB_NAME:db_service_name}
+#   username: ${SERVICE_NAME_DB_USER:hotel_user}
+#   password: ${SERVICE_NAME_DB_PASSWORD:hotel_pass}
+#   driver-class-name: org.mariadb.jdbc.Driver
+#
+# jpa:
+#   hibernate:
+#     ddl-auto: update
+#   open-in-view: false
+#   show-sql: false
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
