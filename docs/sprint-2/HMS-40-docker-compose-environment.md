@@ -43,3 +43,49 @@ eureka-server   running / healthy
 db-auth         running / healthy
 api-gateway     running / healthy
 ```
+
+## Health checks
+
+```bash
+curl http://localhost:8888/actuator/health
+curl http://localhost:8761/actuator/health
+curl http://localhost:8080/actuator/health
+```
+
+Expected result:
+
+```text
+{"status":"UP"}
+```
+
+## Eureka registration
+
+```bash
+curl http://localhost:8761/eureka/apps/API-GATEWAY
+```
+
+Expected result:
+
+```text
+API-GATEWAY is registered in Eureka.
+```
+
+## Docker network
+
+```bash
+docker network inspect hotel-network
+```
+
+Expected result:
+
+```text
+config-server
+eureka-server
+db-auth
+api-gateway
+```
+
+## Auth service note
+
+`auth-service` is not included yet because the module does not exist in the project yet.
+It will be added to Docker Compose during the future Auth epic.
