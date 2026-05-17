@@ -19,7 +19,14 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
+RUN addgroup -S hotel \
+    && adduser -S hotel -G hotel
+
 COPY --from=builder /app/target/*.jar app.jar
+
+RUN chown hotel:hotel app.jar
+
+USER hotel
 
 EXPOSE 8080
 
