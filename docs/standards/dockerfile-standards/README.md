@@ -26,12 +26,52 @@ Every HMS Spring Boot microservice Dockerfile must:
 - expose the correct service port
 - run the application with `java -jar app.jar`
 
-## Final standard Dockerfile
+## Documentation files
 
-The final standard Dockerfile is documented in:
+| File | Purpose |
+|---|---|
+| `Dockerfile.standard` | Final standard Dockerfile |
+| `build-stage.md` | Maven build stage documentation |
+| `runtime-stage.md` | Java 17 runtime stage documentation |
+| `non-root-user.md` | Non-root user convention |
+| `healthcheck-curl.md` | Curl and healthcheck convention |
+| `exposed-ports.md` | Service port convention |
+| `validation-existing-service.md` | Validation commands |
+| `service-adaptations.md` | Allowed service-specific adaptations |
 
-```text
-docs/standards/dockerfile-standards/Dockerfile.standard
+## Standard Dockerfile
+
+```dockerfile
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
+
+WORKDIR /app
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+RUN mvn package -DskipTests -B
+
+
+FROM eclipse-temurin:17-jre-alpine
+
+ARG SERVICE_PORT=8080
+
+WORKDIR /app
+
+RUN apk add --no-cache curl \
+    && addgroup -S hotel \
+    && adduser -S hotel -G hotel
+
+COPY --from=builder /app/target/*.jar app.jar
+
+RUN chown hotel:hotel app.jar
+
+USER hotel
+
+EXPOSE ${SERVICE_PORT}
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
 ## Why use a standard?
@@ -43,3 +83,7 @@ A standard Dockerfile helps:
 - simplify reviews
 - improve container security
 - make future services faster to create
+
+## Final rule
+
+Every HMS Spring Boot microservice must follow this Dockerfile standard unless a strong technical reason justifies an exception.
