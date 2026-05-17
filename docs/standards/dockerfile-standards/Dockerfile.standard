@@ -19,7 +19,8 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-RUN addgroup -S hotel \
+RUN apk add --no-cache curl \
+    && addgroup -S hotel \
     && adduser -S hotel -G hotel
 
 COPY --from=builder /app/target/*.jar app.jar
