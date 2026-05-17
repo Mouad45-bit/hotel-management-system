@@ -17,6 +17,8 @@ RUN mvn package -DskipTests -B
 # ─────────────────────────────────────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine
 
+ARG SERVICE_PORT=8080
+
 WORKDIR /app
 
 RUN apk add --no-cache curl \
@@ -29,6 +31,6 @@ RUN chown hotel:hotel app.jar
 
 USER hotel
 
-EXPOSE 8080
+EXPOSE ${SERVICE_PORT}
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
