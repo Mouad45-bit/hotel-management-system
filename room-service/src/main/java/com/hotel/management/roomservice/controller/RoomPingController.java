@@ -1,9 +1,8 @@
 package com.hotel.management.roomservice.controller;
 
+import com.hotel.management.roomservice.dto.PingResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 /**
  * Temporary technical endpoint used to validate:
@@ -17,10 +16,10 @@ import java.util.Map;
 public class RoomPingController {
 
     @GetMapping("/api/rooms/ping")
-    public Map<String, String> ping() {
-        return Map.of(
-                "service", "room-service",
-                "status", "UP"
+    public PingResponse ping() {
+        return new PingResponse(
+            "room-service",
+            "UP"
         );
     }
 }
