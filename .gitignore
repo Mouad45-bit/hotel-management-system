@@ -24,3 +24,6 @@ Thumbs.db
 
 # Docker
 docker-data/
+
+# Next
+frontend/node_modules/
