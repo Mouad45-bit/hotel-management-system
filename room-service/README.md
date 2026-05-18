@@ -56,7 +56,8 @@ Local run
 Start config-server, eureka-server and db-room first.
 
 ```
-mvn -f room-service/pom.xml clean packagejava -jar room-service/target/room-service-0.0.1-SNAPSHOT.jar
+mvn -f room-service/pom.xml clean package
+java -jar room-service/target/room-service-0.0.1-SNAPSHOT.jar
 ```
 
 Healthcheck

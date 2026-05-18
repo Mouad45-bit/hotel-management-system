@@ -11,13 +11,15 @@ A service must not directly read or write another service's database.
 | Service | Database container | Database name | Internal URL |
 |---|---|---|---|
 | auth-service | db-auth | db_auth | jdbc:mariadb://db-auth:3306/db_auth |
+| room-service | db-room | db_room | jdbc:mariadb://db-room:3306/db_room |
 
 ## Local development access
 
 When the database runs in Docker and the service runs locally from IntelliJ:
 
 ```text
-jdbc:mariadb://localhost:3307/db_auth
+auth-service local  → jdbc:mariadb://localhost:3307/db_auth
+room-service local  → jdbc:mariadb://localhost:3308/db_room
 ```
 
 ## Docker access

@@ -1,45 +1,51 @@
 Composants frontend réutilisables
-===========================================
+=================================
 
 Objectif
 --------
 
 Lister les composants nécessaires pour construire rapidement l'interface du module Room.
 
-Les composants doivent s'appuyer autant que possible sur Catalyst UI Kit for Tailwind CSS afin d'obtenir une interface professionnelle rapidement.
+Le projet n'utilise pas Catalyst.
 
-Règle d'utilisation de Catalyst
+Les composants seront construits avec :
+
+- Tailwind CSS pour le style
+- Headless UI pour les interactions accessibles
+- Heroicons pour les icônes
+- composants HMS personnalisés pour garder une identité visuelle cohérente
+
+Règle d'utilisation du stack UI
 -------------------------------
 
-Catalyst fournit des composants React + Tailwind prêts à être copiés dans le projet.
+Tailwind CSS fournit le style.
 
-Dans HMS, les composants Catalyst seront placés dans :
+Headless UI fournit le comportement des composants interactifs, mais pas leur apparence.
+
+Heroicons fournit les icônes.
+
+Les composants HMS personnalisés appliquent l'identité visuelle du projet.
+
+Organisation des composants
+---------------------------
 
 ```
-frontend/src/components/catalyst
-```
-
-Les composants métier HMS seront placés dans :
-
-```
-frontend/src/components/rooms
+frontend/src/components/hms
 frontend/src/components/layout
+frontend/src/components/rooms
 ```
 
-Composants Catalyst à utiliser
-------------------------------
+Composants HMS génériques
+-------------------------
 
-| Besoin HMS | Composant Catalyst recommandé |
+| Composant | Rôle |
 | --- | --- |
-| Boutons | Button |
-| Champs texte | Input |
-| Sélections | Select |
-| Formulaires | Fieldset, Field, Label |
-| Modals | Dialog |
-| Menus | Dropdown |
-| Tableaux | Table |
-| Badges | Badge |
-| Navigation | Navbar / Sidebar selon besoin |
+| HmsCard | Carte visuelle pour dashboard, tableaux et sections |
+| HmsButton | Bouton principal, secondaire ou danger |
+| HmsBadge | Badge de statut |
+| HmsInput | Champ de saisie stylisé |
+| HmsSelect | Select simple ou basé sur Headless UI Listbox |
+| HmsDialog | Wrapper autour de Headless UI Dialog si nécessaire |
 
 Composants layout HMS
 ---------------------
@@ -62,23 +68,30 @@ Composants Room
 | RoomForm | Créer ou modifier une chambre |
 | DeleteRoomDialog | Confirmer la suppression d'une chambre |
 
-Composants UI génériques
+Utilisation de Headless UI
+--------------------------
+
+Headless UI sera utilisé uniquement lorsque le composant a besoin d'un comportement interactif accessible.
+
+Exemples :
+
+| Besoin HMS | Solution |
+| --- | --- |
+| Modal de suppression | Headless UI Dialog |
+| Menu utilisateur | Headless UI Menu |
+| Select avancé | Headless UI Listbox |
+| Transition simple | Headless UI Transition |
+
+Utilisation de Heroicons
 ------------------------
 
-Les composants UI génériques doivent venir en priorité de Catalyst.
+Heroicons sera utilisé pour :
 
-Si Catalyst ne fournit pas un composant adapté, l'équipe peut créer un composant HMS personnalisé.
-
-| Composant | Source recommandée |
-| --- | --- |
-| Button | Catalyst |
-| Input | Catalyst |
-| Select | Catalyst |
-| Card | HMS personnalisé |
-| Badge | Catalyst ou HMS personnalisé |
-| Dialog | Catalyst |
-| Toast | HMS personnalisé ou bibliothèque légère plus tard |
-| Table | Catalyst |
+-   navigation sidebar
+-   actions de tableau
+-   boutons importants
+-   états vides
+-   feedback visuel léger
 
 Règles de conception
 --------------------
@@ -88,7 +101,8 @@ Règles de conception
 -   Les composants ne doivent pas appeler directement l'API.
 -   Les appels API doivent passer par `services/roomApi.ts`.
 -   Les composants doivent rester faciles à tester et réutiliser.
--   Les composants Catalyst peuvent être adaptés visuellement pour respecter la palette HMS.
+-   Les composants HMS doivent rester visuellement cohérents avec l'ancien projet.
+-   Les composants interactifs complexes doivent utiliser Headless UI quand c'est utile.
 -   Les composants ne doivent pas être surchargés inutilement.
 
 Priorité de développement
@@ -100,10 +114,12 @@ Ordre recommandé :
 1. AppLayout
 2. Sidebar
 3. Topbar
-4. RoomStatusBadge
-5. RoomStatsCards
-6. RoomFilters
-7. RoomTable
-8. RoomForm
-9. DeleteRoomDialog
+4. HmsCard
+5. HmsButton
+6. RoomStatusBadge
+7. RoomStatsCards
+8. RoomFilters
+9. RoomTable
+10. RoomForm
+11. DeleteRoomDialog
 ```

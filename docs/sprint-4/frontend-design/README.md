@@ -1,5 +1,5 @@
 Frontend Design Foundation
-====================================
+==========================
 
 Objectif
 --------
@@ -12,12 +12,12 @@ Stories couvertes
 -----------------
 
 | Story | Fichier |
-| --- | --- |
+|---|---|
 | HMS-125 | visual-identity.md |
 | HMS-125 | layout.md |
 | HMS-125 | components.md |
 | HMS-125 | room-module-wireframe.md |
-| HMS-125 | catalyst-ui-kit.md |
+| HMS-125 | tailwind-ui-stack.md |
 
 Inspiration design
 ------------------
@@ -26,71 +26,74 @@ Le design global de HMS s'inspire du projet de gestion de projets déjà réalis
 
 Les éléments visuels à reprendre sont :
 
--   interface dashboard claire
--   sidebar fixe à gauche
--   topbar sobre
--   fond gris très clair
--   cartes blanches avec bordures discrètes
--   tableaux propres et lisibles
--   boutons principaux en couleur brun/marron
--   badges colorés pour les statuts
--   modals simples
--   formulaires compacts
--   espacement généreux
--   design professionnel et non surchargé
+- interface dashboard claire
+- sidebar fixe à gauche
+- topbar sobre
+- fond gris très clair
+- cartes blanches avec bordures discrètes
+- tableaux propres et lisibles
+- boutons principaux en couleur brun/marron
+- badges colorés pour les statuts
+- modals simples
+- formulaires compacts
+- espacement généreux
+- design professionnel et non surchargé
 
-UI Kit retenu
--------------
+Stack UI retenu
+---------------
 
-Le frontend utilisera Catalyst UI Kit for Tailwind CSS comme base de composants.
+Le frontend utilisera un stack gratuit et officiel basé sur :
 
-Catalyst sera utilisé pour accélérer la création de composants professionnels tels que :
+- Tailwind CSS
+- Headless UI
+- Heroicons
+- composants HMS personnalisés
 
--   Button
--   Input
--   Select
--   Dialog
--   Dropdown
--   Table
--   Badge
--   Fieldset
--   Navbar
--   Sidebar si nécessaire
+Headless UI sera utilisé pour les composants interactifs accessibles comme les dialogs, menus et listbox.
+
+Heroicons sera utilisé pour les icônes.
+
+Les composants visuels propres au projet seront développés dans `components/hms`.
 
 Décisions principales
 ---------------------
 
--   Le frontend utilise Next.js.
--   Le routing utilise App Router.
--   Le style utilise Tailwind CSS.
--   Le design s'inspire de l'ancien projet fourni en captures.
--   Les composants UI s'appuient sur Catalyst UI Kit.
--   Le module affiché dans l'interface est Chambres.
--   Le module technique reste Room.
--   La première démonstration se concentre sur la gestion des chambres.
+- Le frontend utilise Next.js.
+- Le routing utilise App Router.
+- Le style utilise Tailwind CSS.
+- Le design s'inspire de l'ancien projet fourni en captures.
+- Le projet n'utilise pas Catalyst.
+- Les composants interactifs utilisent Headless UI si nécessaire.
+- Les icônes utilisent Heroicons.
+- Le module affiché dans l'interface est Chambres.
+- Le module technique reste Room.
+- La première démonstration se concentre sur la gestion des chambres.
 
 Pages prévues pour la première démonstration
 --------------------------------------------
 
--   Dashboard général
--   Liste des chambres
--   Création d'une chambre
--   Modification d'une chambre
--   Détail rapide d'une chambre
+- Dashboard général
+- Liste des chambres
+- Création d'une chambre
+- Modification d'une chambre
+- Détail rapide d'une chambre
 
 Composants principaux
 ---------------------
 
--   Sidebar
--   Topbar
--   AppLayout
--   RoomStatsCards
--   RoomTable
--   RoomFilters
--   RoomStatusBadge
--   RoomForm
--   DeleteRoomDialog
--   Notifications utilisateur
+- Sidebar
+- Topbar
+- AppLayout
+- HmsCard
+- HmsButton
+- HmsBadge
+- RoomStatsCards
+- RoomTable
+- RoomFilters
+- RoomStatusBadge
+- RoomForm
+- DeleteRoomDialog
+- Notifications utilisateur
 
 Règle
 -----
