@@ -65,6 +65,63 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  db-room:
+    image: mariadb:11.4
+    container_name: db-room
+    ports:
+      - "3308:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${ROOM_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${ROOM_DB_NAME:-db_room}
+      MARIADB_USER: ${ROOM_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${ROOM_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-room-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  room-service:
+    build:
+      context: ./room-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8082
+    container_name: room-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      ROOM_SERVICE_PORT: 8082
+      ROOM_DB_HOST: db-room
+      ROOM_DB_PORT: 3306
+      ROOM_DB_NAME: db_room
+      ROOM_DB_USER: hotel_user
+      ROOM_DB_PASSWORD: hotel_pass
+    ports:
+      - "8082:8082"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-room:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -99,3 +156,5 @@ networks:
 volumes:
   db-auth-data:
     name: db-auth-data
+  db-room-data:
+    name: db-room-data
