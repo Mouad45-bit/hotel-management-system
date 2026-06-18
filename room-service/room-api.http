@@ -1,0 +1,517 @@
+### ============================================================
+### ROOM-SERVICE — Tests complets (Run All)
+### Port : 8082 | Base URL : http://localhost:8082
+### Ordre d'exécution : séquentiel, les IDs sont chaînés via
+### client.global pour réutilisation dans les appels suivants.
+### ============================================================
+
+@baseUrl = http://localhost:8082
+
+# ─────────────────────────────────────────────
+# PHASE 0 — SANTÉ
+# ─────────────────────────────────────────────
+
+### [01] Ping — health check
+GET {{baseUrl}}/api/rooms/ping
+
+> {%
+  client.test("[01] Ping répond 200", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+  });
+%}
+
+
+
+
+### [02] Créer chambre 101 — DOUBLE / AVAILABLE
+POST {{baseUrl}}/api/rooms
+Content-Type: application/json
+
+{
+  "number": "101",
+  "floor": 1,
+  "type": "DOUBLE",
+  "pricePerNight": 650.00,
+  "capacity": 2,
+  "status": "AVAILABLE",
+  "description": "Chambre double vue jardin"
+}
+
+> {%
+  client.test("[02] Création 101 → 201 CREATED", function () {
+    client.assert(response.status === 201, "Attendu 201 CREATED");
+    client.assert(response.body.number === "101", "number doit être 101");
+    client.assert(response.body.active === true, "active doit être true");
+    client.assert(response.body.createdAt !== null, "createdAt doit être renseigné");
+  });
+  client.global.set("id101", String(response.body.id));
+%}
+
+### [03] Créer chambre 102 — SINGLE / AVAILABLE
+POST {{baseUrl}}/api/rooms
+Content-Type: application/json
+
+{
+  "number": "102",
+  "floor": 1,
+  "type": "SINGLE",
+  "pricePerNight": 350.00,
+  "capacity": 1,
+  "status": "AVAILABLE",
+  "description": "Chambre simple standard"
+}
+
+> {%
+  client.test("[03] Création 102 → 201 CREATED", function () {
+    client.assert(response.status === 201, "Attendu 201 CREATED");
+  });
+  client.global.set("id102", String(response.body.id));
+%}
+
+### [04] Créer chambre 201 — SUITE / MAINTENANCE (prix = 0 autorisé)
+POST {{baseUrl}}/api/rooms
+Content-Type: application/json
+
+{
+  "number": "201",
+  "floor": 2,
+  "type": "SUITE",
+  "pricePerNight": 0.00,
+  "capacity": 4,
+  "status": "MAINTENANCE",
+  "description": "Suite en rénovation — tarif non défini"
+}
+
+> {%
+  client.test("[04] Création 201 → 201 CREATED (prix=0 accepté)", function () {
+    client.assert(response.status === 201, "Attendu 201 CREATED");
+    client.assert(response.body.pricePerNight === 0, "prix 0.00 doit être accepté");
+  });
+  client.global.set("id201", String(response.body.id));
+%}
+
+### [05] Créer chambre 301 — FAMILY / OCCUPIED (pour stats)
+POST {{baseUrl}}/api/rooms
+Content-Type: application/json
+
+{
+  "number": "301",
+  "floor": 3,
+  "type": "FAMILY",
+  "pricePerNight": 950.00,
+  "capacity": 5,
+  "status": "OCCUPIED"
+}
+
+> {%
+  client.test("[05] Création 301 → 201 CREATED", function () {
+    client.assert(response.status === 201, "Attendu 201 CREATED");
+  });
+  client.global.set("id301", String(response.body.id));
+%}
+
+### [06] ERREUR — Numéro de chambre dupliqué → 409 CONFLICT
+POST {{baseUrl}}/api/rooms
+Content-Type: application/json
+
+{
+  "number": "101",
+  "floor": 5,
+  "type": "DELUXE",
+  "pricePerNight": 1200.00,
+  "capacity": 2,
+  "status": "AVAILABLE"
+}
+
+> {%
+  client.test("[06] Doublon numéro → 409 CONFLICT", function () {
+    client.assert(response.status === 409, "Attendu 409 CONFLICT");
+    client.assert(response.body.error === "CONFLICT", "error doit être CONFLICT");
+    client.assert(response.body.message.includes("101"), "message doit mentionner le numéro");
+    client.assert(response.body.path !== null, "path doit être présent");
+  });
+%}
+
+### [07] ERREUR — Données invalides → 400 VALIDATION_ERROR
+POST {{baseUrl}}/api/rooms
+Content-Type: application/json
+
+{
+  "number": "",
+  "floor": -1,
+  "pricePerNight": -50.00,
+  "capacity": 0
+}
+
+> {%
+  client.test("[07] Validation échouée → 400 VALIDATION_ERROR", function () {
+    client.assert(response.status === 400, "Attendu 400 BAD_REQUEST");
+    client.assert(response.body.error === "VALIDATION_ERROR", "error doit être VALIDATION_ERROR");
+    client.assert(response.body.fieldErrors !== null, "fieldErrors doit être présent");
+    client.assert(Object.keys(response.body.fieldErrors).length >= 4, "Au moins 4 champs invalides");
+  });
+%}
+
+
+
+
+### [08] Lister toutes les chambres actives (sans filtre)
+GET {{baseUrl}}/api/rooms
+
+> {%
+  client.test("[08] Liste chambres actives → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.length >= 4, "Au moins 4 chambres actives");
+    response.body.forEach(function (r) {
+      client.assert(r.active === true, "Toutes les chambres doivent être actives");
+    });
+  });
+%}
+
+### [09] Filtrer par type=DOUBLE
+GET {{baseUrl}}/api/rooms?type=DOUBLE
+
+> {%
+  client.test("[09] Filtre type=DOUBLE → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.length >= 1, "Au moins une chambre DOUBLE");
+    response.body.forEach(function (r) {
+      client.assert(r.type === "DOUBLE", "type doit être DOUBLE");
+    });
+  });
+%}
+
+### [10] Filtrer par status=AVAILABLE
+GET {{baseUrl}}/api/rooms?status=AVAILABLE
+
+> {%
+  client.test("[10] Filtre status=AVAILABLE → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    response.body.forEach(function (r) {
+      client.assert(r.status === "AVAILABLE", "status doit être AVAILABLE");
+    });
+  });
+%}
+
+### [11] Filtrer par floor=1
+GET {{baseUrl}}/api/rooms?floor=1
+
+> {%
+  client.test("[11] Filtre floor=1 → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.length >= 2, "Au moins 2 chambres au 1er étage");
+    response.body.forEach(function (r) {
+      client.assert(r.floor === 1, "floor doit être 1");
+    });
+  });
+%}
+
+### [12] Filtrer par capacity=2 (minimum)
+GET {{baseUrl}}/api/rooms?capacity=2
+
+> {%
+  client.test("[12] Filtre capacity>=2 → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    response.body.forEach(function (r) {
+      client.assert(r.capacity >= 2, "capacity doit être >= 2");
+    });
+  });
+%}
+
+### [13] Filtrer par number=101 (résultat exact)
+GET {{baseUrl}}/api/rooms?number=101
+
+> {%
+  client.test("[13] Filtre number=101 → 1 résultat exact", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.length === 1, "Exactement 1 chambre");
+    client.assert(response.body[0].number === "101", "number doit être 101");
+  });
+%}
+
+### [14] Filtrer — combinaison type=DOUBLE & floor=1
+GET {{baseUrl}}/api/rooms?type=DOUBLE&floor=1
+
+> {%
+  client.test("[14] Filtre combiné type=DOUBLE&floor=1 → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    response.body.forEach(function (r) {
+      client.assert(r.type === "DOUBLE", "type doit être DOUBLE");
+      client.assert(r.floor === 1, "floor doit être 1");
+    });
+  });
+%}
+
+### [15] Obtenir la chambre 101 par ID
+GET {{baseUrl}}/api/rooms/{{id101}}
+
+> {%
+  client.test("[15] GET /rooms/{id} → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(String(response.body.id) === client.global.get("id101"), "ID doit correspondre");
+    client.assert(response.body.number === "101", "number doit être 101");
+    client.assert(response.body.updatedAt !== null, "updatedAt doit être présent");
+  });
+%}
+
+### [16] ERREUR — ID inexistant → 404 NOT_FOUND
+GET {{baseUrl}}/api/rooms/99999
+
+> {%
+  client.test("[16] ID inexistant → 404 NOT_FOUND", function () {
+    client.assert(response.status === 404, "Attendu 404 NOT_FOUND");
+    client.assert(response.body.error === "NOT_FOUND", "error doit être NOT_FOUND");
+    client.assert(response.body.message.includes("99999"), "message doit mentionner l'ID");
+  });
+%}
+
+### [17] Stats globales
+GET {{baseUrl}}/api/rooms/stats
+
+> {%
+  client.test("[17] Stats → 200 OK, champs présents", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.total >= 4, "total >= 4");
+    client.assert(response.body.available >= 2, "available >= 2");
+    client.assert(response.body.occupied >= 1, "occupied >= 1");
+    client.assert(response.body.maintenance >= 1, "maintenance >= 1");
+    client.assert(typeof response.body.cleaning === "number", "cleaning doit être un nombre");
+    client.assert(typeof response.body.reserved === "number", "reserved doit être un nombre");
+    client.assert(typeof response.body.outOfService === "number", "outOfService doit être un nombre");
+  });
+%}
+
+
+
+
+### [18] Modifier la chambre 101 (PUT complet)
+PUT {{baseUrl}}/api/rooms/{{id101}}
+Content-Type: application/json
+
+{
+  "number": "101",
+  "floor": 1,
+  "type": "DOUBLE",
+  "pricePerNight": 750.00,
+  "capacity": 3,
+  "status": "AVAILABLE",
+  "description": "Chambre double rénovée — vue jardin"
+}
+
+> {%
+  client.test("[18] Mise à jour chambre 101 → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.pricePerNight === 750, "pricePerNight doit être 750");
+    client.assert(response.body.capacity === 3, "capacity doit être 3");
+    client.assert(response.body.updatedAt !== null, "updatedAt doit être mis à jour");
+  });
+%}
+
+### [19] ERREUR — Changer numéro pour un numéro déjà pris → 409 CONFLICT
+PUT {{baseUrl}}/api/rooms/{{id101}}
+Content-Type: application/json
+
+{
+  "number": "102",
+  "floor": 1,
+  "type": "DOUBLE",
+  "pricePerNight": 750.00,
+  "capacity": 3,
+  "status": "AVAILABLE"
+}
+
+> {%
+  client.test("[19] Numéro déjà pris sur PUT → 409 CONFLICT", function () {
+    client.assert(response.status === 409, "Attendu 409 CONFLICT");
+    client.assert(response.body.error === "CONFLICT", "error doit être CONFLICT");
+  });
+%}
+
+### [20] Changer statut → CLEANING
+PATCH {{baseUrl}}/api/rooms/{{id101}}/status
+Content-Type: application/json
+
+{
+  "status": "CLEANING"
+}
+
+> {%
+  client.test("[20] Statut → CLEANING, 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.status === "CLEANING", "status doit être CLEANING");
+  });
+%}
+
+### [21] Changer statut → RESERVED (chambre 102)
+PATCH {{baseUrl}}/api/rooms/{{id102}}/status
+Content-Type: application/json
+
+{
+  "status": "RESERVED"
+}
+
+> {%
+  client.test("[21] Statut → RESERVED, 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.status === "RESERVED", "status doit être RESERVED");
+  });
+%}
+
+### [22] Changer statut → OUT_OF_SERVICE (chambre 201)
+PATCH {{baseUrl}}/api/rooms/{{id201}}/status
+Content-Type: application/json
+
+{
+  "status": "OUT_OF_SERVICE"
+}
+
+> {%
+  client.test("[22] Statut → OUT_OF_SERVICE, 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.status === "OUT_OF_SERVICE", "status doit être OUT_OF_SERVICE");
+  });
+%}
+
+### [23] ERREUR — Statut null → 400 VALIDATION_ERROR
+PATCH {{baseUrl}}/api/rooms/{{id101}}/status
+Content-Type: application/json
+
+{
+  "status": null
+}
+
+> {%
+  client.test("[23] Statut null → 400 VALIDATION_ERROR", function () {
+    client.assert(response.status === 400, "Attendu 400 BAD_REQUEST");
+    client.assert(response.body.error === "VALIDATION_ERROR", "error doit être VALIDATION_ERROR");
+  });
+%}
+
+### [24] Stats après modifications de statut
+GET {{baseUrl}}/api/rooms/stats
+
+> {%
+  client.test("[24] Stats après modifications → champs cohérents", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.cleaning >= 1, "cleaning >= 1 (chambre 101)");
+    client.assert(response.body.reserved >= 1, "reserved >= 1 (chambre 102)");
+    client.assert(response.body.outOfService >= 1, "outOfService >= 1 (chambre 201)");
+  });
+%}
+
+
+
+
+### [25] Désactiver la chambre 301 (deactivate)
+PATCH {{baseUrl}}/api/rooms/{{id301}}/deactivate
+
+> {%
+  client.test("[25] Désactivation → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+  });
+%}
+
+### [26] Vérifier que 301 n'apparaît plus dans la liste active
+GET {{baseUrl}}/api/rooms
+
+> {%
+  client.test("[26] Chambre désactivée absente de la liste active", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    var found = response.body.some(function (r) {
+      return String(r.id) === client.global.get("id301");
+    });
+    client.assert(!found, "La chambre désactivée ne doit pas apparaître dans la liste active");
+  });
+%}
+
+### [27] Lister les chambres désactivées
+GET {{baseUrl}}/api/rooms/disabled
+
+> {%
+  client.test("[27] GET /disabled → chambre 301 présente", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.length >= 1, "Au moins 1 chambre désactivée");
+    var found = response.body.some(function (r) {
+      return String(r.id) === client.global.get("id301");
+    });
+    client.assert(found, "La chambre 301 doit être dans /disabled");
+    response.body.forEach(function (r) {
+      client.assert(r.active === false, "Toutes les chambres de /disabled doivent avoir active=false");
+    });
+  });
+%}
+
+### [28] Réactiver la chambre 301 (activate)
+PATCH {{baseUrl}}/api/rooms/{{id301}}/activate
+
+> {%
+  client.test("[28] Réactivation → 200 OK", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+  });
+%}
+
+### [29] Vérifier que 301 est de nouveau accessible
+GET {{baseUrl}}/api/rooms/{{id301}}
+
+> {%
+  client.test("[29] Chambre réactivée → active=true", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    client.assert(response.body.active === true, "active doit être true après réactivation");
+  });
+%}
+
+### [30] Filtrer les chambres avec active=false (équivalent /disabled)
+GET {{baseUrl}}/api/rooms?active=false
+
+> {%
+  client.test("[30] Filtre active=false → toutes inactive", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    response.body.forEach(function (r) {
+      client.assert(r.active === false, "Toutes doivent avoir active=false");
+    });
+  });
+%}
+
+### [31] DELETE logique — supprimer la chambre 102
+DELETE {{baseUrl}}/api/rooms/{{id102}}
+
+> {%
+  client.test("[31] Suppression logique → 204 NO_CONTENT", function () {
+    client.assert(response.status === 204, "Attendu 204 NO_CONTENT");
+  });
+%}
+
+### [32] Vérifier que 102 retourne 404 après suppression logique
+GET {{baseUrl}}/api/rooms/{{id102}}
+
+> {%
+  client.test("[32] Chambre supprimée → 404 NOT_FOUND", function () {
+    client.assert(response.status === 404, "Attendu 404 après suppression logique");
+    client.assert(response.body.error === "NOT_FOUND", "error doit être NOT_FOUND");
+  });
+%}
+
+### [33] Vérifier que 102 apparaît dans /disabled (suppression logique = désactivation)
+GET {{baseUrl}}/api/rooms/disabled
+
+> {%
+  client.test("[33] Chambre 102 dans /disabled après DELETE", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    var found = response.body.some(function (r) {
+      return String(r.id) === client.global.get("id102");
+    });
+    client.assert(found, "La chambre 102 doit apparaître dans /disabled");
+  });
+%}
+
+### [34] Stats finales — vérification de cohérence globale
+GET {{baseUrl}}/api/rooms/stats
+
+> {%
+  client.test("[34] Stats finales → cohérentes", function () {
+    client.assert(response.status === 200, "Attendu 200 OK");
+    var b = response.body;
+    var sumStatuses = b.available + b.occupied + b.reserved + b.cleaning + b.maintenance + b.outOfService;
+    client.assert(b.total === sumStatuses, "total doit égaler la somme des statuts");
+  });
+%}
