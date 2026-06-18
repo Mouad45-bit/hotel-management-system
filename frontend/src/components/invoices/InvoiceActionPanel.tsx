@@ -10,6 +10,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { InvoiceCancelModal } from "@/components/invoices/InvoiceCancelModal";
+import { InvoiceIssueModal } from "@/components/invoices/InvoiceIssueModal";
+import { InvoicePayModal } from "@/components/invoices/InvoicePayModal";
+import { InvoiceRefundModal } from "@/components/invoices/InvoiceRefundModal";
 import { InvoiceStatusBadge } from "@/components/invoices/InvoiceStatusBadge";
 import {
     canCancelInvoice,
@@ -23,19 +27,12 @@ import {
     payInvoice,
     refundInvoice,
 } from "@/services/invoiceApi";
-import {
-    cancelInvoiceSchema,
-    payInvoiceSchema,
-    refundInvoiceSchema,
-    type CancelInvoiceFormValues,
-    type PayInvoiceFormValues,
-    type RefundInvoiceFormValues,
-} from "@/schemas/invoice.schema";
-import {
-    PAYMENT_METHOD_LABELS,
-    PAYMENT_METHODS,
-    type Invoice,
-    type PaymentMethod,
+import type {
+    CancelInvoiceRequest,
+    Invoice,
+    IssueInvoiceRequest,
+    PayInvoiceRequest,
+    RefundInvoiceRequest,
 } from "@/types/invoice";
 
 interface InvoiceActionPanelProps {
@@ -43,61 +40,77 @@ interface InvoiceActionPanelProps {
     onInvoiceUpdated: (invoice: Invoice) => void;
 }
 
-type PayField = "paymentMethod" | "paymentReference" | "paidAt";
-type CancelField = "reason";
-type RefundField = "reason" | "paymentReference" | "refundedAt";
+type ActiveInvoiceModal = "issue" | "pay" | "cancel" | "refund" | null;
 
-function extractActionErrors<TField extends string>(
-    issues: { path: PropertyKey[]; message: string }[]
-): Partial<Record<TField, string>> {
-    const errors: Partial<Record<TField, string>> = {};
+interface ActionCardProps {
+    title: string;
+    description: string;
+    icon: typeof DocumentCheckIcon;
+    iconClassName: string;
+    buttonLabel: string;
+    danger?: boolean;
+    disabled?: boolean;
+    onClick: () => void;
+}
 
-    issues.forEach((issue) => {
-        const field = issue.path[0];
+function ActionCard({
+    title,
+    description,
+    icon: Icon,
+    iconClassName,
+    buttonLabel,
+    danger = false,
+    disabled = false,
+    onClick,
+}: ActionCardProps) {
+    return (
+        <div className="rounded-2xl border border-zinc-200 p-4">
+            <div className="flex items-start gap-3">
+                <div
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
+                >
+                    <Icon className="h-5 w-5" />
+                </div>
 
-        if (typeof field === "string") {
-            errors[field as TField] = issue.message;
-        }
-    });
+                <div className="flex-1">
+                    <p className="text-sm font-semibold text-zinc-950">
+                        {title}
+                    </p>
 
-    return errors;
+                    <p className="mt-1 text-sm leading-6 text-zinc-500">
+                        {description}
+                    </p>
+
+                    <div className="mt-4">
+                        <HmsButton
+                            type="button"
+                            variant={danger ? "danger" : "secondary"}
+                            onClick={onClick}
+                            disabled={disabled}
+                        >
+                            {buttonLabel}
+                        </HmsButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export function InvoiceActionPanel({
     invoice,
     onInvoiceUpdated,
 }: InvoiceActionPanelProps) {
+    const [activeModal, setActiveModal] = useState<ActiveInvoiceModal>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const [payForm, setPayForm] = useState<PayInvoiceFormValues>({
-        paymentMethod: "CASH",
-        paymentReference: "",
-        paidAt: "",
-    });
-
-    const [cancelForm, setCancelForm] = useState<CancelInvoiceFormValues>({
-        reason: "",
-    });
-
-    const [refundForm, setRefundForm] = useState<RefundInvoiceFormValues>({
-        reason: "",
-        paymentReference: "",
-        refundedAt: "",
-    });
-
-    const [payErrors, setPayErrors] = useState<
-        Partial<Record<PayField, string>>
-    >({});
-
-    const [cancelErrors, setCancelErrors] = useState<
-        Partial<Record<CancelField, string>>
-    >({});
-
-    const [refundErrors, setRefundErrors] = useState<
-        Partial<Record<RefundField, string>>
-    >({});
+    function closeModal() {
+        if (!isSubmitting) {
+            setActiveModal(null);
+        }
+    }
 
     async function runAction(
         callback: () => Promise<Invoice>,
@@ -109,8 +122,10 @@ export function InvoiceActionPanel({
 
         try {
             const updatedInvoice = await callback();
+
             onInvoiceUpdated(updatedInvoice);
             setFeedbackMessage(successMessage);
+            setActiveModal(null);
         } catch (error) {
             setErrorMessage(
                 error instanceof Error
@@ -122,413 +137,162 @@ export function InvoiceActionPanel({
         }
     }
 
-    async function handleIssue() {
+    async function handleIssue(request: IssueInvoiceRequest) {
         await runAction(
-            () => issueInvoice(invoice.id, {}),
+            () => issueInvoice(invoice.id, request),
             "La facture a été émise avec succès."
         );
     }
 
-    async function handlePay() {
-        const validationResult = payInvoiceSchema.safeParse(payForm);
-
-        if (!validationResult.success) {
-            setPayErrors(
-                extractActionErrors<PayField>(validationResult.error.issues)
-            );
-            return;
-        }
-
-        setPayErrors({});
-
+    async function handlePay(request: PayInvoiceRequest) {
         await runAction(
-            () => payInvoice(invoice.id, validationResult.data),
+            () => payInvoice(invoice.id, request),
             "La facture a été marquée comme payée."
         );
     }
 
-    async function handleCancel() {
-        const validationResult = cancelInvoiceSchema.safeParse(cancelForm);
-
-        if (!validationResult.success) {
-            setCancelErrors(
-                extractActionErrors<CancelField>(validationResult.error.issues)
-            );
-            return;
-        }
-
-        setCancelErrors({});
-
+    async function handleCancel(request: CancelInvoiceRequest) {
         await runAction(
-            () => cancelInvoice(invoice.id, validationResult.data),
+            () => cancelInvoice(invoice.id, request),
             "La facture a été annulée avec succès."
         );
     }
 
-    async function handleRefund() {
-        const validationResult = refundInvoiceSchema.safeParse(refundForm);
-
-        if (!validationResult.success) {
-            setRefundErrors(
-                extractActionErrors<RefundField>(validationResult.error.issues)
-            );
-            return;
-        }
-
-        setRefundErrors({});
-
+    async function handleRefund(request: RefundInvoiceRequest) {
         await runAction(
-            () => refundInvoice(invoice.id, validationResult.data),
+            () => refundInvoice(invoice.id, request),
             "La facture a été remboursée avec succès."
         );
     }
 
+    const issueAllowed = canIssueInvoice(invoice);
+    const payAllowed = canPayInvoice(invoice);
+    const cancelAllowed = canCancelInvoice(invoice);
+    const refundAllowed = canRefundInvoice(invoice);
+
     const canDoAnyAction =
-        canIssueInvoice(invoice) ||
-        canPayInvoice(invoice) ||
-        canCancelInvoice(invoice) ||
-        canRefundInvoice(invoice);
+        issueAllowed || payAllowed || cancelAllowed || refundAllowed;
 
     return (
-        <HmsCard>
-            <div className="flex items-start justify-between gap-4">
-                <div>
-                    <h3 className="text-sm font-semibold text-zinc-950">
-                        Actions facture
-                    </h3>
+        <>
+            <HmsCard>
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 className="text-sm font-semibold text-zinc-950">
+                            Actions facture
+                        </h3>
 
-                    <p className="mt-1 text-sm text-zinc-500">
-                        Actions disponibles selon le statut actuel.
-                    </p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                            Les actions métier sont confirmées dans des modals
+                            pour éviter les changements accidentels.
+                        </p>
+                    </div>
+
+                    <InvoiceStatusBadge status={invoice.status} />
                 </div>
 
-                <InvoiceStatusBadge status={invoice.status} />
-            </div>
-
-            {feedbackMessage && (
-                <div className="mt-4 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-                    <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
-                    {feedbackMessage}
-                </div>
-            )}
-
-            {errorMessage && (
-                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {errorMessage}
-                </div>
-            )}
-
-            {!canDoAnyAction && (
-                <div className="mt-5 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
-                    Aucune action métier n’est disponible pour ce statut.
-                </div>
-            )}
-
-            <div className="mt-5 space-y-5">
-                {canIssueInvoice(invoice) && (
-                    <div className="rounded-2xl border border-zinc-200 p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-                                <DocumentCheckIcon className="h-5 w-5" />
-                            </div>
-
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-zinc-950">
-                                    Émettre la facture
-                                </p>
-
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    La facture passera de Brouillon à Émise.
-                                </p>
-
-                                <div className="mt-4">
-                                    <HmsButton
-                                        type="button"
-                                        onClick={() => void handleIssue()}
-                                        disabled={isSubmitting}
-                                    >
-                                        Émettre
-                                    </HmsButton>
-                                </div>
-                            </div>
-                        </div>
+                {feedbackMessage && (
+                    <div className="mt-4 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+                        <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                        {feedbackMessage}
                     </div>
                 )}
 
-                {canPayInvoice(invoice) && (
-                    <div className="rounded-2xl border border-zinc-200 p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                                <CreditCardIcon className="h-5 w-5" />
-                            </div>
-
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-zinc-950">
-                                    Marquer comme payée
-                                </p>
-
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    La méthode de paiement est obligatoire.
-                                </p>
-
-                                <div className="mt-4 space-y-3">
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Méthode de paiement
-                                        </label>
-
-                                        <select
-                                            value={payForm.paymentMethod}
-                                            onChange={(event) =>
-                                                setPayForm((current) => ({
-                                                    ...current,
-                                                    paymentMethod: event.target
-                                                        .value as PaymentMethod,
-                                                }))
-                                            }
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        >
-                                            {PAYMENT_METHODS.map((method) => (
-                                                <option key={method} value={method}>
-                                                    {PAYMENT_METHOD_LABELS[method]}
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        {payErrors.paymentMethod && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {payErrors.paymentMethod}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Référence de paiement
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            value={payForm.paymentReference ?? ""}
-                                            onChange={(event) =>
-                                                setPayForm((current) => ({
-                                                    ...current,
-                                                    paymentReference:
-                                                        event.target.value,
-                                                }))
-                                            }
-                                            placeholder="CASH-RECEPTION-001"
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        />
-
-                                        {payErrors.paymentReference && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {payErrors.paymentReference}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Date et heure de paiement
-                                        </label>
-
-                                        <input
-                                            type="datetime-local"
-                                            value={payForm.paidAt ?? ""}
-                                            onChange={(event) =>
-                                                setPayForm((current) => ({
-                                                    ...current,
-                                                    paidAt: event.target.value,
-                                                }))
-                                            }
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        />
-
-                                        {payErrors.paidAt && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {payErrors.paidAt}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <HmsButton
-                                        type="button"
-                                        onClick={() => void handlePay()}
-                                        disabled={isSubmitting}
-                                    >
-                                        Confirmer le paiement
-                                    </HmsButton>
-                                </div>
-                            </div>
-                        </div>
+                {errorMessage && (
+                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        {errorMessage}
                     </div>
                 )}
 
-                {canCancelInvoice(invoice) && (
-                    <div className="rounded-2xl border border-red-100 bg-red-50/40 p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-700">
-                                <NoSymbolIcon className="h-5 w-5" />
-                            </div>
-
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-zinc-950">
-                                    Annuler la facture
-                                </p>
-
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    Le motif d’annulation est obligatoire.
-                                </p>
-
-                                <div className="mt-4 space-y-3">
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Motif d’annulation
-                                        </label>
-
-                                        <textarea
-                                            value={cancelForm.reason}
-                                            onChange={(event) =>
-                                                setCancelForm({
-                                                    reason: event.target.value,
-                                                })
-                                            }
-                                            rows={3}
-                                            placeholder="Erreur de génération de facture"
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        />
-
-                                        {cancelErrors.reason && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {cancelErrors.reason}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <HmsButton
-                                        type="button"
-                                        variant="danger"
-                                        onClick={() => void handleCancel()}
-                                        disabled={isSubmitting}
-                                    >
-                                        Annuler la facture
-                                    </HmsButton>
-                                </div>
-                            </div>
-                        </div>
+                {!canDoAnyAction && (
+                    <div className="mt-5 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
+                        Aucune action métier n’est disponible pour ce statut.
                     </div>
                 )}
 
-                {canRefundInvoice(invoice) && (
-                    <div className="rounded-2xl border border-purple-100 bg-purple-50/40 p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-700">
-                                <ArrowPathIcon className="h-5 w-5" />
-                            </div>
+                <div className="mt-5 space-y-4">
+                    {issueAllowed && (
+                        <ActionCard
+                            title="Émettre la facture"
+                            description="La facture passera de Brouillon à Émise."
+                            icon={DocumentCheckIcon}
+                            iconClassName="bg-blue-50 text-blue-700"
+                            buttonLabel="Émettre"
+                            disabled={isSubmitting}
+                            onClick={() => setActiveModal("issue")}
+                        />
+                    )}
 
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-zinc-950">
-                                    Rembourser la facture
-                                </p>
+                    {payAllowed && (
+                        <ActionCard
+                            title="Marquer comme payée"
+                            description="La facture passera de Émise à Payée avec une méthode de paiement."
+                            icon={CreditCardIcon}
+                            iconClassName="bg-emerald-50 text-emerald-700"
+                            buttonLabel="Payer"
+                            disabled={isSubmitting}
+                            onClick={() => setActiveModal("pay")}
+                        />
+                    )}
 
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    Seule une facture payée peut être remboursée.
-                                </p>
+                    {cancelAllowed && (
+                        <ActionCard
+                            title="Annuler la facture"
+                            description="La facture sera annulée avec un motif obligatoire."
+                            icon={NoSymbolIcon}
+                            iconClassName="bg-red-50 text-red-700"
+                            buttonLabel="Annuler"
+                            danger
+                            disabled={isSubmitting}
+                            onClick={() => setActiveModal("cancel")}
+                        />
+                    )}
 
-                                <div className="mt-4 space-y-3">
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Motif de remboursement
-                                        </label>
+                    {refundAllowed && (
+                        <ActionCard
+                            title="Rembourser la facture"
+                            description="La facture payée passera au statut Remboursée."
+                            icon={ArrowPathIcon}
+                            iconClassName="bg-purple-50 text-purple-700"
+                            buttonLabel="Rembourser"
+                            disabled={isSubmitting}
+                            onClick={() => setActiveModal("refund")}
+                        />
+                    )}
+                </div>
+            </HmsCard>
 
-                                        <textarea
-                                            value={refundForm.reason}
-                                            onChange={(event) =>
-                                                setRefundForm((current) => ({
-                                                    ...current,
-                                                    reason: event.target.value,
-                                                }))
-                                            }
-                                            rows={3}
-                                            placeholder="Remboursement demandé par le client"
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        />
+            <InvoiceIssueModal
+                open={activeModal === "issue"}
+                invoice={invoice}
+                submitting={isSubmitting}
+                onClose={closeModal}
+                onConfirm={(request) => void handleIssue(request)}
+            />
 
-                                        {refundErrors.reason && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {refundErrors.reason}
-                                            </p>
-                                        )}
-                                    </div>
+            <InvoicePayModal
+                open={activeModal === "pay"}
+                invoice={invoice}
+                submitting={isSubmitting}
+                onClose={closeModal}
+                onConfirm={(request) => void handlePay(request)}
+            />
 
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Référence de remboursement
-                                        </label>
+            <InvoiceCancelModal
+                open={activeModal === "cancel"}
+                invoice={invoice}
+                submitting={isSubmitting}
+                onClose={closeModal}
+                onConfirm={(request) => void handleCancel(request)}
+            />
 
-                                        <input
-                                            type="text"
-                                            value={
-                                                refundForm.paymentReference ?? ""
-                                            }
-                                            onChange={(event) =>
-                                                setRefundForm((current) => ({
-                                                    ...current,
-                                                    paymentReference:
-                                                        event.target.value,
-                                                }))
-                                            }
-                                            placeholder="REFUND-2026-0001"
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        />
-
-                                        {refundErrors.paymentReference && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {refundErrors.paymentReference}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label className="text-xs font-medium text-zinc-600">
-                                            Date et heure de remboursement
-                                        </label>
-
-                                        <input
-                                            type="datetime-local"
-                                            value={refundForm.refundedAt ?? ""}
-                                            onChange={(event) =>
-                                                setRefundForm((current) => ({
-                                                    ...current,
-                                                    refundedAt:
-                                                        event.target.value,
-                                                }))
-                                            }
-                                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                        />
-
-                                        {refundErrors.refundedAt && (
-                                            <p className="mt-1 text-xs text-red-600">
-                                                {refundErrors.refundedAt}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <HmsButton
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={() => void handleRefund()}
-                                        disabled={isSubmitting}
-                                    >
-                                        Rembourser
-                                    </HmsButton>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </HmsCard>
+            <InvoiceRefundModal
+                open={activeModal === "refund"}
+                invoice={invoice}
+                submitting={isSubmitting}
+                onClose={closeModal}
+                onConfirm={(request) => void handleRefund(request)}
+            />
+        </>
     );
 }
