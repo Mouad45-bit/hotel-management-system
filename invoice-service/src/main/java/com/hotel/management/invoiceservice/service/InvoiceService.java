@@ -1,6 +1,10 @@
 package com.hotel.management.invoiceservice.service;
 
+import com.hotel.management.invoiceservice.dto.CancelInvoiceRequest;
 import com.hotel.management.invoiceservice.dto.CreateInvoiceFromReservationRequest;
+import com.hotel.management.invoiceservice.dto.IssueInvoiceRequest;
+import com.hotel.management.invoiceservice.dto.PayInvoiceRequest;
+import com.hotel.management.invoiceservice.dto.RefundInvoiceRequest;
 import com.hotel.management.invoiceservice.dto.InvoiceResponse;
 import com.hotel.management.invoiceservice.dto.PageResponse;
 import com.hotel.management.invoiceservice.dto.external.ClientSummaryResponse;
@@ -27,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,6 +164,64 @@ public class InvoiceService {
         invoice.addLine(roomStayLine);
 
         return invoiceMapper.toResponse(invoiceRepository.save(invoice));
+    }
+
+    
+    @Transactional
+    public InvoiceResponse issue(Long id, IssueInvoiceRequest request) {
+        Invoice invoice = getInvoiceEntity(id);
+        requireStatus(invoice, InvoiceStatus.DRAFT, "Only DRAFT invoices can be issued");
+        invoice.setStatus(InvoiceStatus.ISSUED);
+        invoice.setIssuedAt(request.issueDate() != null ? request.issueDate() : LocalDateTime.now());
+        return invoiceMapper.toResponse(invoiceRepository.save(invoice));
+    }
+
+    
+    @Transactional
+    public InvoiceResponse pay(Long id, PayInvoiceRequest request) {
+        Invoice invoice = getInvoiceEntity(id);
+        requireStatus(invoice, InvoiceStatus.ISSUED, "Only ISSUED invoices can be paid");
+        invoice.setStatus(InvoiceStatus.PAID);
+        invoice.setPaymentMethod(request.paymentMethod());
+        invoice.setPaymentReference(request.paymentReference());
+        invoice.setPaidAt(request.paidAt() != null ? request.paidAt() : LocalDateTime.now());
+        return invoiceMapper.toResponse(invoiceRepository.save(invoice));
+    }
+
+    
+    @Transactional
+    public InvoiceResponse cancel(Long id, CancelInvoiceRequest request) {
+        Invoice invoice = getInvoiceEntity(id);
+        if (invoice.getStatus() != InvoiceStatus.DRAFT && invoice.getStatus() != InvoiceStatus.ISSUED) {
+            throw new IllegalStateException("Only DRAFT or ISSUED invoices can be cancelled");
+        }
+        invoice.setStatus(InvoiceStatus.CANCELLED);
+        invoice.setCancellationReason(request.reason());
+        invoice.setCancelledAt(LocalDateTime.now());
+        return invoiceMapper.toResponse(invoiceRepository.save(invoice));
+    }
+
+    
+    @Transactional
+    public InvoiceResponse refund(Long id, RefundInvoiceRequest request) {
+        Invoice invoice = getInvoiceEntity(id);
+        requireStatus(invoice, InvoiceStatus.PAID, "Only PAID invoices can be refunded");
+        invoice.setStatus(InvoiceStatus.REFUNDED);
+        invoice.setRefundReason(request.reason());
+        invoice.setPaymentReference(request.paymentReference() != null ? request.paymentReference() : invoice.getPaymentReference());
+        invoice.setRefundedAt(request.refundedAt() != null ? request.refundedAt() : LocalDateTime.now());
+        return invoiceMapper.toResponse(invoiceRepository.save(invoice));
+    }
+
+    private Invoice getInvoiceEntity(Long id) {
+        return invoiceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with id: " + id));
+    }
+
+    private void requireStatus(Invoice invoice, InvoiceStatus expectedStatus, String message) {
+        if (invoice.getStatus() != expectedStatus) {
+            throw new IllegalStateException(message);
+        }
     }
 
     private Specification<Invoice> buildSpecification(String number, InvoiceStatus status, Long clientId, Long reservationId, LocalDate from, LocalDate to) {
