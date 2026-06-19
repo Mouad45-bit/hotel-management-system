@@ -2,12 +2,18 @@ package com.hotel.management.invoiceservice.service;
 
 import com.hotel.management.invoiceservice.dto.CreateInvoiceFromReservationRequest;
 import com.hotel.management.invoiceservice.dto.InvoiceResponse;
+import com.hotel.management.invoiceservice.dto.external.ClientSummaryResponse;
+import com.hotel.management.invoiceservice.dto.external.ReservationSummaryResponse;
+import com.hotel.management.invoiceservice.dto.external.RoomSummaryResponse;
 import com.hotel.management.invoiceservice.entity.Invoice;
 import com.hotel.management.invoiceservice.entity.InvoiceLine;
 import com.hotel.management.invoiceservice.entity.InvoiceLineType;
 import com.hotel.management.invoiceservice.entity.InvoiceStatus;
 import com.hotel.management.invoiceservice.mapper.InvoiceMapper;
 import com.hotel.management.invoiceservice.repository.InvoiceRepository;
+import com.hotel.management.invoiceservice.service.client.ClientClient;
+import com.hotel.management.invoiceservice.service.client.ReservationClient;
+import com.hotel.management.invoiceservice.service.client.RoomClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,15 +36,24 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final InvoiceNumberGenerator invoiceNumberGenerator;
     private final InvoiceMapper invoiceMapper;
+    private final ReservationClient reservationClient;
+    private final ClientClient clientClient;
+    private final RoomClient roomClient;
 
     public InvoiceService(
             InvoiceRepository invoiceRepository,
             InvoiceNumberGenerator invoiceNumberGenerator,
-            InvoiceMapper invoiceMapper
+            InvoiceMapper invoiceMapper,
+            ReservationClient reservationClient,
+            ClientClient clientClient,
+            RoomClient roomClient
     ) {
         this.invoiceRepository = invoiceRepository;
         this.invoiceNumberGenerator = invoiceNumberGenerator;
         this.invoiceMapper = invoiceMapper;
+        this.reservationClient = reservationClient;
+        this.clientClient = clientClient;
+        this.roomClient = roomClient;
     }
 
     @Transactional
@@ -47,7 +62,10 @@ public class InvoiceService {
             throw new IllegalStateException("An active invoice already exists for reservation: " + reservationId);
         }
 
-        ReservationSnapshot reservation = loadReservationSnapshot(reservationId);
+        ReservationSummaryResponse reservation = reservationClient.findSummaryById(reservationId);
+        ClientSummaryResponse client = clientClient.findSummaryById(reservation.clientId());
+        RoomSummaryResponse room = roomClient.findSummaryById(reservation.roomId());
+
         if (!"CHECKED_OUT".equals(reservation.reservationStatus())) {
             throw new IllegalStateException("Reservation must be CHECKED_OUT before invoice generation");
         }
@@ -65,9 +83,9 @@ public class InvoiceService {
         invoice.setInvoiceNumber(invoiceNumberGenerator.generate());
         invoice.setReservationId(reservation.reservationId());
         invoice.setClientId(reservation.clientId());
-        invoice.setClientFullName(reservation.clientFullName());
+        invoice.setClientFullName(client.fullName());
         invoice.setRoomId(reservation.roomId());
-        invoice.setRoomNumber(reservation.roomNumber());
+        invoice.setRoomNumber(room.roomNumber());
         invoice.setCheckInDate(reservation.checkInDate());
         invoice.setCheckOutDate(reservation.checkOutDate());
         invoice.setNights(nights);
@@ -81,7 +99,7 @@ public class InvoiceService {
 
         InvoiceLine roomStayLine = new InvoiceLine();
         roomStayLine.setType(InvoiceLineType.ROOM_STAY);
-        roomStayLine.setDescription("Sejour chambre %s - %d nuit(s)".formatted(reservation.roomNumber(), nights));
+        roomStayLine.setDescription("Sejour chambre %s - %d nuit(s)".formatted(room.roomNumber(), nights));
         roomStayLine.setQuantity(nights);
         roomStayLine.setUnitPrice(reservation.pricePerNight().setScale(2, RoundingMode.HALF_UP));
         roomStayLine.setLineTotal(subtotalAmount);
@@ -96,32 +114,5 @@ public class InvoiceService {
             throw new IllegalStateException("Reservation check-out date must be after check-in date");
         }
         return Math.toIntExact(nights);
-    }
-
-    private ReservationSnapshot loadReservationSnapshot(Long reservationId) {
-        return new ReservationSnapshot(
-                reservationId,
-                "CHECKED_OUT",
-                1L,
-                "Temporary Client",
-                101L,
-                "101",
-                LocalDate.now().minusDays(3),
-                LocalDate.now(),
-                BigDecimal.valueOf(120)
-        );
-    }
-
-    private record ReservationSnapshot(
-            Long reservationId,
-            String reservationStatus,
-            Long clientId,
-            String clientFullName,
-            Long roomId,
-            String roomNumber,
-            LocalDate checkInDate,
-            LocalDate checkOutDate,
-            BigDecimal pricePerNight
-    ) {
     }
 }
