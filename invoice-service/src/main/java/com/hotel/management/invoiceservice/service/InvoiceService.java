@@ -14,6 +14,9 @@ import com.hotel.management.invoiceservice.entity.Invoice;
 import com.hotel.management.invoiceservice.entity.InvoiceLine;
 import com.hotel.management.invoiceservice.entity.InvoiceLineType;
 import com.hotel.management.invoiceservice.entity.InvoiceStatus;
+import com.hotel.management.invoiceservice.exception.InvoiceBusinessException;
+import com.hotel.management.invoiceservice.exception.InvoiceConflictException;
+import com.hotel.management.invoiceservice.exception.InvoiceNotFoundException;
 import com.hotel.management.invoiceservice.mapper.InvoiceMapper;
 import com.hotel.management.invoiceservice.repository.InvoiceRepository;
 import com.hotel.management.invoiceservice.service.client.ClientClient;
@@ -89,14 +92,14 @@ public class InvoiceService {
     public InvoiceResponse findById(Long id) {
         return invoiceRepository.findById(id)
                 .map(invoiceMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
     public InvoiceResponse findByNumber(String number) {
         return invoiceRepository.findByInvoiceNumber(number)
                 .map(invoiceMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with number: " + number));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with number: " + number));
     }
 
     @Transactional(readOnly = true)
@@ -111,13 +114,13 @@ public class InvoiceService {
     public InvoiceResponse findByReservationId(Long reservationId) {
         return invoiceRepository.findByReservationId(reservationId)
                 .map(invoiceMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found for reservation: " + reservationId));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found for reservation: " + reservationId));
     }
 
     @Transactional
     public InvoiceResponse generateFromReservation(Long reservationId, CreateInvoiceFromReservationRequest request) {
         if (invoiceRepository.existsByReservationIdAndStatusIn(reservationId, ACTIVE_STATUSES)) {
-            throw new IllegalStateException("An active invoice already exists for reservation: " + reservationId);
+            throw new InvoiceConflictException("An active invoice already exists for reservation: " + reservationId);
         }
 
         ReservationSummaryResponse reservation = reservationClient.findSummaryById(reservationId);
@@ -125,7 +128,7 @@ public class InvoiceService {
         RoomSummaryResponse room = roomClient.findSummaryById(reservation.roomId());
 
         if (!"CHECKED_OUT".equals(reservation.reservationStatus())) {
-            throw new IllegalStateException("Reservation must be CHECKED_OUT before invoice generation");
+            throw new InvoiceBusinessException("Reservation must be CHECKED_OUT before invoice generation");
         }
 
         int nights = calculateNights(reservation.checkInDate(), reservation.checkOutDate());
@@ -193,7 +196,7 @@ public class InvoiceService {
     public InvoiceResponse cancel(Long id, CancelInvoiceRequest request) {
         Invoice invoice = getInvoiceEntity(id);
         if (invoice.getStatus() != InvoiceStatus.DRAFT && invoice.getStatus() != InvoiceStatus.ISSUED) {
-            throw new IllegalStateException("Only DRAFT or ISSUED invoices can be cancelled");
+            throw new InvoiceBusinessException("Only DRAFT or ISSUED invoices can be cancelled");
         }
         invoice.setStatus(InvoiceStatus.CANCELLED);
         invoice.setCancellationReason(request.reason());
@@ -215,12 +218,12 @@ public class InvoiceService {
 
     private Invoice getInvoiceEntity(Long id) {
         return invoiceRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with id: " + id));
+                .orElseThrow(() -> new InvoiceNotFoundException("Invoice not found with id: " + id));
     }
 
     private void requireStatus(Invoice invoice, InvoiceStatus expectedStatus, String message) {
         if (invoice.getStatus() != expectedStatus) {
-            throw new IllegalStateException(message);
+            throw new InvoiceBusinessException(message);
         }
     }
 
@@ -278,7 +281,7 @@ public class InvoiceService {
     private int calculateNights(LocalDate checkInDate, LocalDate checkOutDate) {
         long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         if (nights <= 0) {
-            throw new IllegalStateException("Reservation check-out date must be after check-in date");
+            throw new InvoiceBusinessException("Reservation check-out date must be after check-in date");
         }
         return Math.toIntExact(nights);
     }
