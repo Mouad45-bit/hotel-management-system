@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {usePathname} from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
     BuildingOffice2Icon,
     CalendarDaysIcon,
@@ -12,15 +12,15 @@ import {
     SparklesIcon,
     UsersIcon,
 } from "@heroicons/react/24/outline";
-import {cn} from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const navigation = [
-    {name: "Dashboard", href: "/", icon: Squares2X2Icon, disabled: false},
-    {name: "Chambres", href: "/rooms", icon: BuildingOffice2Icon, disabled: false},
-    {name: "Clients", href: "#", icon: UsersIcon, disabled: true},
-    {name: "Réservations", href: "#", icon: CalendarDaysIcon, disabled: true},
-    {name: "Factures", href: "#", icon: DocumentTextIcon, disabled: true},
-    {name: "Paramètres", href: "#", icon: Cog6ToothIcon, disabled: true},
+    { name: "Dashboard", href: "/", icon: Squares2X2Icon, disabled: false },
+    { name: "Chambres", href: "/rooms", icon: BuildingOffice2Icon, disabled: false },
+    { name: "Clients", href: "#", icon: UsersIcon, disabled: true },
+    { name: "Réservations", href: "#", icon: CalendarDaysIcon, disabled: true },
+    { name: "Factures", href: "/invoices", icon: DocumentTextIcon, disabled: false },
+    { name: "Paramètres", href: "#", icon: Cog6ToothIcon, disabled: true },
 ];
 
 export function Sidebar() {
@@ -30,7 +30,7 @@ export function Sidebar() {
         <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-zinc-200 bg-white lg:block">
             <div className="flex h-16 items-center gap-3 border-b border-zinc-200 px-6">
                 <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-900 text-white">
-                    <HomeIcon className="h-5 w-5"/>
+                    <HomeIcon className="h-5 w-5" />
                 </div>
 
                 <div>
@@ -42,7 +42,10 @@ export function Sidebar() {
             <nav className="space-y-1 px-3 py-4">
                 {navigation.map((item) => {
                     const Icon = item.icon;
-                    const active = item.href !== "#" && pathname === item.href;
+                    const active =
+                        item.href !== "#" &&
+                        (pathname === item.href ||
+                            pathname.startsWith(`${item.href}/`));
 
                     if (item.disabled) {
                         return (
@@ -50,7 +53,7 @@ export function Sidebar() {
                                 key={item.name}
                                 className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-zinc-400"
                             >
-                                <Icon className="h-5 w-5"/>
+                                <Icon className="h-5 w-5" />
                                 {item.name}
                             </span>
                         );
@@ -67,7 +70,7 @@ export function Sidebar() {
                                     : "text-zinc-700 hover:bg-stone-50 hover:text-stone-950"
                             )}
                         >
-                            <Icon className="h-5 w-5"/>
+                            <Icon className="h-5 w-5" />
                             {item.name}
                         </Link>
                     );
@@ -76,12 +79,13 @@ export function Sidebar() {
 
             <div className="absolute bottom-4 left-3 right-3 rounded-2xl border border-stone-200 bg-stone-50 p-4">
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-stone-900">
-                    <SparklesIcon className="h-4 w-4"/>
-                    Sprint 4
+                    <SparklesIcon className="h-4 w-4" />
+                    Démo locale
                 </div>
 
                 <p className="text-xs leading-5 text-stone-600">
-                    Module Chambres en cours de préparation pour la première démo.
+                    Modules visibles : Chambres et Factures. Les autres modules
+                    seront activés progressivement.
                 </p>
             </div>
         </aside>
