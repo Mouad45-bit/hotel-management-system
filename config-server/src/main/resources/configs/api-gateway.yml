@@ -37,6 +37,11 @@ spring:
           predicates:
             - Path=/api/rooms/**
 
+        - id: client-service
+          uri: lb://client-service
+          predicates:
+            - Path=/api/clients/**
+
 eureka:
   instance:
     prefer-ip-address: true
