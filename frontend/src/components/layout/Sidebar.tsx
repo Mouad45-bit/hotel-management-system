@@ -20,6 +20,7 @@ const navigation = [
     { name: "Clients", href: "#", icon: UsersIcon, disabled: true },
     { name: "Réservations", href: "#", icon: CalendarDaysIcon, disabled: true },
     { name: "Factures", href: "/invoices", icon: DocumentTextIcon, disabled: false },
+    { name: "Housekeeping", href: "/housekeeping", icon: SparklesIcon, disabled: false },
     { name: "Paramètres", href: "#", icon: Cog6ToothIcon, disabled: true },
 ];
 
@@ -84,8 +85,8 @@ export function Sidebar() {
                 </div>
 
                 <p className="text-xs leading-5 text-stone-600">
-                    Modules visibles : Chambres et Factures. Les autres modules
-                    seront activés progressivement.
+                    Modules visibles : Chambres, Factures et Housekeeping. Les
+                    autres modules seront activés progressivement.
                 </p>
             </div>
         </aside>
