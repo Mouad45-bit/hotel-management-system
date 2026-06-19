@@ -1,6 +1,8 @@
 package com.hotel.management.housekeepingservice.service;
 
 import com.hotel.management.housekeepingservice.dto.CreateHousekeepingTaskRequest;
+import com.hotel.management.housekeepingservice.dto.AssignHousekeepingTaskRequest;
+import com.hotel.management.housekeepingservice.dto.CancelHousekeepingTaskRequest;
 import com.hotel.management.housekeepingservice.dto.HousekeepingStatsResponse;
 import com.hotel.management.housekeepingservice.dto.HousekeepingTaskResponse;
 import com.hotel.management.housekeepingservice.dto.PageResponse;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,6 +156,59 @@ public class HousekeepingTaskService {
         );
     }
 
+    @Transactional
+    public HousekeepingTaskResponse assignTask(Long id, AssignHousekeepingTaskRequest request) {
+        HousekeepingTask task = getTaskEntity(id);
+        requireAssignable(task);
+
+        StaffSummaryResponse staff = staffClient.findSummaryById(request.agentId());
+        if (!staff.active()) {
+            throw new IllegalStateException("Assigned agent is not active: " + request.agentId());
+        }
+
+        task.setAssignedAgentId(staff.employeeId());
+        task.setAssignedAgentName(request.agentName() != null && !request.agentName().isBlank()
+                ? request.agentName()
+                : staff.fullName());
+        return housekeepingTaskMapper.toResponse(housekeepingTaskRepository.save(task));
+    }
+
+    @Transactional
+    public HousekeepingTaskResponse startTask(Long id) {
+        HousekeepingTask task = getTaskEntity(id);
+        requireStatus(task, HousekeepingTaskStatus.TODO, "Only TODO housekeeping tasks can be started");
+
+        task.setStatus(HousekeepingTaskStatus.IN_PROGRESS);
+        task.setStartedAt(LocalDateTime.now());
+        return housekeepingTaskMapper.toResponse(housekeepingTaskRepository.save(task));
+    }
+
+    @Transactional
+    public HousekeepingTaskResponse completeTask(Long id) {
+        HousekeepingTask task = getTaskEntity(id);
+        requireStatus(task, HousekeepingTaskStatus.IN_PROGRESS, "Only IN_PROGRESS housekeeping tasks can be completed");
+
+        task.setStatus(HousekeepingTaskStatus.DONE);
+        task.setCompletedAt(LocalDateTime.now());
+        HousekeepingTask savedTask = housekeepingTaskRepository.save(task);
+
+        roomClient.markRoomAvailable(task.getRoomId());
+        return housekeepingTaskMapper.toResponse(savedTask);
+    }
+
+    @Transactional
+    public HousekeepingTaskResponse cancelTask(Long id, CancelHousekeepingTaskRequest request) {
+        HousekeepingTask task = getTaskEntity(id);
+        if (task.getStatus() != HousekeepingTaskStatus.TODO && task.getStatus() != HousekeepingTaskStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Only TODO or IN_PROGRESS housekeeping tasks can be cancelled");
+        }
+
+        task.setStatus(HousekeepingTaskStatus.CANCELLED);
+        task.setCancelledAt(LocalDateTime.now());
+        task.setCancellationReason(request.reason());
+        return housekeepingTaskMapper.toResponse(housekeepingTaskRepository.save(task));
+    }
+
     private HousekeepingTask getTaskEntity(Long id) {
         return housekeepingTaskRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Housekeeping task not found with id: " + id));
@@ -160,6 +216,18 @@ public class HousekeepingTaskService {
 
     private void requireNotFinal(HousekeepingTask task, String message) {
         if (task.getStatus() == HousekeepingTaskStatus.DONE || task.getStatus() == HousekeepingTaskStatus.CANCELLED) {
+            throw new IllegalStateException(message);
+        }
+    }
+
+    private void requireAssignable(HousekeepingTask task) {
+        if (task.getStatus() != HousekeepingTaskStatus.TODO && task.getStatus() != HousekeepingTaskStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Only TODO or IN_PROGRESS housekeeping tasks can be assigned");
+        }
+    }
+
+    private void requireStatus(HousekeepingTask task, HousekeepingTaskStatus expectedStatus, String message) {
+        if (task.getStatus() != expectedStatus) {
             throw new IllegalStateException(message);
         }
     }
