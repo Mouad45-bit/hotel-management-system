@@ -87,6 +87,28 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  db-invoice:
+    image: mariadb:11.4
+    container_name: db-invoice
+    ports:
+      - "3309:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${INVOICE_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${INVOICE_DB_NAME:-db_invoice}
+      MARIADB_USER: ${INVOICE_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${INVOICE_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-invoice-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
   room-service:
     build:
       context: ./room-service
@@ -116,6 +138,41 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  invoice-service:
+    build:
+      context: ./invoice-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8085
+    container_name: invoice-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      INVOICE_SERVICE_PORT: 8085
+      INVOICE_DB_HOST: db-invoice
+      INVOICE_DB_PORT: 3306
+      INVOICE_DB_NAME: db_invoice
+      INVOICE_DB_USER: hotel_user
+      INVOICE_DB_PASSWORD: hotel_pass
+    ports:
+      - "8085:8085"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-invoice:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -158,3 +215,5 @@ volumes:
     name: db-auth-data
   db-room-data:
     name: db-room-data
+  db-invoice-data:
+    name: db-invoice-data
