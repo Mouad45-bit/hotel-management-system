@@ -1,6 +1,16 @@
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
+export class ApiError extends Error {
+    constructor(
+        public readonly status: number,
+        message: string
+    ) {
+        super(message);
+        this.name = "ApiError";
+    }
+}
+
 export async function apiFetch<T>(
     path: string,
     options: RequestInit = {}
@@ -14,7 +24,14 @@ export async function apiFetch<T>(
     });
 
     if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        let message = `Erreur ${response.status}`;
+        try {
+            const body = await response.json() as { message?: string };
+            if (body.message) message = body.message;
+        } catch {
+            // corps non-JSON, on garde le message générique
+        }
+        throw new ApiError(response.status, message);
     }
 
     if (response.status === 204) {

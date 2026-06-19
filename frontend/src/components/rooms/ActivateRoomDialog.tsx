@@ -1,8 +1,8 @@
 'use client';
 
-import { AlertTriangle, X } from 'lucide-react';
+import { RefreshCcw, X } from 'lucide-react';
 
-interface DeleteRoomDialogProps {
+interface ActivateRoomDialogProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
@@ -10,7 +10,7 @@ interface DeleteRoomDialogProps {
     isLoading?: boolean;
 }
 
-export function DeleteRoomDialog({ isOpen, onClose, onConfirm, roomNumber, isLoading }: DeleteRoomDialogProps) {
+export function ActivateRoomDialog({ isOpen, onClose, onConfirm, roomNumber, isLoading }: ActivateRoomDialogProps) {
     if (!isOpen) return null;
 
     return (
@@ -22,35 +22,35 @@ export function DeleteRoomDialog({ isOpen, onClose, onConfirm, roomNumber, isLoa
             />
 
             {/* Contenu de la modale */}
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 rounded-2xl bg-white p-6 shadow-xl duration-200">
 
                 {/* Bouton croix en haut à droite */}
                 <button
                     onClick={onClose}
                     disabled={isLoading}
-                    className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 transition"
+                    className="absolute right-4 top-4 text-zinc-400 transition hover:text-zinc-600"
                 >
                     <X size={20} />
                 </button>
 
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
-                        <AlertTriangle className="h-5 w-5 text-red-600" />
+                <div className="mb-4 flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                        <RefreshCcw className="h-5 w-5 text-emerald-600" />
                     </div>
                     <h3 className="text-lg font-semibold leading-6 text-zinc-900">
-                        Désactiver la chambre
+                        Réactiver la chambre
                     </h3>
                 </div>
 
-                <p className="text-sm text-zinc-500 mb-6">
-                    Êtes-vous sûr de vouloir désactiver la chambre <strong className="text-zinc-900 font-bold">{roomNumber}</strong> ?
-                    Elle n'apparaîtra plus dans la liste active et ne pourra plus être réservée. (Suppression logique).
+                <p className="mb-6 text-sm text-zinc-500">
+                    Êtes-vous sûr de vouloir réactiver la chambre <strong className="font-bold text-zinc-900">{roomNumber}</strong> ?
+                    Elle sera de nouveau visible dans l'inventaire principal et pourra être réservée par les clients.
                 </p>
 
                 <div className="flex justify-end gap-3">
                     <button
                         type="button"
-                        className="px-4 py-2 text-sm font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-xl hover:bg-zinc-50 transition"
+                        className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-50"
                         onClick={onClose}
                         disabled={isLoading}
                     >
@@ -58,11 +58,11 @@ export function DeleteRoomDialog({ isOpen, onClose, onConfirm, roomNumber, isLoa
                     </button>
                     <button
                         type="button"
-                        className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition disabled:opacity-50"
+                        className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50"
                         onClick={onConfirm}
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Désactivation...' : 'Confirmer'}
+                        {isLoading ? 'Réactivation...' : 'Confirmer la réactivation'}
                     </button>
                 </div>
             </div>

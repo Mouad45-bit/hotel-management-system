@@ -28,7 +28,10 @@ export const roomSchema = z.object({
     capacity: z.coerce
         .number()
         .min(1, "La capacité doit être supérieure à 0"),
-    status: roomStatusSchema,
+    // Activation administrative (séparée du statut métier).
+    active: z.boolean(),
+    // Statut métier : géré séparément, valeur par défaut à la création.
+    status: roomStatusSchema.default("AVAILABLE"),
     description: z.string().optional(),
 });
 
