@@ -2,6 +2,7 @@ package com.hotel.management.invoiceservice.service;
 
 import com.hotel.management.invoiceservice.dto.CreateInvoiceFromReservationRequest;
 import com.hotel.management.invoiceservice.dto.InvoiceResponse;
+import com.hotel.management.invoiceservice.dto.PageResponse;
 import com.hotel.management.invoiceservice.dto.external.ClientSummaryResponse;
 import com.hotel.management.invoiceservice.dto.external.ReservationSummaryResponse;
 import com.hotel.management.invoiceservice.dto.external.RoomSummaryResponse;
@@ -14,6 +15,12 @@ import com.hotel.management.invoiceservice.repository.InvoiceRepository;
 import com.hotel.management.invoiceservice.service.client.ClientClient;
 import com.hotel.management.invoiceservice.service.client.ReservationClient;
 import com.hotel.management.invoiceservice.service.client.RoomClient;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +28,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,6 +62,51 @@ public class InvoiceService {
         this.reservationClient = reservationClient;
         this.clientClient = clientClient;
         this.roomClient = roomClient;
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<InvoiceResponse> findAll(String number, InvoiceStatus status, Long clientId, Long reservationId, LocalDate from, LocalDate to, int page, int size, String sort) {
+        Pageable pageable = PageRequest.of(normalizePage(page), normalizeSize(size), parseSort(sort));
+        Page<InvoiceResponse> invoices = invoiceRepository.findAll(buildSpecification(number, status, clientId, reservationId, from, to), pageable)
+                .map(invoiceMapper::toResponse);
+
+        return new PageResponse<>(
+                invoices.getContent(),
+                invoices.getNumber(),
+                invoices.getSize(),
+                invoices.getTotalElements(),
+                invoices.getTotalPages(),
+                invoices.isLast()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public InvoiceResponse findById(Long id) {
+        return invoiceRepository.findById(id)
+                .map(invoiceMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with id: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public InvoiceResponse findByNumber(String number) {
+        return invoiceRepository.findByInvoiceNumber(number)
+                .map(invoiceMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found with number: " + number));
+    }
+
+    @Transactional(readOnly = true)
+    public List<InvoiceResponse> findByClientId(Long clientId) {
+        return invoiceRepository.findByClientId(clientId)
+                .stream()
+                .map(invoiceMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public InvoiceResponse findByReservationId(Long reservationId) {
+        return invoiceRepository.findByReservationId(reservationId)
+                .map(invoiceMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found for reservation: " + reservationId));
     }
 
     @Transactional
@@ -106,6 +159,57 @@ public class InvoiceService {
         invoice.addLine(roomStayLine);
 
         return invoiceMapper.toResponse(invoiceRepository.save(invoice));
+    }
+
+    private Specification<Invoice> buildSpecification(String number, InvoiceStatus status, Long clientId, Long reservationId, LocalDate from, LocalDate to) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (number != null && !number.isBlank()) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("invoiceNumber")), "%" + number.toLowerCase() + "%"));
+            }
+            if (status != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), status));
+            }
+            if (clientId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("clientId"), clientId));
+            }
+            if (reservationId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("reservationId"), reservationId));
+            }
+            if (from != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), from.atStartOfDay()));
+            }
+            if (to != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), to.atTime(23, 59, 59)));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private int normalizePage(int page) {
+        return Math.max(page, 0);
+    }
+
+    private int normalizeSize(int size) {
+        if (size <= 0) {
+            return 10;
+        }
+        return Math.min(size, 100);
+    }
+
+    private Sort parseSort(String sort) {
+        if (sort == null || sort.isBlank()) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+
+        String[] parts = sort.split(",");
+        String property = parts[0].isBlank() ? "createdAt" : parts[0];
+        Sort.Direction direction = parts.length > 1 && "asc".equalsIgnoreCase(parts[1])
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        return Sort.by(direction, property);
     }
 
     private int calculateNights(LocalDate checkInDate, LocalDate checkOutDate) {
