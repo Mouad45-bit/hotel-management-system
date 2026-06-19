@@ -175,7 +175,7 @@ public class InvoiceService {
         Invoice invoice = getInvoiceEntity(id);
         requireStatus(invoice, InvoiceStatus.DRAFT, "Only DRAFT invoices can be issued");
         invoice.setStatus(InvoiceStatus.ISSUED);
-        invoice.setIssuedAt(request.issueDate() != null ? request.issueDate() : LocalDateTime.now());
+        invoice.setIssuedAt(request.issueDate() != null ? request.issueDate().atStartOfDay() : LocalDateTime.now());
         return invoiceMapper.toResponse(invoiceRepository.save(invoice));
     }
 

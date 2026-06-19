@@ -1,8 +1,8 @@
 package com.hotel.management.invoiceservice.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record IssueInvoiceRequest(
-        LocalDateTime issueDate
+        LocalDate issueDate
 ) {
 }
