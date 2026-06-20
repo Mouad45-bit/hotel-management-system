@@ -70,7 +70,7 @@ export function RoomTable({ rooms, onDeleteClick, onActivateClick }: RoomTablePr
                                         <Eye size={16} />
                                     </Link>
                                     <Link
-                                        href={`/rooms/${room.id}`}
+                                        href={`/rooms/${room.id}/edit`}
                                         className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900"
                                         title="Modifier"
                                     >
