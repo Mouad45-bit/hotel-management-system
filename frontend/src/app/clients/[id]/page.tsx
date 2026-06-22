@@ -175,14 +175,17 @@ export default function ClientDetailPage() {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                    <button className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50">
+                    <button className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 cursor-not-allowed opacity-50" disabled>
                         <FileText size={16} />
                         Factures
                     </button>
-                    <button className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800">
+                    <Link
+                        href={`/reservations?clientId=${id}`}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+                    >
                         <CalendarDays size={16} />
                         Réservations
-                    </button>
+                    </Link>
                 </div>
             </div>
 

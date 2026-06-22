@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Reservation } from '@/types/reservation';
 import { ReservationService, ReservationFilters as FilterTypes } from '@/services/reservation.service';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -14,10 +15,17 @@ import { ReservationTable } from '@/components/reservations/ReservationTable';
 import { CancelReservationDialog } from '@/components/reservations/CancelReservationDialog';
 
 export default function ReservationsPage() {
+    const searchParams = useSearchParams();
+    const initialRoomId = searchParams.get('roomId') ? Number(searchParams.get('roomId')) : undefined;
+    const initialClientId = searchParams.get('clientId') ? Number(searchParams.get('clientId')) : undefined;
+
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [isLoading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filters, setFilters] = useState<FilterTypes>({});
+    const [filters, setFilters] = useState<FilterTypes>({
+        ...(initialRoomId ? { roomId: initialRoomId } : {}),
+        ...(initialClientId ? { clientId: initialClientId } : {}),
+    });
 
     const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
@@ -82,6 +90,18 @@ export default function ReservationsPage() {
             />
 
             <div className="space-y-6">
+                {(initialRoomId || initialClientId) && (
+                    <div className="flex items-center justify-between rounded-2xl bg-indigo-50 px-5 py-3 ring-1 ring-indigo-200">
+                        <p className="text-sm font-medium text-indigo-700">
+                            {initialRoomId && `Filtré par chambre #${initialRoomId}`}
+                            {initialClientId && `Filtré par client #${initialClientId}`}
+                        </p>
+                        <Link href="/reservations" className="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                            Voir toutes
+                        </Link>
+                    </div>
+                )}
+
                 <ReservationFilters
                     filters={filters}
                     onFilterChange={applyFilter}

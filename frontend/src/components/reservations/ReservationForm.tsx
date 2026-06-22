@@ -96,7 +96,7 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
                             disabled={lockRoomAndClient}
                         >
                             <option value={0}>Sélectionner une chambre</option>
-                            {rooms.filter(r => r.active && r.status === 'AVAILABLE').map((room) => (
+                            {rooms.filter(r => r.active && (r.status === 'AVAILABLE' || r.id === formData.roomId)).map((room) => (
                                 <option key={room.id} value={room.id}>
                                     Chambre {room.number} — {room.type} — {room.pricePerNight} DH/nuit
                                 </option>

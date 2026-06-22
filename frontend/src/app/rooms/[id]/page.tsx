@@ -183,14 +183,20 @@ export default function RoomDetailPage() {
                         Changer statut
                     </button>
 
-                    <button className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50">
+                    <Link
+                        href={`/reservations?roomId=${id}`}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                    >
                         <History size={16} />
                         Historique
-                    </button>
-                    <button className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800">
+                    </Link>
+                    <Link
+                        href={`/reservations/create?roomId=${id}`}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+                    >
                         <CalendarPlus size={16} />
                         Réserver
-                    </button>
+                    </Link>
                 </div>
             </div>
 

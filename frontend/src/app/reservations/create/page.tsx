@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ReservationForm } from '@/components/reservations/ReservationForm';
@@ -10,6 +10,9 @@ import { ReservationFormValues } from '@/schemas/reservation.schema';
 
 export default function CreateReservationPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const preselectedRoomId = searchParams.get('roomId') ? Number(searchParams.get('roomId')) : undefined;
+    const preselectedClientId = searchParams.get('clientId') ? Number(searchParams.get('clientId')) : undefined;
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (data: ReservationFormValues) => {
@@ -38,6 +41,10 @@ export default function CreateReservationPage() {
             />
 
             <ReservationForm
+                initialData={{
+                    ...(preselectedRoomId ? { roomId: preselectedRoomId } : {}),
+                    ...(preselectedClientId ? { clientId: preselectedClientId } : {}),
+                }}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
                 isLoading={isSubmitting}

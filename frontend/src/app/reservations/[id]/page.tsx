@@ -145,10 +145,10 @@ export default function ReservationDetailPage() {
     );
 
     const tiles = [
-        { icon: BedDouble, label: 'Chambre', value: `#${reservation.roomId}` },
-        { icon: User, label: 'Client', value: `#${reservation.clientId}` },
-        { icon: Calendar, label: 'Arrivée', value: formatDate(reservation.checkInDate) },
-        { icon: CalendarCheck, label: 'Départ', value: formatDate(reservation.checkOutDate) },
+        { icon: BedDouble, label: 'Chambre', value: `#${reservation.roomId}`, href: `/rooms/${reservation.roomId}` },
+        { icon: User, label: 'Client', value: `#${reservation.clientId}`, href: `/clients/${reservation.clientId}` },
+        { icon: Calendar, label: 'Arrivée', value: formatDate(reservation.checkInDate), href: undefined },
+        { icon: CalendarCheck, label: 'Départ', value: formatDate(reservation.checkOutDate), href: undefined },
     ];
 
     return (
@@ -195,15 +195,26 @@ export default function ReservationDetailPage() {
                 )}
 
                 <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-                    {tiles.map(({ icon: Icon, label, value }) => (
-                        <div key={label} className="rounded-2xl border border-zinc-100 bg-zinc-50 p-5">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-500 shadow-sm">
-                                <Icon size={18} />
+                    {tiles.map(({ icon: Icon, label, value, href }) => {
+                        const content = (
+                            <>
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-500 shadow-sm">
+                                    <Icon size={18} />
+                                </div>
+                                <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">{label}</p>
+                                <p className="mt-1 text-lg font-bold text-zinc-900">{value}</p>
+                            </>
+                        );
+                        return href ? (
+                            <Link key={label} href={href} className="rounded-2xl border border-zinc-100 bg-zinc-50 p-5 transition hover:border-zinc-300 hover:shadow-sm">
+                                {content}
+                            </Link>
+                        ) : (
+                            <div key={label} className="rounded-2xl border border-zinc-100 bg-zinc-50 p-5">
+                                {content}
                             </div>
-                            <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">{label}</p>
-                            <p className="mt-1 text-lg font-bold text-zinc-900">{value}</p>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
