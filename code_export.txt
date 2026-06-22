@@ -1,0 +1,1117 @@
+# EXPORT DE CODE - DOSSIER RACINE : C:\Users\marwa\hotel-management-system\reservation-service
+# Date de l'export : 2026-06-22 21:24:21.304907
+
+
+================================================================================
+FICHIER : Dockerfile
+================================================================================
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -q
+COPY src ./src
+RUN mvn package -DskipTests -q
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+ARG SERVICE_PORT=8084
+ENV SERVER_PORT=${SERVICE_PORT}
+COPY --from=builder /app/target/*.jar app.jar
+EXPOSE ${SERVICE_PORT}
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+================================================================================
+FICHIER : pom.xml
+================================================================================
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.14</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.hotel.management</groupId>
+    <artifactId>reservation-service</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>reservation-service</name>
+    <description>Reservation management service for Hotel Management System</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <spring-cloud.version>2025.0.2</spring-cloud.version>
+    </properties>
+
+    <dependencies>
+        <!-- REST API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- JPA / Database access -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- MariaDB driver -->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- DTO validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Config Server client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+        <!-- Eureka client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- Technical endpoints: /actuator/health -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+
+================================================================================
+FICHIER : src\main\resources\application.yml
+================================================================================
+spring:
+  application:
+    name: reservation-service
+  config:
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\ReservationServiceApplication.java
+================================================================================
+package com.hotel.management.reservationservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class ReservationServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ReservationServiceApplication.class, args);
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\client\ClientServiceClient.java
+================================================================================
+package com.hotel.management.reservationservice.client;
+
+import com.hotel.management.reservationservice.client.dto.ClientInfo;
+import com.hotel.management.reservationservice.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
+
+@Component
+public class ClientServiceClient {
+
+    private final RestClient restClient;
+
+    public ClientServiceClient(RestClient gatewayRestClient) {
+        this.restClient = gatewayRestClient;
+    }
+
+    public ClientInfo getClientById(Long clientId) {
+        try {
+            return restClient.get()
+                    .uri("/api/clients/{id}", clientId)
+                    .retrieve()
+                    .body(ClientInfo.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Client introuvable avec l'identifiant : " + clientId);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de contacter le service clients : " + e.getMessage());
+        }
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\client\RoomServiceClient.java
+================================================================================
+package com.hotel.management.reservationservice.client;
+
+import com.hotel.management.reservationservice.client.dto.RoomInfo;
+import com.hotel.management.reservationservice.exception.ResourceNotFoundException;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
+
+@Component
+public class RoomServiceClient {
+
+    private final RestClient restClient;
+
+    public RoomServiceClient(RestClient gatewayRestClient) {
+        this.restClient = gatewayRestClient;
+    }
+
+    public RoomInfo getRoomById(Long roomId) {
+        try {
+            return restClient.get()
+                    .uri("/api/rooms/{id}", roomId)
+                    .retrieve()
+                    .body(RoomInfo.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Chambre introuvable avec l'identifiant : " + roomId);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de contacter le service des chambres : " + e.getMessage());
+        }
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\config\RestClientConfig.java
+================================================================================
+package com.hotel.management.reservationservice.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
+
+@Configuration
+public class RestClientConfig {
+
+    @Value("${app.gateway-url:http://localhost:8080}")
+    private String gatewayUrl;
+
+    @Bean
+    public RestClient gatewayRestClient() {
+        return RestClient.builder()
+                .baseUrl(gatewayUrl)
+                .build();
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\controller\ReservationController.java
+================================================================================
+package com.hotel.management.reservationservice.controller;
+
+import com.hotel.management.reservationservice.dto.CreateReservationRequest;
+import com.hotel.management.reservationservice.dto.ReservationResponse;
+import com.hotel.management.reservationservice.dto.UpdateReservationRequest;
+import com.hotel.management.reservationservice.service.ReservationService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/reservations")
+@RequiredArgsConstructor
+public class ReservationController {
+
+    private final ReservationService reservationService;
+
+    @PostMapping
+    public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody CreateReservationRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.createReservation(req));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ReservationResponse>> getReservations(
+            @RequestParam(required = false) Long roomId,
+            @RequestParam(required = false) Long clientId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Boolean active
+    ) {
+        return ResponseEntity.ok(reservationService.getReservations(roomId, clientId, status, active));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.getReservationById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReservationResponse> updateReservation(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateReservationRequest req
+    ) {
+        return ResponseEntity.ok(reservationService.updateReservation(id, req));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
+        reservationService.deleteReservation(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/confirm")
+    public ResponseEntity<ReservationResponse> confirmReservation(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.confirmReservation(id));
+    }
+
+    @PatchMapping("/{id}/check-in")
+    public ResponseEntity<ReservationResponse> checkIn(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.checkIn(id));
+    }
+
+    @PatchMapping("/{id}/check-out")
+    public ResponseEntity<ReservationResponse> checkOut(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.checkOut(id));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<ReservationResponse> cancelReservation(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.cancelReservation(id));
+    }
+
+    @PatchMapping("/{id}/no-show")
+    public ResponseEntity<ReservationResponse> noShow(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.noShow(id));
+    }
+
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<List<ReservationResponse>> getReservationsByClient(@PathVariable Long clientId) {
+        return ResponseEntity.ok(reservationService.getReservationsByClient(clientId));
+    }
+
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<List<ReservationResponse>> getReservationsByRoom(@PathVariable Long roomId) {
+        return ResponseEntity.ok(reservationService.getReservationsByRoom(roomId));
+    }
+
+    @GetMapping("/availability")
+    public ResponseEntity<List<ReservationResponse>> getAvailability(
+            @RequestParam(required = false) Long roomId,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to
+    ) {
+        return ResponseEntity.ok(reservationService.getAvailability(roomId, from, to));
+    }
+
+    @GetMapping("/today/check-ins")
+    public ResponseEntity<List<ReservationResponse>> getTodayCheckIns() {
+        return ResponseEntity.ok(reservationService.getTodayCheckIns());
+    }
+
+    @GetMapping("/today/check-outs")
+    public ResponseEntity<List<ReservationResponse>> getTodayCheckOuts() {
+        return ResponseEntity.ok(reservationService.getTodayCheckOuts());
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\controller\ReservationPingController.java
+================================================================================
+package com.hotel.management.reservationservice.controller;
+
+import com.hotel.management.reservationservice.dto.PingResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/reservations")
+public class ReservationPingController {
+
+    @GetMapping("/ping")
+    public ResponseEntity<PingResponse> ping() {
+        return ResponseEntity.ok(new PingResponse("reservation-service", "UP", "Reservation Service is running"));
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\dto\CreateReservationRequest.java
+================================================================================
+package com.hotel.management.reservationservice.dto;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
+
+public record CreateReservationRequest(
+
+        @NotNull(message = "L'identifiant de la chambre est obligatoire")
+        Long roomId,
+
+        @NotNull(message = "L'identifiant du client est obligatoire")
+        Long clientId,
+
+        @NotNull(message = "La date d'arrivée est obligatoire")
+        @FutureOrPresent(message = "La date d'arrivée doit être aujourd'hui ou dans le futur")
+        LocalDate checkInDate,
+
+        @NotNull(message = "La date de départ est obligatoire")
+        @Future(message = "La date de départ doit être dans le futur")
+        LocalDate checkOutDate,
+
+        String notes
+) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\dto\PingResponse.java
+================================================================================
+package com.hotel.management.reservationservice.dto;
+
+public record PingResponse(String service, String status, String message) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\dto\ReservationResponse.java
+================================================================================
+package com.hotel.management.reservationservice.dto;
+
+import com.hotel.management.reservationservice.entity.ReservationStatus;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+public record ReservationResponse(
+        Long id,
+        Long roomId,
+        Long clientId,
+        LocalDate checkInDate,
+        LocalDate checkOutDate,
+        ReservationStatus status,
+        BigDecimal totalPrice,
+        String notes,
+        Boolean active,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\dto\UpdateReservationRequest.java
+================================================================================
+package com.hotel.management.reservationservice.dto;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+
+import java.time.LocalDate;
+
+public record UpdateReservationRequest(
+
+        @FutureOrPresent(message = "La date d'arrivée doit être aujourd'hui ou dans le futur")
+        LocalDate checkInDate,
+
+        @Future(message = "La date de départ doit être dans le futur")
+        LocalDate checkOutDate,
+
+        String notes
+) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\entity\Reservation.java
+================================================================================
+package com.hotel.management.reservationservice.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "reservations")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Reservation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private Long roomId;
+
+    @Column(nullable = false)
+    private Long clientId;
+
+    @Column(nullable = false)
+    private LocalDate checkInDate;
+
+    @Column(nullable = false)
+    private LocalDate checkOutDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ReservationStatus status = ReservationStatus.CREATED;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal totalPrice;
+
+    @Column(length = 500)
+    private String notes;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = true;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\entity\ReservationStatus.java
+================================================================================
+package com.hotel.management.reservationservice.entity;
+
+public enum ReservationStatus {
+    CREATED,
+    CONFIRMED,
+    CHECKED_IN,
+    CHECKED_OUT,
+    CANCELLED,
+    NO_SHOW
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\exception\ApiError.java
+================================================================================
+package com.hotel.management.reservationservice.exception;
+
+import java.time.LocalDateTime;
+
+public record ApiError(
+        LocalDateTime timestamp,
+        int status,
+        String error,
+        String message,
+        String path
+) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\exception\BusinessException.java
+================================================================================
+package com.hotel.management.reservationservice.exception;
+
+public class BusinessException extends RuntimeException {
+    public BusinessException(String message) {
+        super(message);
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\exception\ConflictException.java
+================================================================================
+package com.hotel.management.reservationservice.exception;
+
+public class ConflictException extends RuntimeException {
+    public ConflictException(String message) {
+        super(message);
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\exception\GlobalExceptionHandler.java
+================================================================================
+package com.hotel.management.reservationservice.exception;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError(
+                LocalDateTime.now(), 404, "Not Found", ex.getMessage(), req.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflict(ConflictException ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiError(
+                LocalDateTime.now(), 409, "Conflict", ex.getMessage(), req.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiError> handleBusiness(BusinessException ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(
+                LocalDateTime.now(), 400, "Bad Request", ex.getMessage(), req.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
+        Map<String, String> fieldErrors = new HashMap<>();
+        for (FieldError fe : ex.getBindingResult().getFieldErrors()) {
+            fieldErrors.put(fe.getField(), fe.getDefaultMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ValidationError(
+                LocalDateTime.now(), 400, "Validation Failed", "Validation échouée", req.getRequestURI(), fieldErrors
+        ));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(
+                LocalDateTime.now(), 400, "Bad Request",
+                "Paramètre invalide : " + ex.getName(), req.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiError(
+                LocalDateTime.now(), 500, "Internal Server Error", "Une erreur interne est survenue", req.getRequestURI()
+        ));
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\exception\ResourceNotFoundException.java
+================================================================================
+package com.hotel.management.reservationservice.exception;
+
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\exception\ValidationError.java
+================================================================================
+package com.hotel.management.reservationservice.exception;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+public record ValidationError(
+        LocalDateTime timestamp,
+        int status,
+        String error,
+        String message,
+        String path,
+        Map<String, String> fieldErrors
+) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\mapper\ReservationMapper.java
+================================================================================
+package com.hotel.management.reservationservice.mapper;
+
+import com.hotel.management.reservationservice.dto.CreateReservationRequest;
+import com.hotel.management.reservationservice.dto.ReservationResponse;
+import com.hotel.management.reservationservice.dto.UpdateReservationRequest;
+import com.hotel.management.reservationservice.entity.Reservation;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ReservationMapper {
+
+    public Reservation toEntity(CreateReservationRequest req) {
+        return Reservation.builder()
+                .roomId(req.roomId())
+                .clientId(req.clientId())
+                .checkInDate(req.checkInDate())
+                .checkOutDate(req.checkOutDate())
+                .notes(req.notes())
+                .build();
+    }
+
+    public void updateEntity(Reservation reservation, UpdateReservationRequest req) {
+        if (req.checkInDate() != null) reservation.setCheckInDate(req.checkInDate());
+        if (req.checkOutDate() != null) reservation.setCheckOutDate(req.checkOutDate());
+        if (req.notes() != null) reservation.setNotes(req.notes());
+    }
+
+    public ReservationResponse toResponse(Reservation reservation) {
+        return new ReservationResponse(
+                reservation.getId(),
+                reservation.getRoomId(),
+                reservation.getClientId(),
+                reservation.getCheckInDate(),
+                reservation.getCheckOutDate(),
+                reservation.getStatus(),
+                reservation.getTotalPrice(),
+                reservation.getNotes(),
+                reservation.getActive(),
+                reservation.getCreatedAt(),
+                reservation.getUpdatedAt()
+        );
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\repository\ReservationRepository.java
+================================================================================
+package com.hotel.management.reservationservice.repository;
+
+import com.hotel.management.reservationservice.entity.Reservation;
+import com.hotel.management.reservationservice.entity.ReservationStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface ReservationRepository extends JpaRepository<Reservation, Long>, JpaSpecificationExecutor<Reservation> {
+
+    List<Reservation> findByClientIdAndActiveTrue(Long clientId);
+
+    List<Reservation> findByRoomIdAndActiveTrue(Long roomId);
+
+    List<Reservation> findByCheckInDateAndStatusIn(LocalDate checkInDate, List<ReservationStatus> statuses);
+
+    List<Reservation> findByCheckOutDateAndStatusIn(LocalDate checkOutDate, List<ReservationStatus> statuses);
+
+    @Query("""
+            SELECT COUNT(r) > 0 FROM Reservation r
+            WHERE r.roomId = :roomId
+              AND r.status IN :statuses
+              AND r.checkInDate < :checkOutDate
+              AND r.checkOutDate > :checkInDate
+            """)
+    boolean existsOverlappingReservation(
+            @Param("roomId") Long roomId,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate,
+            @Param("statuses") List<ReservationStatus> statuses
+    );
+
+    @Query("""
+            SELECT COUNT(r) > 0 FROM Reservation r
+            WHERE r.roomId = :roomId
+              AND r.id <> :excludeId
+              AND r.status IN :statuses
+              AND r.checkInDate < :checkOutDate
+              AND r.checkOutDate > :checkInDate
+            """)
+    boolean existsOverlappingReservationExcluding(
+            @Param("roomId") Long roomId,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate,
+            @Param("statuses") List<ReservationStatus> statuses,
+            @Param("excludeId") Long excludeId
+    );
+
+    @Query("""
+            SELECT r FROM Reservation r
+            WHERE r.status IN :statuses
+              AND (:roomId IS NULL OR r.roomId = :roomId)
+              AND (:from IS NULL OR r.checkOutDate > :from)
+              AND (:to IS NULL OR r.checkInDate < :to)
+            ORDER BY r.checkInDate
+            """)
+    List<Reservation> findOverlappingReservations(
+            @Param("roomId") Long roomId,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            @Param("statuses") List<ReservationStatus> statuses
+    );
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\repository\ReservationSpecification.java
+================================================================================
+package com.hotel.management.reservationservice.repository;
+
+import com.hotel.management.reservationservice.entity.Reservation;
+import com.hotel.management.reservationservice.entity.ReservationStatus;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ReservationSpecification {
+
+    public static Specification<Reservation> withFilters(
+            Long roomId, Long clientId, String status, Boolean active
+    ) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (roomId != null) {
+                predicates.add(cb.equal(root.get("roomId"), roomId));
+            }
+            if (clientId != null) {
+                predicates.add(cb.equal(root.get("clientId"), clientId));
+            }
+            if (status != null) {
+                try {
+                    predicates.add(cb.equal(root.get("status"), ReservationStatus.valueOf(status.toUpperCase())));
+                } catch (IllegalArgumentException ignored) {}
+            }
+            if (active != null) {
+                predicates.add(cb.equal(root.get("active"), active));
+            } else {
+                predicates.add(cb.equal(root.get("active"), true));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\service\ReservationService.java
+================================================================================
+package com.hotel.management.reservationservice.service;
+
+import com.hotel.management.reservationservice.client.ClientServiceClient;
+import com.hotel.management.reservationservice.client.RoomServiceClient;
+import com.hotel.management.reservationservice.client.dto.ClientInfo;
+import com.hotel.management.reservationservice.client.dto.RoomInfo;
+import com.hotel.management.reservationservice.dto.CreateReservationRequest;
+import com.hotel.management.reservationservice.dto.ReservationResponse;
+import com.hotel.management.reservationservice.dto.UpdateReservationRequest;
+import com.hotel.management.reservationservice.entity.Reservation;
+import com.hotel.management.reservationservice.entity.ReservationStatus;
+import com.hotel.management.reservationservice.exception.BusinessException;
+import com.hotel.management.reservationservice.exception.ConflictException;
+import com.hotel.management.reservationservice.exception.ResourceNotFoundException;
+import com.hotel.management.reservationservice.mapper.ReservationMapper;
+import com.hotel.management.reservationservice.repository.ReservationRepository;
+import com.hotel.management.reservationservice.repository.ReservationSpecification;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+public class ReservationService {
+
+    private final ReservationRepository reservationRepository;
+    private final ReservationMapper reservationMapper;
+    private final RoomServiceClient roomServiceClient;
+    private final ClientServiceClient clientServiceClient;
+
+    private static final List<ReservationStatus> ACTIVE_STATUSES =
+            List.of(ReservationStatus.CREATED, ReservationStatus.CONFIRMED, ReservationStatus.CHECKED_IN);
+
+    private static final Set<String> BLOCKED_ROOM_STATUSES =
+            Set.of("MAINTENANCE", "CLEANING", "OUT_OF_SERVICE");
+
+    @Transactional
+    public ReservationResponse createReservation(CreateReservationRequest req) {
+        validateDates(req.checkInDate(), req.checkOutDate());
+
+        RoomInfo room = roomServiceClient.getRoomById(req.roomId());
+        if (!Boolean.TRUE.equals(room.active())) {
+            throw new BusinessException("La chambre " + room.number() + " est désactivée et ne peut pas être réservée.");
+        }
+        if (BLOCKED_ROOM_STATUSES.contains(room.status())) {
+            throw new BusinessException("La chambre " + room.number() + " n'est pas disponible (statut : " + room.status() + ").");
+        }
+
+        ClientInfo client = clientServiceClient.getClientById(req.clientId());
+        if (!Boolean.TRUE.equals(client.active())) {
+            throw new BusinessException("Le client " + client.firstName() + " " + client.lastName() + " est désactivé et ne peut pas effectuer de réservation.");
+        }
+
+        checkNoOverlap(req.roomId(), req.checkInDate(), req.checkOutDate(), null);
+
+        long nights = ChronoUnit.DAYS.between(req.checkInDate(), req.checkOutDate());
+        BigDecimal totalPrice = room.pricePerNight().multiply(BigDecimal.valueOf(nights));
+
+        Reservation reservation = reservationMapper.toEntity(req);
+        reservation.setTotalPrice(totalPrice);
+
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    public List<ReservationResponse> getReservations(Long roomId, Long clientId, String status, Boolean active) {
+        return reservationRepository.findAll(ReservationSpecification.withFilters(roomId, clientId, status, active))
+                .stream().map(reservationMapper::toResponse).toList();
+    }
+
+    public ReservationResponse getReservationById(Long id) {
+        return reservationMapper.toResponse(findActive(id));
+    }
+
+    @Transactional
+    public ReservationResponse updateReservation(Long id, UpdateReservationRequest req) {
+        Reservation reservation = findActive(id);
+
+        if (reservation.getStatus() != ReservationStatus.CREATED) {
+            throw new BusinessException("Seules les réservations en statut CREATED peuvent être modifiées.");
+        }
+
+        LocalDate newCheckIn = req.checkInDate() != null ? req.checkInDate() : reservation.getCheckInDate();
+        LocalDate newCheckOut = req.checkOutDate() != null ? req.checkOutDate() : reservation.getCheckOutDate();
+        validateDates(newCheckIn, newCheckOut);
+
+        if (req.checkInDate() != null || req.checkOutDate() != null) {
+            checkNoOverlap(reservation.getRoomId(), newCheckIn, newCheckOut, id);
+
+            RoomInfo room = roomServiceClient.getRoomById(reservation.getRoomId());
+            long nights = ChronoUnit.DAYS.between(newCheckIn, newCheckOut);
+            reservation.setTotalPrice(room.pricePerNight().multiply(BigDecimal.valueOf(nights)));
+        }
+
+        reservationMapper.updateEntity(reservation, req);
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    @Transactional
+    public void deleteReservation(Long id) {
+        Reservation reservation = findActive(id);
+        if (reservation.getStatus() == ReservationStatus.CHECKED_IN || reservation.getStatus() == ReservationStatus.CHECKED_OUT) {
+            throw new BusinessException("Une réservation en cours ou terminée ne peut pas être supprimée.");
+        }
+        reservation.setActive(false);
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional
+    public ReservationResponse confirmReservation(Long id) {
+        Reservation reservation = findActive(id);
+        if (reservation.getStatus() != ReservationStatus.CREATED) {
+            throw new BusinessException("Seules les réservations en statut CREATED peuvent être confirmées.");
+        }
+        reservation.setStatus(ReservationStatus.CONFIRMED);
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    @Transactional
+    public ReservationResponse checkIn(Long id) {
+        Reservation reservation = findActive(id);
+        if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
+            throw new BusinessException("Seules les réservations CONFIRMED peuvent passer au check-in.");
+        }
+        reservation.setStatus(ReservationStatus.CHECKED_IN);
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    @Transactional
+    public ReservationResponse checkOut(Long id) {
+        Reservation reservation = findActive(id);
+        if (reservation.getStatus() != ReservationStatus.CHECKED_IN) {
+            throw new BusinessException("Seules les réservations CHECKED_IN peuvent passer au check-out.");
+        }
+        reservation.setStatus(ReservationStatus.CHECKED_OUT);
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    @Transactional
+    public ReservationResponse cancelReservation(Long id) {
+        Reservation reservation = findActive(id);
+        if (reservation.getStatus() == ReservationStatus.CHECKED_IN
+                || reservation.getStatus() == ReservationStatus.CHECKED_OUT
+                || reservation.getStatus() == ReservationStatus.NO_SHOW) {
+            throw new BusinessException("Une réservation en cours, terminée ou no-show ne peut pas être annulée.");
+        }
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    @Transactional
+    public ReservationResponse noShow(Long id) {
+        Reservation reservation = findActive(id);
+        if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
+            throw new BusinessException("Seules les réservations CONFIRMED peuvent être marquées comme no-show.");
+        }
+        reservation.setStatus(ReservationStatus.NO_SHOW);
+        return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    public List<ReservationResponse> getReservationsByClient(Long clientId) {
+        return reservationRepository.findByClientIdAndActiveTrue(clientId)
+                .stream().map(reservationMapper::toResponse).toList();
+    }
+
+    public List<ReservationResponse> getReservationsByRoom(Long roomId) {
+        return reservationRepository.findByRoomIdAndActiveTrue(roomId)
+                .stream().map(reservationMapper::toResponse).toList();
+    }
+
+    public List<ReservationResponse> getAvailability(Long roomId, LocalDate from, LocalDate to) {
+        if (from != null && to != null) {
+            validateDates(from, to);
+        }
+        return reservationRepository.findOverlappingReservations(
+                        roomId, from, to, ACTIVE_STATUSES)
+                .stream().map(reservationMapper::toResponse).toList();
+    }
+
+    public List<ReservationResponse> getTodayCheckIns() {
+        LocalDate today = LocalDate.now();
+        return reservationRepository.findByCheckInDateAndStatusIn(today, List.of(ReservationStatus.CONFIRMED))
+                .stream().map(reservationMapper::toResponse).toList();
+    }
+
+    public List<ReservationResponse> getTodayCheckOuts() {
+        LocalDate today = LocalDate.now();
+        return reservationRepository.findByCheckOutDateAndStatusIn(today, List.of(ReservationStatus.CHECKED_IN))
+                .stream().map(reservationMapper::toResponse).toList();
+    }
+
+    private Reservation findActive(Long id) {
+        return reservationRepository.findById(id)
+                .filter(r -> Boolean.TRUE.equals(r.getActive()))
+                .orElseThrow(() -> new ResourceNotFoundException("Réservation introuvable avec l'identifiant : " + id));
+    }
+
+    private void validateDates(LocalDate checkIn, LocalDate checkOut) {
+        if (!checkOut.isAfter(checkIn)) {
+            throw new BusinessException("La date de départ doit être strictement après la date d'arrivée.");
+        }
+    }
+
+    private void checkNoOverlap(Long roomId, LocalDate checkIn, LocalDate checkOut, Long excludeId) {
+        boolean overlap = excludeId == null
+                ? reservationRepository.existsOverlappingReservation(roomId, checkIn, checkOut, ACTIVE_STATUSES)
+                : reservationRepository.existsOverlappingReservationExcluding(roomId, checkIn, checkOut, ACTIVE_STATUSES, excludeId);
+
+        if (overlap) {
+            throw new ConflictException("La chambre est déjà réservée pour cette période.");
+        }
+    }
+}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\client\dto\ClientInfo.java
+================================================================================
+package com.hotel.management.reservationservice.client.dto;
+
+public record ClientInfo(
+        Long id,
+        String firstName,
+        String lastName,
+        Boolean active
+) {}
+
+
+================================================================================
+FICHIER : src\main\java\com\hotel\management\reservationservice\client\dto\RoomInfo.java
+================================================================================
+package com.hotel.management.reservationservice.client.dto;
+
+import java.math.BigDecimal;
+
+public record RoomInfo(
+        Long id,
+        String number,
+        String status,
+        BigDecimal pricePerNight,
+        Boolean active
+) {}
+
