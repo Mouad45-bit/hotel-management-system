@@ -17,7 +17,7 @@ const navigation = [
     { name: "Vue générale", href: "/", icon: LayoutGrid, soon: true },
     { name: "Chambres", href: "/rooms", icon: BedDouble, soon: false },
     { name: "Clients", href: "/clients", icon: Users, soon: false },
-    { name: "Réservations", href: "#", icon: CalendarDays, soon: true },
+    { name: "Réservations", href: "/reservations", icon: CalendarDays, soon: false },
     { name: "Factures", href: "#", icon: FileText, soon: true },
     { name: "Housekeeping", href: "#", icon: Sparkles, soon: true },
 ];
