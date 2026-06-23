@@ -33,8 +33,12 @@ export function InvoiceIssueModal({
 
     useEffect(() => {
         if (open) {
-            setIssueDate("");
-            setErrors({});
+            const timeoutId = window.setTimeout(() => {
+                setIssueDate("");
+                setErrors({});
+            }, 0);
+
+            return () => window.clearTimeout(timeoutId);
         }
     }, [open]);
 

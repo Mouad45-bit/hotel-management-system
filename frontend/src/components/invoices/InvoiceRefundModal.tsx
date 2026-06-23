@@ -46,8 +46,12 @@ export function InvoiceRefundModal({
 
     useEffect(() => {
         if (open) {
-            setForm(DEFAULT_REFUND_FORM);
-            setErrors({});
+            const timeoutId = window.setTimeout(() => {
+                setForm(DEFAULT_REFUND_FORM);
+                setErrors({});
+            }, 0);
+
+            return () => window.clearTimeout(timeoutId);
         }
     }, [open]);
 

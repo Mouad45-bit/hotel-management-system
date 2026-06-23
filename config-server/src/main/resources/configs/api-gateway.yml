@@ -28,6 +28,11 @@ spring:
           predicates:
             - Path=/api/invoices/**
 
+        - id: housekeeping-service
+          uri: lb://housekeeping-service
+          predicates:
+            - Path=/api/housekeeping-tasks/**
+
 eureka:
   instance:
     prefer-ip-address: true

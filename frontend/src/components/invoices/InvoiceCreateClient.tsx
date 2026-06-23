@@ -131,7 +131,11 @@ export function InvoiceCreateClient() {
     }
 
     useEffect(() => {
-        void loadReservationSources();
+        const timeoutId = window.setTimeout(() => {
+            void loadReservationSources();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, []);
 
     function updateFormField<K extends keyof GenerateInvoiceFormState>(

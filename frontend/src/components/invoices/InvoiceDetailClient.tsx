@@ -51,7 +51,11 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
     }
 
     useEffect(() => {
-        void loadInvoice();
+        const timeoutId = window.setTimeout(() => {
+            void loadInvoice();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [invoiceId]);
 
     if (isLoading) {

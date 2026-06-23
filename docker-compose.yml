@@ -109,6 +109,28 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  db-housekeeping:
+    image: mariadb:11.4
+    container_name: db-housekeeping
+    ports:
+      - "3310:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${HOUSEKEEPING_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${HOUSEKEEPING_DB_NAME:-db_housekeeping}
+      MARIADB_USER: ${HOUSEKEEPING_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${HOUSEKEEPING_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-housekeeping-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
   room-service:
     build:
       context: ./room-service
@@ -179,6 +201,44 @@ services:
       start_period: 50s
     restart: unless-stopped
 
+  housekeeping-service:
+    build:
+      context: ./housekeeping-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8086
+    container_name: housekeeping-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      HOUSEKEEPING_SERVICE_PORT: 8086
+      HOUSEKEEPING_DB_HOST: db-housekeeping
+      HOUSEKEEPING_DB_PORT: 3306
+      HOUSEKEEPING_DB_NAME: db_housekeeping
+      HOUSEKEEPING_DB_USER: hotel_user
+      HOUSEKEEPING_DB_PASSWORD: hotel_pass
+      ROOM_SERVICE_URL: "http://room-service:8082"
+      STAFF_SERVICE_URL: "http://staff-service:8087"
+      RESERVATION_SERVICE_URL: "http://reservation-service:8084"
+    ports:
+      - "8086:8086"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-housekeeping:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -217,3 +277,5 @@ volumes:
     name: db-room-data
   db-invoice-data:
     name: db-invoice-data
+  db-housekeeping-data:
+    name: db-housekeeping-data
