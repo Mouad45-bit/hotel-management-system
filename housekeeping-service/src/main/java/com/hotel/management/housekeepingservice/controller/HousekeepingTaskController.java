@@ -63,7 +63,7 @@ public class HousekeepingTaskController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "scheduledDate,asc") String sort
     ) {
         return housekeepingTaskService.getTasks(status, type, priority, roomId, agentId, scheduledDate, from, to, page, size, sort);

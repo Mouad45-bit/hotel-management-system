@@ -24,10 +24,18 @@ public class HousekeepingTaskMapper {
     }
 
     public void applyUpdate(UpdateHousekeepingTaskRequest request, HousekeepingTask task) {
-        task.setType(request.type());
-        task.setPriority(request.priority());
-        task.setScheduledDate(request.scheduledDate());
-        task.setNotes(request.notes());
+        if (request.type() != null) {
+            task.setType(request.type());
+        }
+        if (request.priority() != null) {
+            task.setPriority(request.priority());
+        }
+        if (request.scheduledDate() != null) {
+            task.setScheduledDate(request.scheduledDate());
+        }
+        if (request.notes() != null) {
+            task.setNotes(request.notes());
+        }
     }
 
     public HousekeepingTaskResponse toResponse(HousekeepingTask task) {

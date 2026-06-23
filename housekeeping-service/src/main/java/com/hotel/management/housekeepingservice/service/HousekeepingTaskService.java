@@ -164,15 +164,13 @@ public class HousekeepingTaskService {
         HousekeepingTask task = getTaskEntity(id);
         requireAssignable(task);
 
-        StaffSummaryResponse staff = staffClient.findSummaryById(request.agentId());
+        StaffSummaryResponse staff = staffClient.findSummaryById(request.assignedAgentId());
         if (!staff.active()) {
-            throw new HousekeepingBusinessException("Assigned agent is not active: " + request.agentId());
+            throw new HousekeepingBusinessException("Assigned agent is not active: " + request.assignedAgentId());
         }
 
         task.setAssignedAgentId(staff.employeeId());
-        task.setAssignedAgentName(request.agentName() != null && !request.agentName().isBlank()
-                ? request.agentName()
-                : staff.fullName());
+        task.setAssignedAgentName(staff.fullName());
         return housekeepingTaskMapper.toResponse(housekeepingTaskRepository.save(task));
     }
 
@@ -287,7 +285,7 @@ public class HousekeepingTaskService {
 
     private int normalizeSize(int size) {
         if (size <= 0) {
-            return 10;
+            return 20;
         }
         return Math.min(size, 100);
     }

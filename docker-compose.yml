@@ -218,8 +218,8 @@ services:
       HOUSEKEEPING_DB_USER: hotel_user
       HOUSEKEEPING_DB_PASSWORD: hotel_pass
       ROOM_SERVICE_URL: "http://room-service:8082"
-      STAFF_SERVICE_URL: "http://staff-service:8084"
-      RESERVATION_SERVICE_URL: "http://reservation-service:8083"
+      STAFF_SERVICE_URL: "http://staff-service:8087"
+      RESERVATION_SERVICE_URL: "http://reservation-service:8084"
     ports:
       - "8086:8086"
     networks:

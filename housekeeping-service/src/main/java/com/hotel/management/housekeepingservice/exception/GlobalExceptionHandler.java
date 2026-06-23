@@ -46,17 +46,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HousekeepingTaskNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(HousekeepingTaskNotFoundException exception, HttpServletRequest request) {
-        return build(HttpStatus.NOT_FOUND, "HOUSEKEEPING_TASK_NOT_FOUND", exception.getMessage(), request);
+        return build(HttpStatus.NOT_FOUND, "NOT_FOUND", exception.getMessage(), request);
     }
 
     @ExceptionHandler(HousekeepingConflictException.class)
     public ResponseEntity<ApiError> handleConflict(HousekeepingConflictException exception, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, "HOUSEKEEPING_CONFLICT", exception.getMessage(), request);
+        return build(HttpStatus.CONFLICT, "CONFLICT", exception.getMessage(), request);
     }
 
     @ExceptionHandler(HousekeepingBusinessException.class)
     public ResponseEntity<ApiError> handleBusiness(HousekeepingBusinessException exception, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, "HOUSEKEEPING_BUSINESS_ERROR", exception.getMessage(), request);
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", exception.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
