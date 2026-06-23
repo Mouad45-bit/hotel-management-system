@@ -33,10 +33,10 @@ export const mockHousekeepingAgents: HousekeepingAgentOption[] = [
 ];
 
 export const mockHousekeepingRooms: HousekeepingRoomOption[] = [
-    { id: 201, roomNumber: "201", floor: 2, status: "DIRTY" },
+    { id: 201, roomNumber: "201", floor: 2, status: "CLEANING" },
     { id: 202, roomNumber: "202", floor: 2, status: "CLEANING" },
     { id: 203, roomNumber: "203", floor: 2, status: "AVAILABLE" },
-    { id: 301, roomNumber: "301", floor: 3, status: "DIRTY" },
+    { id: 301, roomNumber: "301", floor: 3, status: "CLEANING" },
     { id: 302, roomNumber: "302", floor: 3, status: "MAINTENANCE" },
     { id: 401, roomNumber: "401", floor: 4, status: "OCCUPIED" },
 ];

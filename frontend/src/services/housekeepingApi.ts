@@ -275,7 +275,7 @@ export async function createHousekeepingTask(
     housekeepingTaskStore = [createdTask, ...housekeepingTaskStore];
 
     if (room.status === "AVAILABLE") {
-        updateRoomStatus(room.id, "DIRTY");
+        updateRoomStatus(room.id, "CLEANING");
     }
 
     return mockResponse(createdTask);

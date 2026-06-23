@@ -250,7 +250,7 @@ class HousekeepingTaskServiceTest {
     }
 
     private RoomSummaryResponse activeRoom() {
-        return new RoomSummaryResponse(301L, "301", "DIRTY", true);
+        return new RoomSummaryResponse(301L, "301", "CLEANING", true);
     }
 
     private StaffSummaryResponse activeAgent() {

@@ -38,7 +38,7 @@ public class RoomClient {
             throw new HousekeepingTaskNotFoundException("Room not found with id: " + roomId);
         } catch (ResourceAccessException ignored) {
             // Temporary fallback while room-service is not reachable in V1 demos.
-            return new RoomSummaryResponse(roomId, String.valueOf(roomId), "DIRTY", true);
+            return new RoomSummaryResponse(roomId, String.valueOf(roomId), "CLEANING", true);
         }
 
         throw new HousekeepingBusinessException("Room service returned an empty response for room: " + roomId);

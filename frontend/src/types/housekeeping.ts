@@ -1,3 +1,5 @@
+import type { RoomStatus } from "@/types/room";
+
 export const HOUSEKEEPING_TASK_STATUSES = [
     "TODO",
     "IN_PROGRESS",
@@ -127,7 +129,7 @@ export interface HousekeepingRoomOption {
     id: number;
     roomNumber: string;
     floor: number;
-    status: "AVAILABLE" | "OCCUPIED" | "DIRTY" | "CLEANING" | "MAINTENANCE";
+    status: RoomStatus;
 }
 
 export const HOUSEKEEPING_STATUS_LABELS: Record<HousekeepingTaskStatus, string> = {
