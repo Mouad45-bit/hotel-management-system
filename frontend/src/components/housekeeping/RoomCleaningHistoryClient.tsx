@@ -47,7 +47,11 @@ export function RoomCleaningHistoryClient({ roomId }: RoomCleaningHistoryClientP
     }
 
     useEffect(() => {
-        void loadHistory();
+        const timeoutId = window.setTimeout(() => {
+            void loadHistory();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [roomId]);
 
     const doneCount = history.filter((item) => item.status === "DONE").length;

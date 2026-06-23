@@ -32,10 +32,14 @@ export function AssignTaskModal({
 
     useEffect(() => {
         if (open) {
-            const defaultAgent =
-                agents.find((agent) => agent.id === task.assignedAgentId) ?? agents[0];
-            setAssignedAgentId(defaultAgent ? String(defaultAgent.id) : "");
-            setErrorMessage(null);
+            const timeoutId = window.setTimeout(() => {
+                const defaultAgent =
+                    agents.find((agent) => agent.id === task.assignedAgentId) ?? agents[0];
+                setAssignedAgentId(defaultAgent ? String(defaultAgent.id) : "");
+                setErrorMessage(null);
+            }, 0);
+
+            return () => window.clearTimeout(timeoutId);
         }
     }, [agents, open, task.assignedAgentId]);
 

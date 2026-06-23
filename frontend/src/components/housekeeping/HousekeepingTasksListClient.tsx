@@ -121,7 +121,11 @@ export function HousekeepingTasksListClient() {
     }
 
     useEffect(() => {
-        void loadTasks(DEFAULT_HOUSEKEEPING_FILTERS, 0);
+        const timeoutId = window.setTimeout(() => {
+            void loadTasks(DEFAULT_HOUSEKEEPING_FILTERS, 0);
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, []);
 
     function handleApplyFilters(nextFilters: HousekeepingTaskFiltersState) {

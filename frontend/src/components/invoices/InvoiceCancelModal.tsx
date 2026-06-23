@@ -44,8 +44,12 @@ export function InvoiceCancelModal({
 
     useEffect(() => {
         if (open) {
-            setForm(DEFAULT_CANCEL_FORM);
-            setErrors({});
+            const timeoutId = window.setTimeout(() => {
+                setForm(DEFAULT_CANCEL_FORM);
+                setErrors({});
+            }, 0);
+
+            return () => window.clearTimeout(timeoutId);
         }
     }, [open]);
 

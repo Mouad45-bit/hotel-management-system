@@ -121,7 +121,11 @@ export function ClientInvoiceHistoryClient({
     }
 
     useEffect(() => {
-        void loadClientInvoices();
+        const timeoutId = window.setTimeout(() => {
+            void loadClientInvoices();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [clientId]);
 
     return (

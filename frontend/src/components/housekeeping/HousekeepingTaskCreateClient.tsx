@@ -83,7 +83,11 @@ export function HousekeepingTaskCreateClient() {
     }
 
     useEffect(() => {
-        void loadOptions();
+        const timeoutId = window.setTimeout(() => {
+            void loadOptions();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, []);
 
     function updateField<K extends keyof HousekeepingTaskFormState>(

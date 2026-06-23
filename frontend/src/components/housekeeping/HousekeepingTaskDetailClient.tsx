@@ -48,7 +48,11 @@ export function HousekeepingTaskDetailClient({
     }
 
     useEffect(() => {
-        void loadTask();
+        const timeoutId = window.setTimeout(() => {
+            void loadTask();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [taskId]);
 
     if (isLoading) {

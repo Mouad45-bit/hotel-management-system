@@ -38,7 +38,7 @@ status: RoomStatus;
 description?: string;
 }
 
-export interface UpdateRoomRequest extends CreateRoomRequest {}
+export type UpdateRoomRequest = CreateRoomRequest;
 
 export interface UpdateRoomStatusRequest {
 status: RoomStatus;

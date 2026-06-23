@@ -46,7 +46,11 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
     }
 
     useEffect(() => {
-        void loadTasks();
+        const timeoutId = window.setTimeout(() => {
+            void loadTasks();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [agentId]);
 
     async function runAction(

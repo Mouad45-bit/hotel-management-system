@@ -123,7 +123,11 @@ export function InvoiceListClient() {
     }
 
     useEffect(() => {
-        void loadInvoices(DEFAULT_INVOICE_FILTERS, 0);
+        const timeoutId = window.setTimeout(() => {
+            void loadInvoices(DEFAULT_INVOICE_FILTERS, 0);
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, []);
 
     function handleApplyFilters(nextFilters: InvoiceFiltersState) {

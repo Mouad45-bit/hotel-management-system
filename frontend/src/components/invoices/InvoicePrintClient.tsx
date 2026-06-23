@@ -49,7 +49,11 @@ export function InvoicePrintClient({ invoiceId }: InvoicePrintClientProps) {
     }
 
     useEffect(() => {
-        void loadInvoice();
+        const timeoutId = window.setTimeout(() => {
+            void loadInvoice();
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
     }, [invoiceId]);
 
     function handlePrint() {

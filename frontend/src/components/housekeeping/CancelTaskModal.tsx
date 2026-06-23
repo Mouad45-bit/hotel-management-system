@@ -29,8 +29,12 @@ export function CancelTaskModal({
 
     useEffect(() => {
         if (open) {
-            setReason("");
-            setErrorMessage(null);
+            const timeoutId = window.setTimeout(() => {
+                setReason("");
+                setErrorMessage(null);
+            }, 0);
+
+            return () => window.clearTimeout(timeoutId);
         }
     }, [open]);
 
