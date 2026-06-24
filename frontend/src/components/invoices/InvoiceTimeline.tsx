@@ -44,44 +44,54 @@ export function InvoiceTimeline({ invoice }: InvoiceTimelineProps) {
     ];
 
     return (
-        <HmsCard>
-            <h3 className="text-sm font-semibold text-zinc-950">
+        <HmsCard className="p-6">
+            <h3 className="text-lg font-bold text-[var(--hms-text)]">
                 Historique
             </h3>
 
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                 Suivi des dates importantes de la facture.
             </p>
 
-            <div className="mt-6 space-y-5">
-                {items.map((item) => {
+            <div className="mt-6">
+                {items.map((item, index) => {
                     const isDone = Boolean(item.date);
+                    const isLast = index === items.length - 1;
 
                     return (
-                        <div key={item.label} className="flex gap-3">
-                            <div className="flex flex-col items-center">
+                        <div
+                            key={item.label}
+                            className="flex gap-3 pb-5 last:pb-0"
+                        >
+                            <div className="relative flex w-4 shrink-0 justify-center">
                                 <div
                                     className={
                                         isDone
-                                            ? "h-3 w-3 rounded-full bg-stone-900"
-                                            : "h-3 w-3 rounded-full bg-zinc-200"
+                                            ? "relative z-10 mt-1 h-3 w-3 rounded-full bg-emerald-600 ring-4 ring-emerald-50"
+                                            : "relative z-10 mt-1 h-3 w-3 rounded-full bg-slate-300 ring-4 ring-slate-50"
                                     }
                                 />
+
+                                {!isLast && (
+                                    <div
+                                        className={
+                                            isDone
+                                                ? "absolute bottom-[-4px] top-4 w-px bg-emerald-200"
+                                                : "absolute bottom-[-4px] top-4 w-px bg-[var(--hms-soft-border)]"
+                                        }
+                                    />
+                                )}
                             </div>
 
-                            <div className="-mt-1">
+                            <div className="min-w-0 flex-1">
                                 <p
                                     className={
                                         isDone
-                                            ? "text-sm font-semibold text-zinc-950"
-                                            : "text-sm font-medium text-zinc-400"
+                                            ? "text-sm font-semibold text-[var(--hms-text)]"
+                                            : "text-sm font-medium text-[rgba(13,9,7,0.42)]"
                                     }
                                 >
                                     {item.label}
-                                </p>
-
-                                <p className="mt-1 text-xs text-zinc-500">
-                                    {item.description}
                                 </p>
 
                                 <p className="mt-1">
@@ -91,10 +101,20 @@ export function InvoiceTimeline({ invoice }: InvoiceTimelineProps) {
                                         placeholder="Non effectuée"
                                         className={
                                             isDone
-                                                ? "text-xs text-zinc-600"
-                                                : "text-xs text-zinc-400"
+                                                ? "text-xs text-[var(--hms-text-muted)]"
+                                                : "text-xs text-[rgba(13,9,7,0.38)]"
                                         }
                                     />
+                                </p>
+
+                                <p
+                                    className={
+                                        isDone
+                                            ? "mt-1 text-xs leading-5 text-[var(--hms-text-muted)]"
+                                            : "mt-1 text-xs leading-5 text-[rgba(13,9,7,0.42)]"
+                                    }
+                                >
+                                    {item.description}
                                 </p>
                             </div>
                         </div>

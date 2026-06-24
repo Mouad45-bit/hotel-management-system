@@ -67,29 +67,30 @@ function ActionCard({
     onClick,
 }: ActionCardProps) {
     return (
-        <div className="rounded-2xl border border-[var(--hms-soft-border)] p-4">
+        <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-white p-4">
             <div className="flex items-start gap-3">
                 <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
                 >
                     <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </div>
 
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-[var(--hms-text)]">
                         {title}
                     </p>
 
-                    <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
+                    <p className="mt-1 text-sm leading-5 text-[var(--hms-text-muted)]">
                         {description}
                     </p>
 
-                    <div className="mt-4">
+                    <div className="mt-3">
                         <HmsButton
                             type="button"
                             variant={danger ? "danger" : primary ? "primary" : "secondary"}
                             onClick={onClick}
                             disabled={disabled}
+                            className="w-full"
                         >
                             {buttonLabel}
                         </HmsButton>
@@ -181,13 +182,12 @@ export function InvoiceActionPanel({
             <HmsCard className="p-6">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h3 className="text-base font-bold text-[var(--hms-text)]">
+                        <h3 className="text-lg font-bold text-[var(--hms-text)]">
                             Actions facture
                         </h3>
 
                         <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
-                            Les actions métier sont confirmées dans des modals
-                            pour éviter les changements accidentels.
+                            Actions disponibles pour le statut actuel de la facture.
                         </p>
                     </div>
 
@@ -213,7 +213,7 @@ export function InvoiceActionPanel({
                     </div>
                 )}
 
-                <div className="mt-5 space-y-4">
+                <div className="mt-5 space-y-3">
                     {issueAllowed && (
                         <ActionCard
                             title="Émettre la facture"

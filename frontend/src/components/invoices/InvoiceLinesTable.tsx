@@ -11,59 +11,59 @@ interface InvoiceLinesTableProps {
 
 export function InvoiceLinesTable({ invoice }: InvoiceLinesTableProps) {
     return (
-        <HmsCard className="p-0">
-            <div className="border-b border-zinc-200 px-6 py-4">
-                <h3 className="text-sm font-semibold text-zinc-950">
+        <HmsCard className="overflow-hidden p-0">
+            <div className="border-b border-[var(--hms-soft-border)] px-6 py-5">
+                <h3 className="text-lg font-bold text-[var(--hms-text)]">
                     Lignes de facture
                 </h3>
 
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                     Détail des prestations facturées.
                 </p>
             </div>
 
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-zinc-200">
-                    <thead className="bg-zinc-50">
+                <table className="w-full min-w-[680px] table-fixed border-collapse xl:min-w-0">
+                    <thead className="bg-slate-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[18%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Type
                             </th>
 
-                            <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[34%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Description
                             </th>
 
-                            <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[12%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Quantité
                             </th>
 
-                            <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[18%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Prix unitaire
                             </th>
 
-                            <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[18%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Total ligne
                             </th>
                         </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-zinc-100 bg-white">
+                    <tbody className="bg-white">
                         {invoice.lines.map((line) => (
                             <tr key={line.id}>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-zinc-900">
+                                <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-4 align-top text-sm font-semibold text-[var(--hms-text)]">
                                     {getInvoiceLineTypeDisplayLabel(line.type)}
                                 </td>
 
-                                <td className="min-w-72 px-6 py-4 text-sm text-zinc-600">
+                                <td className="border-b border-[var(--hms-soft-border)] px-3 py-4 align-top text-sm leading-6 text-[var(--hms-text-muted)]">
                                     {line.description}
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-zinc-600">
+                                <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-4 text-right align-top text-sm text-[var(--hms-text-muted)]">
                                     {line.quantity}
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4 text-right">
+                                <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-4 text-right align-top">
                                     <InvoiceAmount
                                         amount={line.unitPrice}
                                         variant="muted"
@@ -71,10 +71,10 @@ export function InvoiceLinesTable({ invoice }: InvoiceLinesTableProps) {
                                     />
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4 text-right">
+                                <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-4 text-right align-top">
                                     <InvoiceAmount
                                         amount={line.lineTotal}
-                                        variant="default"
+                                        variant="strong"
                                         className="text-sm"
                                     />
                                 </td>
@@ -84,10 +84,10 @@ export function InvoiceLinesTable({ invoice }: InvoiceLinesTableProps) {
                 </table>
             </div>
 
-            <div className="border-t border-zinc-200 bg-zinc-50 px-6 py-4">
-                <div className="ml-auto w-full max-w-sm space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-zinc-500">Montant HT</span>
+            <div className="bg-slate-50 px-6 py-5">
+                <div className="ml-auto w-full max-w-sm space-y-3">
+                    <div className="flex items-center justify-between gap-4 text-sm">
+                        <span className="text-[var(--hms-text-muted)]">Montant HT</span>
                         <InvoiceAmount
                             amount={invoice.subtotalAmount}
                             variant="default"
@@ -95,8 +95,8 @@ export function InvoiceLinesTable({ invoice }: InvoiceLinesTableProps) {
                         />
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-zinc-500">
+                    <div className="flex items-center justify-between gap-4 text-sm">
+                        <span className="text-[var(--hms-text-muted)]">
                             Taxe ({invoice.taxRate}%)
                         </span>
 
@@ -107,15 +107,15 @@ export function InvoiceLinesTable({ invoice }: InvoiceLinesTableProps) {
                         />
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-zinc-200 pt-2">
-                        <span className="text-sm font-semibold text-zinc-950">
+                    <div className="flex items-center justify-between gap-4 border-t border-[var(--hms-border)] pt-3">
+                        <span className="text-sm font-semibold text-[var(--hms-text)]">
                             Total TTC
                         </span>
 
                         <InvoiceAmount
                             amount={invoice.totalAmount}
                             variant="strong"
-                            className="text-lg"
+                            className="text-xl tracking-tight"
                         />
                     </div>
                 </div>

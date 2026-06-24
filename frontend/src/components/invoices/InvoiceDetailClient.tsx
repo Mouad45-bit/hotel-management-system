@@ -96,7 +96,7 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
             <div className="space-y-6">
                 <Link
                     href="/invoices"
-                    className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:text-[var(--hms-primary)]"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                 >
                     <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                     Retour aux factures
@@ -120,8 +120,8 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
         <div className="space-y-8">
             <InvoiceDetailHeader invoice={invoice} />
 
-            <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-                <div className="space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+                <div className="min-w-0 space-y-6">
                     <InvoiceFinancialSummary invoice={invoice} />
 
                     <InvoiceLinesTable invoice={invoice} />
@@ -129,7 +129,7 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
                     <InvoiceInfoCards invoice={invoice} />
                 </div>
 
-                <div className="space-y-6">
+                <div className="min-w-0 space-y-6">
                     <InvoiceActionPanel
                         invoice={invoice}
                         onInvoiceUpdated={setInvoice}
