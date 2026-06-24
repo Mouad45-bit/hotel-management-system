@@ -163,12 +163,8 @@ export function InvoiceListClient() {
         <div className="space-y-8">
             <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--hms-primary)]">
+                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
                         Facturation
-                    </p>
-
-                    <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Gestion des factures
                     </h2>
 
                     <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
