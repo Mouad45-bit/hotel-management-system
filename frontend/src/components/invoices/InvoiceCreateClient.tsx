@@ -270,7 +270,7 @@ export function InvoiceCreateClient() {
 
             <div className="space-y-6">
                 <HmsCard className="overflow-hidden p-0">
-                    <div className="flex flex-col gap-3 border-b border-[var(--hms-soft-border)] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 border-b border-[var(--hms-soft-border)] px-4 py-5 sm:flex-row sm:items-center sm:justify-between xl:px-3">
                         <div>
                             <h3 className="text-lg font-bold text-[var(--hms-text)]">
                                 Réservations éligibles
@@ -281,10 +281,10 @@ export function InvoiceCreateClient() {
                             </p>
                         </div>
 
-                        <span className="w-fit rounded-full border border-[var(--hms-soft-border)] bg-slate-50 px-3 py-1.5 text-xs font-semibold text-[var(--hms-text-muted)]">
+                        <span className="w-fit rounded-full border border-[var(--hms-soft-border)] bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-[var(--hms-text-muted)]">
                             {isLoading
                                 ? "Chargement"
-                                : `${eligibleReservationCount} facturable(s)`}
+                                : `${eligibleReservationCount} ${eligibleReservationCount > 1 ? "facturables" : "facturable"}`}
                         </span>
                     </div>
 
