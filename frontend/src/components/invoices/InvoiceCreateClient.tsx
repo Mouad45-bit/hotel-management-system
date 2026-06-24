@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-    ArrowLeftIcon,
-    CheckCircleIcon,
-    DocumentPlusIcon,
-    ExclamationTriangleIcon,
-    ReceiptPercentIcon,
-} from "@heroicons/react/24/outline";
+    ArrowLeft,
+    CircleCheckBig,
+    FileText,
+    Info,
+    Percent,
+    TriangleAlert,
+} from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { HmsInput, HmsTextarea } from "@/components/hms/HmsField";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import { InvoiceDate } from "@/components/invoices/InvoiceDate";
 import { ReservationInvoiceSourceTable } from "@/components/invoices/ReservationInvoiceSourceTable";
@@ -219,49 +221,50 @@ export function InvoiceCreateClient() {
     );
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                        <Link
-                            href="/invoices"
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
-                        >
-                            <ArrowLeftIcon className="h-4 w-4" />
-                            Retour aux factures
-                        </Link>
+        <div className="space-y-8">
+            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <Link
+                        href="/invoices"
+                        className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[var(--hms-border)] bg-white text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                        aria-label="Retour aux factures"
+                        title="Retour aux factures"
+                    >
+                        <ArrowLeft aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                    </Link>
 
-                        <div className="mt-5 flex items-center gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-white">
-                                <DocumentPlusIcon className="h-5 w-5" />
-                            </div>
+                    <p className="mt-8 text-xs font-bold uppercase tracking-[0.24em] text-[var(--hms-primary)]">
+                        Création
+                    </p>
 
-                            <div>
-                                <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
-                                    Génération depuis réservation
-                                </h2>
+                    <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                        Générer une facture
+                    </h2>
 
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    Choisissez une réservation terminée, appliquez
-                                    le taux de taxe, puis générez la facture.
-                                </p>
-                            </div>
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                        Créez une facture à partir d’une réservation terminée, avec taxe et notes de facturation.
+                    </p>
+                </div>
+
+                <HmsCard className="max-w-md bg-white p-5">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-[var(--hms-primary)]">
+                            <Info aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        </div>
+
+                        <div>
+                            <p className="text-sm font-bold text-[var(--hms-text)]">Règle de génération</p>
+                            <p className="mt-2 text-sm leading-6 text-[var(--hms-text-muted)]">
+                                La réservation doit être `CHECKED_OUT` et ne doit pas avoir de facture active.
+                            </p>
                         </div>
                     </div>
-
-                    <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-                        <p className="font-semibold">Règle V1</p>
-                        <p className="mt-1">
-                            Seules les réservations terminées sans facture active
-                            peuvent être facturées.
-                        </p>
-                    </div>
-                </div>
-            </HmsCard>
+                </HmsCard>
+            </section>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
 
                     <div>
                         <p className="font-semibold">Erreur</p>
@@ -272,7 +275,7 @@ export function InvoiceCreateClient() {
 
             {successMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-                    <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <CircleCheckBig aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
 
                     <div>
                         <p className="font-semibold">Facture générée</p>
@@ -282,13 +285,13 @@ export function InvoiceCreateClient() {
             )}
 
             <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-                <HmsCard className="p-0">
-                    <div className="border-b border-zinc-200 px-6 py-4">
-                        <h3 className="text-sm font-semibold text-zinc-950">
+                <HmsCard className="overflow-hidden p-0">
+                    <div className="border-b border-[var(--hms-soft-border)] px-6 py-5">
+                        <h3 className="text-base font-bold text-[var(--hms-text)]">
                             Réservations disponibles
                         </h3>
 
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             Les données sont simulées tant que le module
                             Reservation n’est pas encore branché.
                         </p>
@@ -330,31 +333,28 @@ export function InvoiceCreateClient() {
                 </HmsCard>
 
                 <div className="space-y-6">
-                    <HmsCard>
+                    <HmsCard className="p-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <h3 className="text-sm font-semibold text-zinc-950">
+                                <h3 className="text-base font-bold text-[var(--hms-text)]">
                                     Paramètres de génération
                                 </h3>
 
-                                <p className="mt-1 text-sm text-zinc-500">
+                                <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                                     Ces informations seront envoyées au service
                                     Invoice.
                                 </p>
                             </div>
 
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-100 text-stone-700">
-                                <ReceiptPercentIcon className="h-5 w-5" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-[var(--hms-primary)]">
+                                <Percent aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                             </div>
                         </div>
 
                         <div className="mt-5 space-y-4">
-                            <div>
-                                <label className="text-xs font-medium text-zinc-600">
-                                    Taux de taxe (%)
-                                </label>
-
-                                <input
+                            <HmsInput
+                                    id="invoice-tax-rate"
+                                    label="Taux de taxe (%)"
                                     type="number"
                                     min="0"
                                     step="0.01"
@@ -365,22 +365,12 @@ export function InvoiceCreateClient() {
                                             event.target.value
                                         )
                                     }
-                                    className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                />
+                                    error={errors.taxRate}
+                            />
 
-                                {errors.taxRate && (
-                                    <p className="mt-1 text-xs text-red-600">
-                                        {errors.taxRate}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-medium text-zinc-600">
-                                    Notes
-                                </label>
-
-                                <textarea
+                            <HmsTextarea
+                                    id="invoice-notes"
+                                    label="Notes"
                                     value={form.notes}
                                     onChange={(event) =>
                                         updateFormField(
@@ -390,52 +380,33 @@ export function InvoiceCreateClient() {
                                     }
                                     rows={4}
                                     placeholder="Facture générée après check-out"
-                                    className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                                />
-
-                                {errors.notes && (
-                                    <p className="mt-1 text-xs text-red-600">
-                                        {errors.notes}
-                                    </p>
-                                )}
-                            </div>
-
-                            <HmsButton
-                                type="button"
-                                onClick={() => void handleSubmit()}
-                                disabled={isSubmitting || !selectedReservation}
-                                className="w-full"
-                            >
-                                {isSubmitting
-                                    ? "Génération..."
-                                    : "Générer la facture"}
-                            </HmsButton>
+                                    error={errors.notes}
+                            />
                         </div>
                     </HmsCard>
 
-                    <HmsCard>
-                        <h3 className="text-sm font-semibold text-zinc-950">
+                    {selectedReservation && <HmsCard>
+                        <h3 className="text-base font-bold text-[var(--hms-text)]">
                             Aperçu
                         </h3>
 
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             Estimation avant création définitive.
                         </p>
 
-                        {selectedReservation ? (
                             <div className="mt-5 space-y-5">
-                                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                                    <p className="text-sm font-semibold text-zinc-950">
+                                <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4">
+                                    <p className="text-sm font-bold text-[var(--hms-text)]">
                                         {selectedReservation.clientFullName}
                                     </p>
 
-                                    <p className="mt-1 text-sm text-zinc-500">
+                                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                                         Réservation #
                                         {selectedReservation.reservationId} ·
                                         Chambre {selectedReservation.roomNumber}
                                     </p>
 
-                                    <p className="mt-2 text-sm text-zinc-500">
+                                    <p className="mt-2 text-sm text-[var(--hms-text-muted)]">
                                         <InvoiceDate
                                             value={
                                                 selectedReservation.checkInDate
@@ -516,15 +487,35 @@ export function InvoiceCreateClient() {
                                     </div>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
-                                Sélectionnez une réservation pour afficher
-                                l’aperçu de la facture.
-                            </div>
-                        )}
-                    </HmsCard>
+                    </HmsCard>}
                 </div>
             </div>
+
+            <HmsCard className="sticky bottom-4 z-10 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3 text-sm text-[var(--hms-text-muted)]">
+                    <FileText aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                    {selectedReservation
+                        ? `Réservation #${selectedReservation.reservationId} sélectionnée`
+                        : "Sélectionnez une réservation facturable"}
+                </div>
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                    <Link
+                        href="/invoices"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    >
+                        Annuler
+                    </Link>
+
+                    <HmsButton
+                        type="button"
+                        onClick={() => void handleSubmit()}
+                        disabled={isSubmitting || !selectedReservation}
+                    >
+                        {isSubmitting ? "Génération..." : "Générer la facture"}
+                    </HmsButton>
+                </div>
+            </HmsCard>
         </div>
     );
 }

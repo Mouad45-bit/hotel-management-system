@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { NoSymbolIcon } from "@heroicons/react/24/outline";
+import { Ban } from "lucide-react";
+import { HmsTextarea } from "@/components/hms/HmsField";
 import { InvoiceActionModal } from "@/components/invoices/InvoiceActionModal";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import {
@@ -72,7 +73,7 @@ export function InvoiceCancelModal({
             open={open}
             title="Annuler la facture"
             description="Cette action conserve la facture dans l’historique, mais bloque son cycle de paiement."
-            icon={NoSymbolIcon}
+            icon={Ban}
             iconClassName="bg-red-50 text-red-700"
             confirmLabel="Confirmer l’annulation"
             submitting={submitting}
@@ -103,12 +104,9 @@ export function InvoiceCancelModal({
                     </div>
                 </div>
 
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Motif d’annulation
-                    </label>
-
-                    <textarea
+                <HmsTextarea
+                        id="invoice-cancel-reason"
+                        label="Motif d’annulation"
                         value={form.reason}
                         onChange={(event) =>
                             setForm({
@@ -117,15 +115,8 @@ export function InvoiceCancelModal({
                         }
                         rows={4}
                         placeholder="Erreur de génération de facture"
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
-
-                    {errors.reason && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.reason}
-                        </p>
-                    )}
-                </div>
+                        error={errors.reason}
+                />
             </div>
         </InvoiceActionModal>
     );

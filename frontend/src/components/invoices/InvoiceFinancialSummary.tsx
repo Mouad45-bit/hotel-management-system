@@ -1,10 +1,10 @@
 "use client";
 
 import {
-    BanknotesIcon,
-    CalculatorIcon,
-    ReceiptPercentIcon,
-} from "@heroicons/react/24/outline";
+    Calculator,
+    Percent,
+    ReceiptText,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import type { Invoice } from "@/types/invoice";
@@ -29,15 +29,15 @@ export function InvoiceFinancialSummary({
                     </p>
                 </div>
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-100 text-stone-700">
-                    <CalculatorIcon className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-[var(--hms-primary)]">
+                    <Calculator aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </div>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-zinc-600">
-                        <BanknotesIcon className="h-4 w-4" />
+                        <ReceiptText aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                         Montant HT
                     </div>
 
@@ -50,7 +50,7 @@ export function InvoiceFinancialSummary({
 
                 <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-zinc-600">
-                        <ReceiptPercentIcon className="h-4 w-4" />
+                        <Percent aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                         Taxe
                     </div>
 
@@ -67,15 +67,15 @@ export function InvoiceFinancialSummary({
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-                    <p className="text-sm font-medium text-stone-700">
+                <div className="rounded-2xl border border-[rgba(25,25,112,0.18)] bg-[rgba(25,25,112,0.04)] p-4">
+                    <p className="text-sm font-semibold text-[var(--hms-primary)]">
                         Total TTC
                     </p>
 
                     <InvoiceAmount
                         amount={invoice.totalAmount}
                         variant="strong"
-                        className="mt-3 block text-2xl text-stone-950"
+                    className="mt-3 block text-2xl text-[var(--hms-text)]"
                     />
                 </div>
             </div>

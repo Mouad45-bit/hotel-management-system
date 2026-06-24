@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import {
-    ArrowLeftIcon,
-    PrinterIcon,
-} from "@heroicons/react/24/outline";
+    ArrowLeft,
+    Printer,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import { InvoiceDate } from "@/components/invoices/InvoiceDate";
@@ -22,41 +22,46 @@ interface InvoiceDetailHeaderProps {
 
 export function InvoiceDetailHeader({ invoice }: InvoiceDetailHeaderProps) {
     return (
-        <HmsCard>
+        <HmsCard className="p-7 lg:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                     <Link
                         href="/invoices"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
+                        className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[var(--hms-border)] bg-white text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                        aria-label="Retour aux factures"
+                        title="Retour aux factures"
                     >
-                        <ArrowLeftIcon className="h-4 w-4" />
-                        Retour aux factures
+                        <ArrowLeft aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </Link>
 
-                    <div className="mt-5 flex flex-wrap items-center gap-3">
-                        <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
+                    <p className="mt-8 text-xs font-bold uppercase tracking-[0.24em] text-[var(--hms-primary)]">
+                        {invoice.invoiceNumber}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                        <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
                             {invoice.invoiceNumber}
                         </h2>
 
                         <InvoiceStatusBadge status={invoice.status} />
                     </div>
 
-                    <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
                         Facture liée à la réservation #{invoice.reservationId}, pour{" "}
                         {invoice.clientFullName}, {formatInvoiceRoom(invoice)}.
                     </p>
 
-                    <div className="mt-4 flex flex-wrap gap-3 text-sm text-zinc-600">
+                    <div className="mt-5 flex flex-wrap gap-3 text-sm text-[var(--hms-text-muted)]">
                         <span>
                             Créée le{" "}
                             <InvoiceDate
                                 value={invoice.createdAt}
                                 withTime
-                                className="text-sm text-zinc-600"
+                            className="text-sm text-[var(--hms-text-muted)]"
                             />
                         </span>
 
-                        <span className="hidden text-zinc-300 sm:inline">•</span>
+                        <span className="hidden text-[var(--hms-border)] sm:inline">•</span>
 
                         <span>{formatInvoicePeriod(invoice)}</span>
                     </div>
@@ -64,23 +69,23 @@ export function InvoiceDetailHeader({ invoice }: InvoiceDetailHeaderProps) {
 
                 <div className="flex flex-col items-start gap-3 lg:items-end">
                     <div className="text-left lg:text-right">
-                        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                        <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Montant TTC
                         </p>
 
                         <InvoiceAmount
                             amount={invoice.totalAmount}
                             variant="strong"
-                            className="mt-1 block text-3xl"
+                            className="mt-2 block text-4xl"
                         />
                     </div>
 
                     {canPrintInvoice(invoice) && (
                         <Link
                             href={`/invoices/${invoice.id}/print`}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
+                            className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                         >
-                            <PrinterIcon className="h-5 w-5" />
+                            <Printer aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                             Imprimer
                         </Link>
                     )}

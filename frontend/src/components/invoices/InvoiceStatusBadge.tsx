@@ -1,11 +1,11 @@
-import type { ComponentType, SVGProps } from "react";
 import {
-    ArrowPathIcon,
-    CheckCircleIcon,
-    ClockIcon,
-    DocumentCheckIcon,
-    NoSymbolIcon,
-} from "@heroicons/react/24/outline";
+    Ban,
+    CircleCheckBig,
+    Clock3,
+    FileCheck2,
+    RotateCcw,
+    type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getInvoiceStatusDisplayLabel } from "@/lib/invoiceHelpers";
 import {
@@ -13,20 +13,18 @@ import {
     type InvoiceStatus,
 } from "@/types/invoice";
 
-type StatusIcon = ComponentType<SVGProps<SVGSVGElement>>;
-
 interface InvoiceStatusBadgeProps {
     status: InvoiceStatus;
     className?: string;
     showIcon?: boolean;
 }
 
-const STATUS_ICONS: Record<InvoiceStatus, StatusIcon> = {
-    DRAFT: ClockIcon,
-    ISSUED: DocumentCheckIcon,
-    PAID: CheckCircleIcon,
-    CANCELLED: NoSymbolIcon,
-    REFUNDED: ArrowPathIcon,
+const STATUS_ICONS: Record<InvoiceStatus, LucideIcon> = {
+    DRAFT: Clock3,
+    ISSUED: FileCheck2,
+    PAID: CircleCheckBig,
+    CANCELLED: Ban,
+    REFUNDED: RotateCcw,
 };
 
 export function InvoiceStatusBadge({
@@ -44,7 +42,7 @@ export function InvoiceStatusBadge({
                 className
             )}
         >
-            {showIcon && <Icon aria-hidden="true" className="h-3.5 w-3.5" />}
+            {showIcon && <Icon aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />}
 
             {getInvoiceStatusDisplayLabel(status)}
         </span>

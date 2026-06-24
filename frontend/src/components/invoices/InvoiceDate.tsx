@@ -21,7 +21,7 @@ export function InvoiceDate({
     return (
         <time
             dateTime={value ?? undefined}
-            className={cn("text-sm text-zinc-600", className)}
+            className={cn("text-sm text-[var(--hms-text-muted)]", className)}
         >
             {formattedDate}
         </time>

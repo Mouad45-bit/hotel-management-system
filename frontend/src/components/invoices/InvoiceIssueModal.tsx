@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DocumentCheckIcon } from "@heroicons/react/24/outline";
+import { FileCheck2 } from "lucide-react";
+import { HmsInput } from "@/components/hms/HmsField";
 import { InvoiceActionModal } from "@/components/invoices/InvoiceActionModal";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import { issueInvoiceSchema } from "@/schemas/invoice.schema";
@@ -63,7 +64,7 @@ export function InvoiceIssueModal({
             open={open}
             title="Émettre la facture"
             description="Cette action valide la facture brouillon et la rend prête à être payée."
-            icon={DocumentCheckIcon}
+            icon={FileCheck2}
             iconClassName="bg-blue-50 text-blue-700"
             confirmLabel="Émettre la facture"
             submitting={submitting}
@@ -72,7 +73,7 @@ export function InvoiceIssueModal({
         >
             <div className="space-y-5">
                 <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-                    <p className="text-sm font-semibold text-zinc-950">
+                    <p className="text-sm font-bold text-[var(--hms-text)]">
                         {invoice.invoiceNumber}
                     </p>
 
@@ -91,28 +92,15 @@ export function InvoiceIssueModal({
                     </div>
                 </div>
 
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Date d’émission
-                    </label>
-
-                    <input
+                <HmsInput
+                        id="invoice-issue-date"
+                        label="Date d’émission"
                         type="date"
                         value={issueDate}
                         onChange={(event) => setIssueDate(event.target.value)}
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
-
-                    <p className="mt-1 text-xs text-zinc-500">
-                        Si ce champ est vide, la date du jour sera utilisée.
-                    </p>
-
-                    {errors.issueDate && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.issueDate}
-                        </p>
-                    )}
-                </div>
+                        hint="Si ce champ est vide, la date du jour sera utilisée."
+                        error={errors.issueDate}
+                />
             </div>
         </InvoiceActionModal>
     );

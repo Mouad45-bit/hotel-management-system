@@ -15,7 +15,7 @@ export default async function ClientInvoiceHistoryPage({
 
     return (
         <AppLayout
-            title="Historique factures client"
+            title="Historique des factures"
             description="Consultation des factures liées à un client"
         >
             <ClientInvoiceHistoryClient clientId={clientId} />

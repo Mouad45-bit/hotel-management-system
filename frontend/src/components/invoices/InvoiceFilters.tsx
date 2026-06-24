@@ -1,7 +1,10 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { Search } from "lucide-react";
+import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
 import {
     INVOICE_STATUS_FILTER_LABELS,
     type InvoiceFiltersState,
@@ -48,48 +51,44 @@ export function InvoiceFilters({
     }
 
     return (
-        <HmsCard>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex flex-col gap-1">
-                    <h3 className="text-sm font-semibold text-zinc-950">
+        <HmsCard className="p-6 lg:p-7">
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="flex flex-col gap-2">
+                    <h3 className="text-base font-bold text-[var(--hms-text)]">
                         Filtres
                     </h3>
 
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-[var(--hms-text-muted)]">
                         Rechercher une facture par numéro, statut, client,
                         réservation ou période.
                     </p>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-                    <div className="xl:col-span-2">
-                        <label className="text-xs font-medium text-zinc-600">
-                            Numéro de facture
-                        </label>
+                    <div className="relative xl:col-span-2">
+                        <Search
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-4 top-[42px] h-4 w-4 text-[var(--hms-text-muted)]"
+                            strokeWidth={1.8}
+                        />
 
-                        <input
+                        <HmsInput
+                            id="invoice-number-filter"
+                            label="Numéro de facture"
                             type="text"
                             value={filters.number}
                             onChange={(event) =>
                                 updateField("number", event.target.value)
                             }
                             placeholder="INV-2026-000001"
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
+                            error={errors.number}
+                            className="[&_input]:pl-10"
                         />
-
-                        {errors.number && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.number}
-                            </p>
-                        )}
                     </div>
 
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Statut
-                        </label>
-
-                        <select
+                    <HmsSelect
+                        id="invoice-status-filter"
+                        label="Statut"
                             value={filters.status}
                             onChange={(event) =>
                                 updateField(
@@ -97,28 +96,18 @@ export function InvoiceFilters({
                                     event.target.value as InvoiceStatusFilter
                                 )
                             }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        >
+                        error={errors.status}
+                    >
                             {STATUS_OPTIONS.map((status) => (
                                 <option key={status} value={status}>
                                     {INVOICE_STATUS_FILTER_LABELS[status]}
                                 </option>
                             ))}
-                        </select>
+                    </HmsSelect>
 
-                        {errors.status && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.status}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Client ID
-                        </label>
-
-                        <input
+                    <HmsInput
+                        id="invoice-client-filter"
+                        label="Client ID"
                             type="text"
                             inputMode="numeric"
                             value={filters.clientId}
@@ -126,22 +115,12 @@ export function InvoiceFilters({
                                 updateField("clientId", event.target.value)
                             }
                             placeholder="8"
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
+                        error={errors.clientId}
+                    />
 
-                        {errors.clientId && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.clientId}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Réservation ID
-                        </label>
-
-                        <input
+                    <HmsInput
+                        id="invoice-reservation-filter"
+                        label="Réservation ID"
                             type="text"
                             inputMode="numeric"
                             value={filters.reservationId}
@@ -149,76 +128,48 @@ export function InvoiceFilters({
                                 updateField("reservationId", event.target.value)
                             }
                             placeholder="15"
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
+                        error={errors.reservationId}
+                    />
 
-                        {errors.reservationId && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.reservationId}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Du
-                        </label>
-
-                        <input
+                    <HmsInput
+                        id="invoice-from-filter"
+                        label="Du"
                             type="date"
                             value={filters.from}
                             onChange={(event) =>
                                 updateField("from", event.target.value)
                             }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
+                        error={errors.from}
+                    />
 
-                        {errors.from && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.from}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Au
-                        </label>
-
-                        <input
+                    <HmsInput
+                        id="invoice-to-filter"
+                        label="Au"
                             type="date"
                             value={filters.to}
                             onChange={(event) =>
                                 updateField("to", event.target.value)
                             }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
-
-                        {errors.to && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.to}
-                            </p>
-                        )}
-                    </div>
+                        error={errors.to}
+                    />
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                    <button
+                    <HmsButton
                         type="button"
+                        variant="secondary"
                         onClick={onReset}
                         disabled={loading}
-                        className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         Réinitialiser
-                    </button>
+                    </HmsButton>
 
-                    <button
+                    <HmsButton
                         type="submit"
                         disabled={loading}
-                        className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         Appliquer les filtres
-                    </button>
+                    </HmsButton>
                 </div>
             </form>
         </HmsCard>

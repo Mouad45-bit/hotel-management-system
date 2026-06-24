@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    BuildingOffice2Icon,
-    CalendarDaysIcon,
-    CreditCardIcon,
-    UserIcon,
-} from "@heroicons/react/24/outline";
+    BedDouble,
+    CalendarDays,
+    CreditCard,
+    UsersRound,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import { InvoiceDate } from "@/components/invoices/InvoiceDate";
@@ -25,7 +25,7 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
             <HmsCard>
                 <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-700">
-                        <UserIcon className="h-5 w-5" />
+                        <UsersRound aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
 
                     <div>
@@ -47,7 +47,7 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
             <HmsCard>
                 <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-700">
-                        <BuildingOffice2Icon className="h-5 w-5" />
+                        <BedDouble aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
 
                     <div>
@@ -69,7 +69,7 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
             <HmsCard>
                 <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-700">
-                        <CalendarDaysIcon className="h-5 w-5" />
+                        <CalendarDays aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
 
                     <div>
@@ -103,7 +103,7 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
             <HmsCard>
                 <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-700">
-                        <CreditCardIcon className="h-5 w-5" />
+                        <CreditCard aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
 
                     <div>

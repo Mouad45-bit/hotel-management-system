@@ -3,12 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-    ArrowLeftIcon,
-    ArrowPathIcon,
-    DocumentPlusIcon,
-    ExclamationTriangleIcon,
-    UserIcon,
-} from "@heroicons/react/24/outline";
+    ArrowLeft,
+    Plus,
+    RefreshCw,
+    TriangleAlert,
+} from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import {
@@ -129,40 +128,30 @@ export function ClientInvoiceHistoryClient({
     }, [clientId]);
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-                    <div>
-                        <Link
-                            href="/invoices"
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
-                        >
-                            <ArrowLeftIcon className="h-4 w-4" />
-                            Retour aux factures
-                        </Link>
+        <div className="space-y-8">
+            <section className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                    <Link
+                        href="/invoices"
+                        className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[var(--hms-border)] bg-white text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                        aria-label="Retour aux factures"
+                        title="Retour aux factures"
+                    >
+                        <ArrowLeft aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                    </Link>
 
-                        <div className="mt-5 flex items-start gap-3">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-stone-900 text-white">
-                                <UserIcon className="h-6 w-6" />
-                            </div>
+                    <p className="mt-8 text-xs font-bold uppercase tracking-[0.24em] text-[var(--hms-primary)]">
+                        Historique de facturation
+                    </p>
 
-                            <div>
-                                <p className="text-sm font-medium text-stone-700">
-                                    Historique de facturation
-                                </p>
+                    <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                        Historique des factures
+                    </h2>
 
-                                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">
-                                    {clientName}
-                                </h2>
-
-                                <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                                    Consultation des factures, paiements,
-                                    remboursements et montants liés au client #
-                                    {clientId}.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                        Consultation des factures, paiements, remboursements et montants liés à {clientName}.
+                    </p>
+                </div>
 
                     <div className="flex flex-wrap items-center gap-3">
                         <HmsButton
@@ -171,24 +160,23 @@ export function ClientInvoiceHistoryClient({
                             onClick={() => void loadClientInvoices()}
                             disabled={isLoading}
                         >
-                            <ArrowPathIcon className="mr-2 h-5 w-5" />
+                            <RefreshCw aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                             Actualiser
                         </HmsButton>
 
                         <Link
                             href="/invoices/create"
-                            className="inline-flex items-center justify-center rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800"
+                            className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hms-primary)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                         >
-                            <DocumentPlusIcon className="mr-2 h-5 w-5" />
+                            <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                             Générer facture
                         </Link>
                     </div>
-                </div>
-            </HmsCard>
+            </section>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
 
                     <div>
                         <p className="font-semibold">Erreur de chargement</p>
@@ -200,19 +188,19 @@ export function ClientInvoiceHistoryClient({
             <ClientInvoiceSummaryCards summary={summary} />
 
             <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-                <HmsCard className="p-0">
-                    <div className="flex flex-col gap-3 border-b border-zinc-200 px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
+                <HmsCard className="overflow-hidden p-0">
+                    <div className="flex flex-col gap-3 border-b border-[var(--hms-soft-border)] px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
                         <div>
-                            <h3 className="text-sm font-semibold text-zinc-950">
+                            <h3 className="text-base font-bold text-[var(--hms-text)]">
                                 Factures du client
                             </h3>
 
-                            <p className="mt-1 text-sm text-zinc-500">
+                            <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                                 Liste chronologique des factures liées au client.
                             </p>
                         </div>
 
-                        <p className="text-sm text-zinc-500">
+                        <p className="text-sm text-[var(--hms-text-muted)]">
                             {summary.totalInvoices} résultat(s)
                         </p>
                     </div>

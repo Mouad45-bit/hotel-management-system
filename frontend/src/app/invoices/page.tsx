@@ -4,8 +4,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 export default function InvoicesPage() {
     return (
         <AppLayout
-            title="Factures"
-            description="Gestion des factures, paiements et remboursements"
+            title="Gestion des factures"
+            description="Gestion, suivi et traitement des factures liées aux réservations"
         >
             <InvoiceListClient />
         </AppLayout>

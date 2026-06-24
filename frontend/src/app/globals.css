@@ -1,65 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --hms-primary: #191970;
+  --hms-primary-hover: #15155f;
+  --hms-primary-active: #111150;
+  --hms-surface: #ffffff;
+  --hms-page: #eceff1;
+  --hms-text: #0d0907;
+  --hms-text-muted: rgba(13, 9, 7, 0.62);
+  --hms-border: #d8dee2;
+  --hms-soft-border: #e3e7ea;
+  --hms-focus: #191970;
+  --background: var(--hms-page);
+  --foreground: var(--hms-text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@page {
-  size: A4;
-  margin: 14mm;
-}
-
-@media print {
-  html,
-  body {
-    background: white !important;
-  }
-
-  body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .hms-print-toolbar,
-  .hms-print-alert {
-    display: none !important;
-  }
-
-  .hms-print-page {
-    min-height: auto !important;
-    background: white !important;
-  }
-
-  .hms-print-document {
-    width: 100% !important;
-    max-width: none !important;
-    min-height: auto !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-  }
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 @page {

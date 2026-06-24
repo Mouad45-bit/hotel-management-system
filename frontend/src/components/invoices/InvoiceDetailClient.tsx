@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    ArrowLeftIcon,
-    ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+    ArrowLeft,
+    TriangleAlert,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceActionPanel } from "@/components/invoices/InvoiceActionPanel";
 import { InvoiceDetailHeader } from "@/components/invoices/InvoiceDetailHeader";
@@ -60,30 +60,30 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
 
     if (isLoading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-8">
                 <HmsCard>
-                    <div className="h-6 w-48 animate-pulse rounded-lg bg-zinc-100" />
-                    <div className="mt-4 h-10 w-80 animate-pulse rounded-lg bg-zinc-100" />
+                    <div className="h-6 w-48 animate-pulse rounded-lg bg-slate-100" />
+                    <div className="mt-4 h-10 w-80 animate-pulse rounded-lg bg-slate-100" />
                 </HmsCard>
 
                 <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
                     <div className="space-y-6">
                         <HmsCard>
-                            <div className="h-52 animate-pulse rounded-xl bg-zinc-100" />
+                            <div className="h-52 animate-pulse rounded-xl bg-slate-100" />
                         </HmsCard>
 
                         <HmsCard>
-                            <div className="h-64 animate-pulse rounded-xl bg-zinc-100" />
+                            <div className="h-64 animate-pulse rounded-xl bg-slate-100" />
                         </HmsCard>
                     </div>
 
                     <div className="space-y-6">
                         <HmsCard>
-                            <div className="h-48 animate-pulse rounded-xl bg-zinc-100" />
+                            <div className="h-48 animate-pulse rounded-xl bg-slate-100" />
                         </HmsCard>
 
                         <HmsCard>
-                            <div className="h-48 animate-pulse rounded-xl bg-zinc-100" />
+                            <div className="h-48 animate-pulse rounded-xl bg-slate-100" />
                         </HmsCard>
                     </div>
                 </div>
@@ -96,14 +96,14 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
             <div className="space-y-6">
                 <Link
                     href="/invoices"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
+                    className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:text-[var(--hms-primary)]"
                 >
-                    <ArrowLeftIcon className="h-4 w-4" />
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                     Retour aux factures
                 </Link>
 
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
 
                     <div>
                         <p className="font-semibold">Facture introuvable</p>
@@ -117,7 +117,7 @@ export function InvoiceDetailClient({ invoiceId }: InvoiceDetailClientProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <InvoiceDetailHeader invoice={invoice} />
 
             <div className="grid gap-6 xl:grid-cols-[1fr_380px]">

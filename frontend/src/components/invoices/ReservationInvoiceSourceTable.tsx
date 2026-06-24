@@ -1,10 +1,11 @@
 "use client";
 
 import {
-    CheckCircleIcon,
-    ClockIcon,
-    ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+    CircleCheckBig,
+    Clock3,
+    FileText,
+    TriangleAlert,
+} from "lucide-react";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import { InvoiceDate } from "@/components/invoices/InvoiceDate";
 import { cn } from "@/lib/utils";
@@ -36,7 +37,7 @@ function getSourceBadge(source: ReservationInvoiceSource) {
     if (source.hasActiveInvoice) {
         return {
             label: "Facture existante",
-            icon: ExclamationTriangleIcon,
+            icon: TriangleAlert,
             className: "bg-amber-50 text-amber-700 ring-amber-200",
         };
     }
@@ -44,14 +45,14 @@ function getSourceBadge(source: ReservationInvoiceSource) {
     if (source.reservationStatus !== "CHECKED_OUT") {
         return {
             label: "Non terminée",
-            icon: ClockIcon,
+            icon: Clock3,
             className: "bg-zinc-100 text-zinc-600 ring-zinc-200",
         };
     }
 
     return {
         label: "Prête à facturer",
-        icon: CheckCircleIcon,
+        icon: CircleCheckBig,
         className: "bg-emerald-50 text-emerald-700 ring-emerald-200",
     };
 }
@@ -65,11 +66,15 @@ export function ReservationInvoiceSourceTable({
         return (
             <div className="flex min-h-52 items-center justify-center px-6 py-10 text-center">
                 <div>
-                    <p className="text-sm font-semibold text-zinc-950">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-[var(--hms-text-muted)]">
+                        <FileText aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+                    </div>
+
+                    <p className="mt-4 text-sm font-bold text-[var(--hms-text)]">
                         Aucune réservation disponible
                     </p>
 
-                    <p className="mt-1 text-sm text-zinc-500">
+                    <p className="mt-2 text-sm text-[var(--hms-text-muted)]">
                         Les réservations terminées apparaîtront ici pour générer une
                         facture.
                     </p>
@@ -80,36 +85,36 @@ export function ReservationInvoiceSourceTable({
 
     return (
         <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-zinc-200">
-                <thead className="bg-zinc-50">
+            <table className="min-w-full divide-y divide-[var(--hms-soft-border)]">
+                <thead className="bg-slate-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Réservation
                         </th>
 
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Client
                         </th>
 
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Séjour
                         </th>
 
-                        <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Estimation HT
                         </th>
 
-                        <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             État
                         </th>
 
-                        <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Action
                         </th>
                     </tr>
                 </thead>
 
-                <tbody className="divide-y divide-zinc-100 bg-white">
+                <tbody className="divide-y divide-[var(--hms-soft-border)] bg-white">
                     {sources.map((source) => {
                         const selected =
                             selectedReservationId === source.reservationId;
@@ -125,16 +130,16 @@ export function ReservationInvoiceSourceTable({
                                 key={source.reservationId}
                                 className={cn(
                                     "transition",
-                                    selected && "bg-stone-50",
+                                    selected && "bg-slate-50",
                                     !selected && "hover:bg-zinc-50"
                                 )}
                             >
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <p className="text-sm font-semibold text-zinc-950">
+                                <td className="whitespace-nowrap px-6 py-5">
+                                    <p className="text-sm font-bold text-[var(--hms-text)]">
                                         #{source.reservationId}
                                     </p>
 
-                                    <p className="mt-1 text-xs text-zinc-500">
+                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
                                         {
                                             RESERVATION_STATUS_LABELS[
                                                 source.reservationStatus
@@ -143,22 +148,22 @@ export function ReservationInvoiceSourceTable({
                                     </p>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4">
-                                    <p className="text-sm font-medium text-zinc-900">
+                                <td className="whitespace-nowrap px-6 py-5">
+                                    <p className="text-sm font-semibold text-[var(--hms-text)]">
                                         {source.clientFullName}
                                     </p>
 
-                                    <p className="mt-1 text-xs text-zinc-500">
+                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
                                         Client #{source.clientId}
                                     </p>
                                 </td>
 
-                                <td className="min-w-72 px-6 py-4">
-                                    <p className="text-sm font-medium text-zinc-900">
+                                <td className="min-w-72 px-6 py-5">
+                                    <p className="text-sm font-semibold text-[var(--hms-text)]">
                                         Chambre {source.roomNumber}
                                     </p>
 
-                                    <p className="mt-1 text-xs text-zinc-500">
+                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
                                         <InvoiceDate
                                             value={source.checkInDate}
                                             className="text-xs text-zinc-500"
@@ -170,7 +175,7 @@ export function ReservationInvoiceSourceTable({
                                         />
                                     </p>
 
-                                    <p className="mt-1 text-xs text-zinc-500">
+                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
                                         {source.nights} nuit(s) ×{" "}
                                         <InvoiceAmount
                                             amount={source.pricePerNight}
@@ -180,7 +185,7 @@ export function ReservationInvoiceSourceTable({
                                     </p>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4 text-right">
+                                <td className="whitespace-nowrap px-6 py-5 text-right">
                                     <InvoiceAmount
                                         amount={subtotal}
                                         variant="strong"
@@ -188,30 +193,30 @@ export function ReservationInvoiceSourceTable({
                                     />
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4">
+                                <td className="whitespace-nowrap px-6 py-5">
                                     <span
                                         className={cn(
                                             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset",
                                             badge.className
                                         )}
                                     >
-                                        <BadgeIcon className="h-3.5 w-3.5" />
+                                        <BadgeIcon aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
                                         {badge.label}
                                     </span>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-4 text-right">
+                                <td className="whitespace-nowrap px-6 py-5 text-right">
                                     <button
                                         type="button"
                                         onClick={() => onSelect(source)}
                                         disabled={!available}
                                         className={cn(
-                                            "rounded-xl px-3 py-2 text-xs font-semibold transition",
+                                            "rounded-xl px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2",
                                             selected &&
-                                                "bg-stone-900 text-white",
+                                                "cursor-pointer bg-[var(--hms-primary)] text-white",
                                             !selected &&
                                                 available &&
-                                                "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
+                                                "cursor-pointer border border-[var(--hms-border)] bg-white text-[var(--hms-text)] hover:bg-slate-50",
                                             !available &&
                                                 "cursor-not-allowed border border-zinc-200 bg-zinc-50 text-zinc-400"
                                         )}

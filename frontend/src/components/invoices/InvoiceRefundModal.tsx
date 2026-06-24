@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { RotateCcw } from "lucide-react";
+import { HmsInput, HmsTextarea } from "@/components/hms/HmsField";
 import { InvoiceActionModal } from "@/components/invoices/InvoiceActionModal";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import {
@@ -84,7 +85,7 @@ export function InvoiceRefundModal({
             open={open}
             title="Rembourser la facture"
             description="Cette action passe une facture payée vers le statut Remboursée."
-            icon={ArrowPathIcon}
+            icon={RotateCcw}
             iconClassName="bg-purple-50 text-purple-700"
             confirmLabel="Confirmer le remboursement"
             submitting={submitting}
@@ -108,74 +109,41 @@ export function InvoiceRefundModal({
                     </p>
                 </div>
 
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Motif de remboursement
-                    </label>
-
-                    <textarea
+                <HmsTextarea
+                        id="invoice-refund-reason"
+                        label="Motif de remboursement"
                         value={form.reason}
                         onChange={(event) =>
                             updateField("reason", event.target.value)
                         }
                         rows={4}
                         placeholder="Remboursement demandé par le client"
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
+                        error={errors.reason}
+                />
 
-                    {errors.reason && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.reason}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Référence de remboursement
-                    </label>
-
-                    <input
+                <HmsInput
+                        id="invoice-refund-reference"
+                        label="Référence de remboursement"
                         type="text"
                         value={form.paymentReference ?? ""}
                         onChange={(event) =>
                             updateField("paymentReference", event.target.value)
                         }
                         placeholder="REFUND-2026-0001"
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
+                        error={errors.paymentReference}
+                />
 
-                    {errors.paymentReference && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.paymentReference}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Date et heure de remboursement
-                    </label>
-
-                    <input
+                <HmsInput
+                        id="invoice-refunded-at"
+                        label="Date et heure de remboursement"
                         type="datetime-local"
                         value={form.refundedAt ?? ""}
                         onChange={(event) =>
                             updateField("refundedAt", event.target.value)
                         }
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
-
-                    <p className="mt-1 text-xs text-zinc-500">
-                        Si ce champ est vide, la date et l’heure courantes seront utilisées.
-                    </p>
-
-                    {errors.refundedAt && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.refundedAt}
-                        </p>
-                    )}
-                </div>
+                        hint="Si ce champ est vide, la date et l’heure courantes seront utilisées."
+                        error={errors.refundedAt}
+                />
             </div>
         </InvoiceActionModal>
     );

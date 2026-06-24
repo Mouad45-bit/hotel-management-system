@@ -1,18 +1,16 @@
 "use client";
 
-import type { ComponentType, SVGProps } from "react";
 import {
-    ArrowPathIcon,
-    BanknotesIcon,
-    ClockIcon,
-    DocumentTextIcon,
-} from "@heroicons/react/24/outline";
+    CircleCheckBig,
+    Clock3,
+    FileText,
+    RotateCcw,
+    type LucideIcon,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import { cn } from "@/lib/utils";
 import type { InvoiceStats } from "@/types/invoice";
-
-type StatIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 interface InvoiceStatsCardsProps {
     stats: InvoiceStats;
@@ -23,7 +21,7 @@ interface StatCard {
     label: string;
     value: string | number;
     description: string;
-    icon: StatIcon;
+    icon: LucideIcon;
     tone: "default" | "success" | "warning" | "purple";
     amount?: number;
 }
@@ -44,14 +42,14 @@ export function InvoiceStatsCards({
             label: "Total factures",
             value: stats.total,
             description: `${stats.draft} brouillon(s), ${stats.issued} émise(s)`,
-            icon: DocumentTextIcon,
+            icon: FileText,
             tone: "default",
         },
         {
             label: "Chiffre encaissé",
             value: "",
             description: `${stats.paid} facture(s) payée(s)`,
-            icon: BanknotesIcon,
+            icon: CircleCheckBig,
             tone: "success",
             amount: stats.totalRevenue,
         },
@@ -59,7 +57,7 @@ export function InvoiceStatsCards({
             label: "Montant en attente",
             value: "",
             description: `${stats.issued} facture(s) à payer`,
-            icon: ClockIcon,
+            icon: Clock3,
             tone: "warning",
             amount: stats.pendingAmount,
         },
@@ -67,22 +65,22 @@ export function InvoiceStatsCards({
             label: "Remboursements",
             value: "",
             description: `${stats.refunded} facture(s) remboursée(s)`,
-            icon: ArrowPathIcon,
+            icon: RotateCcw,
             tone: "purple",
             amount: stats.refundedAmount,
         },
     ];
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {cards.map((card) => {
                 const Icon = card.icon;
 
                 return (
-                    <HmsCard key={card.label}>
+                    <HmsCard key={card.label} className="p-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <p className="text-sm text-zinc-500">
+                                <p className="text-sm font-medium text-[var(--hms-text-muted)]">
                                     {card.label}
                                 </p>
 
@@ -96,24 +94,24 @@ export function InvoiceStatsCards({
                                             className="text-2xl"
                                         />
                                     ) : (
-                                        <p className="text-2xl font-semibold text-zinc-950">
+                                        <p className="text-2xl font-bold text-[var(--hms-text)]">
                                             {card.value}
                                         </p>
                                     )}
                                 </div>
 
-                                <p className="mt-2 text-xs text-zinc-500">
+                                <p className="mt-2 text-xs text-[var(--hms-text-muted)]">
                                     {card.description}
                                 </p>
                             </div>
 
                             <div
                                 className={cn(
-                                    "flex h-10 w-10 items-center justify-center rounded-2xl",
+                                    "flex h-11 w-11 items-center justify-center rounded-2xl",
                                     TONE_CLASSES[card.tone]
                                 )}
                             >
-                                <Icon className="h-5 w-5" />
+                                <Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
                             </div>
                         </div>
                     </HmsCard>

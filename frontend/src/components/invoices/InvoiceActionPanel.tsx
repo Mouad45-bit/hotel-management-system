@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import {
-    ArrowPathIcon,
-    CheckCircleIcon,
-    CreditCardIcon,
-    DocumentCheckIcon,
-    NoSymbolIcon,
-} from "@heroicons/react/24/outline";
+    Ban,
+    CircleCheckBig,
+    CreditCard,
+    FileCheck2,
+    RotateCcw,
+    type LucideIcon,
+} from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceCancelModal } from "@/components/invoices/InvoiceCancelModal";
@@ -45,9 +46,10 @@ type ActiveInvoiceModal = "issue" | "pay" | "cancel" | "refund" | null;
 interface ActionCardProps {
     title: string;
     description: string;
-    icon: typeof DocumentCheckIcon;
+    icon: LucideIcon;
     iconClassName: string;
     buttonLabel: string;
+    primary?: boolean;
     danger?: boolean;
     disabled?: boolean;
     onClick: () => void;
@@ -59,32 +61,33 @@ function ActionCard({
     icon: Icon,
     iconClassName,
     buttonLabel,
+    primary = false,
     danger = false,
     disabled = false,
     onClick,
 }: ActionCardProps) {
     return (
-        <div className="rounded-2xl border border-zinc-200 p-4">
+        <div className="rounded-2xl border border-[var(--hms-soft-border)] p-4">
             <div className="flex items-start gap-3">
                 <div
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
                 >
-                    <Icon className="h-5 w-5" />
+                    <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </div>
 
                 <div className="flex-1">
-                    <p className="text-sm font-semibold text-zinc-950">
+                    <p className="text-sm font-bold text-[var(--hms-text)]">
                         {title}
                     </p>
 
-                    <p className="mt-1 text-sm leading-6 text-zinc-500">
+                    <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         {description}
                     </p>
 
                     <div className="mt-4">
                         <HmsButton
                             type="button"
-                            variant={danger ? "danger" : "secondary"}
+                            variant={danger ? "danger" : primary ? "primary" : "secondary"}
                             onClick={onClick}
                             disabled={disabled}
                         >
@@ -175,14 +178,14 @@ export function InvoiceActionPanel({
 
     return (
         <>
-            <HmsCard>
+            <HmsCard className="p-6">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h3 className="text-sm font-semibold text-zinc-950">
+                        <h3 className="text-base font-bold text-[var(--hms-text)]">
                             Actions facture
                         </h3>
 
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             Les actions métier sont confirmées dans des modals
                             pour éviter les changements accidentels.
                         </p>
@@ -193,7 +196,7 @@ export function InvoiceActionPanel({
 
                 {feedbackMessage && (
                     <div className="mt-4 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-                        <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                        <CircleCheckBig aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.8} />
                         {feedbackMessage}
                     </div>
                 )}
@@ -205,7 +208,7 @@ export function InvoiceActionPanel({
                 )}
 
                 {!canDoAnyAction && (
-                    <div className="mt-5 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
+                    <div className="mt-5 rounded-xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
                         Aucune action métier n’est disponible pour ce statut.
                     </div>
                 )}
@@ -215,9 +218,10 @@ export function InvoiceActionPanel({
                         <ActionCard
                             title="Émettre la facture"
                             description="La facture passera de Brouillon à Émise."
-                            icon={DocumentCheckIcon}
+                            icon={FileCheck2}
                             iconClassName="bg-blue-50 text-blue-700"
                             buttonLabel="Émettre"
+                            primary
                             disabled={isSubmitting}
                             onClick={() => setActiveModal("issue")}
                         />
@@ -227,9 +231,10 @@ export function InvoiceActionPanel({
                         <ActionCard
                             title="Marquer comme payée"
                             description="La facture passera de Émise à Payée avec une méthode de paiement."
-                            icon={CreditCardIcon}
+                            icon={CreditCard}
                             iconClassName="bg-emerald-50 text-emerald-700"
                             buttonLabel="Payer"
+                            primary
                             disabled={isSubmitting}
                             onClick={() => setActiveModal("pay")}
                         />
@@ -239,7 +244,7 @@ export function InvoiceActionPanel({
                         <ActionCard
                             title="Annuler la facture"
                             description="La facture sera annulée avec un motif obligatoire."
-                            icon={NoSymbolIcon}
+                            icon={Ban}
                             iconClassName="bg-red-50 text-red-700"
                             buttonLabel="Annuler"
                             danger
@@ -252,7 +257,7 @@ export function InvoiceActionPanel({
                         <ActionCard
                             title="Rembourser la facture"
                             description="La facture payée passera au statut Remboursée."
-                            icon={ArrowPathIcon}
+                            icon={RotateCcw}
                             iconClassName="bg-purple-50 text-purple-700"
                             buttonLabel="Rembourser"
                             disabled={isSubmitting}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CreditCardIcon } from "@heroicons/react/24/outline";
+import { CreditCard } from "lucide-react";
+import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
 import { InvoiceActionModal } from "@/components/invoices/InvoiceActionModal";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 import {
@@ -83,7 +84,7 @@ export function InvoicePayModal({
             open={open}
             title="Marquer la facture comme payée"
             description="Cette action passe la facture de Émise à Payée. La méthode de paiement est obligatoire."
-            icon={CreditCardIcon}
+            icon={CreditCard}
             iconClassName="bg-emerald-50 text-emerald-700"
             confirmLabel="Confirmer le paiement"
             submitting={submitting}
@@ -107,12 +108,9 @@ export function InvoicePayModal({
                     </p>
                 </div>
 
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Méthode de paiement
-                    </label>
-
-                    <select
+                <HmsSelect
+                        id="invoice-payment-method"
+                        label="Méthode de paiement"
                         value={form.paymentMethod}
                         onChange={(event) =>
                             updateField(
@@ -120,68 +118,38 @@ export function InvoicePayModal({
                                 event.target.value as PaymentMethod
                             )
                         }
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    >
+                        error={errors.paymentMethod}
+                >
                         {PAYMENT_METHODS.map((method) => (
                             <option key={method} value={method}>
                                 {PAYMENT_METHOD_LABELS[method]}
                             </option>
                         ))}
-                    </select>
+                </HmsSelect>
 
-                    {errors.paymentMethod && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.paymentMethod}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Référence de paiement
-                    </label>
-
-                    <input
+                <HmsInput
+                        id="invoice-payment-reference"
+                        label="Référence de paiement"
                         type="text"
                         value={form.paymentReference ?? ""}
                         onChange={(event) =>
                             updateField("paymentReference", event.target.value)
                         }
                         placeholder="CASH-RECEPTION-001"
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
+                        error={errors.paymentReference}
+                />
 
-                    {errors.paymentReference && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.paymentReference}
-                        </p>
-                    )}
-                </div>
-
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Date et heure de paiement
-                    </label>
-
-                    <input
+                <HmsInput
+                        id="invoice-paid-at"
+                        label="Date et heure de paiement"
                         type="datetime-local"
                         value={form.paidAt ?? ""}
                         onChange={(event) =>
                             updateField("paidAt", event.target.value)
                         }
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
-
-                    <p className="mt-1 text-xs text-zinc-500">
-                        Si ce champ est vide, la date et l’heure courantes seront utilisées.
-                    </p>
-
-                    {errors.paidAt && (
-                        <p className="mt-1 text-xs text-red-600">
-                            {errors.paidAt}
-                        </p>
-                    )}
-                </div>
+                        hint="Si ce champ est vide, la date et l’heure courantes seront utilisées."
+                        error={errors.paidAt}
+                />
             </div>
         </InvoiceActionModal>
     );

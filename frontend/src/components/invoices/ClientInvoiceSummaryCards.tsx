@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    BanknotesIcon,
-    ClockIcon,
-    DocumentTextIcon,
-    ReceiptRefundIcon,
-} from "@heroicons/react/24/outline";
+    CircleCheckBig,
+    Clock3,
+    FileText,
+    RotateCcw,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { InvoiceAmount } from "@/components/invoices/InvoiceAmount";
 
@@ -45,7 +45,7 @@ export function ClientInvoiceSummaryCards({
                     </div>
 
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-700">
-                        <DocumentTextIcon className="h-5 w-5" />
+                        <FileText aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
                 </div>
             </HmsCard>
@@ -69,7 +69,7 @@ export function ClientInvoiceSummaryCards({
                     </div>
 
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                        <BanknotesIcon className="h-5 w-5" />
+                        <CircleCheckBig aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
                 </div>
             </HmsCard>
@@ -93,7 +93,7 @@ export function ClientInvoiceSummaryCards({
                     </div>
 
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                        <ClockIcon className="h-5 w-5" />
+                        <Clock3 aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
                 </div>
             </HmsCard>
@@ -117,7 +117,7 @@ export function ClientInvoiceSummaryCards({
                     </div>
 
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-50 text-purple-700">
-                        <ReceiptRefundIcon className="h-5 w-5" />
+                        <RotateCcw aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                     </div>
                 </div>
             </HmsCard>

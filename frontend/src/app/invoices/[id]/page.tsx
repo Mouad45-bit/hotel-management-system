@@ -15,7 +15,7 @@ export default async function InvoiceDetailPage({
 
     return (
         <AppLayout
-            title="Détail facture"
+            title="Détail de facture"
             description="Consultation financière et actions de cycle de vie"
         >
             <InvoiceDetailClient invoiceId={invoiceId} />

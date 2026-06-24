@@ -20,9 +20,9 @@ export function InvoiceAmount({
         <span
             className={cn(
                 "tabular-nums",
-                variant === "default" && "font-medium text-zinc-900",
-                variant === "strong" && "font-semibold text-zinc-950",
-                variant === "muted" && "text-zinc-500",
+                variant === "default" && "font-medium text-[var(--hms-text)]",
+                variant === "strong" && "font-bold text-[var(--hms-text)]",
+                variant === "muted" && "text-[var(--hms-text-muted)]",
                 variant === "success" && "font-semibold text-emerald-700",
                 variant === "danger" && "font-semibold text-red-700",
                 amount < 0 && "text-red-700",
