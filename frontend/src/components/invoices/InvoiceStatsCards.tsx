@@ -33,6 +33,10 @@ const TONE_CLASSES: Record<StatCard["tone"], string> = {
     purple: "bg-purple-50 text-purple-700",
 };
 
+function formatCount(count: number, singular: string, plural = `${singular}s`) {
+    return `${count} ${count > 1 ? plural : singular}`;
+}
+
 export function InvoiceStatsCards({
     stats,
     loading = false,
@@ -40,15 +44,15 @@ export function InvoiceStatsCards({
     const cards: StatCard[] = [
         {
             label: "Total factures",
-            value: stats.total,
-            description: `${stats.draft} brouillon(s), ${stats.issued} émise(s)`,
+            value: formatCount(stats.total, "facture"),
+            description: `${formatCount(stats.draft, "brouillon")}, ${formatCount(stats.issued, "émise", "émises")}`,
             icon: FileText,
             tone: "default",
         },
         {
             label: "Chiffre encaissé",
             value: "",
-            description: `${stats.paid} facture(s) payée(s)`,
+            description: formatCount(stats.paid, "facture payée", "factures payées"),
             icon: CircleCheckBig,
             tone: "success",
             amount: stats.totalRevenue,
@@ -56,7 +60,7 @@ export function InvoiceStatsCards({
         {
             label: "Montant en attente",
             value: "",
-            description: `${stats.issued} facture(s) à payer`,
+            description: formatCount(stats.issued, "facture à payer", "factures à payer"),
             icon: Clock3,
             tone: "warning",
             amount: stats.pendingAmount,
@@ -64,7 +68,7 @@ export function InvoiceStatsCards({
         {
             label: "Remboursements",
             value: "",
-            description: `${stats.refunded} facture(s) remboursée(s)`,
+            description: formatCount(stats.refunded, "facture remboursée", "factures remboursées"),
             icon: RotateCcw,
             tone: "purple",
             amount: stats.refundedAmount,
@@ -107,11 +111,11 @@ export function InvoiceStatsCards({
 
                             <div
                                 className={cn(
-                                    "flex h-11 w-11 items-center justify-center rounded-2xl",
+                                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
                                     TONE_CLASSES[card.tone]
                                 )}
                             >
-                                <Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+                                <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                             </div>
                         </div>
                     </HmsCard>
