@@ -13,7 +13,7 @@ export function AppLayout({ children, title, description }: AppLayoutProps) {
         <div className="min-h-screen bg-[var(--hms-page)]">
             <Sidebar />
 
-            <div className="lg:pl-[320px]">
+            <div className="lg:pl-[280px]">
                 <Topbar title={title} description={description} />
 
                 <main className="px-5 py-8 sm:px-8 lg:px-12 lg:py-10">

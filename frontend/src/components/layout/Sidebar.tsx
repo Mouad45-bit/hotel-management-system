@@ -37,8 +37,8 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="fixed inset-y-0 left-0 hidden w-[320px] border-r border-[var(--hms-soft-border)] bg-white lg:block">
-            <div className="flex h-28 items-center gap-4 border-b border-[var(--hms-soft-border)] px-8">
+        <aside className="fixed inset-y-0 left-0 hidden w-[280px] border-r border-[var(--hms-soft-border)] bg-white lg:block">
+            <div className="flex h-28 items-center gap-4 border-b border-[var(--hms-soft-border)] px-6">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hms-primary)] text-white">
                     <Building2 aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
                 </div>
@@ -49,7 +49,7 @@ export function Sidebar() {
                 </div>
             </div>
 
-            <nav className="space-y-2 px-5 py-7">
+            <nav className="space-y-2 px-4 py-7">
                 {navigation.map((item) => {
                     const Icon = item.icon;
                     const active =
@@ -92,7 +92,7 @@ export function Sidebar() {
                 })}
             </nav>
 
-            <div className="absolute bottom-6 left-5 right-5 rounded-[20px] border border-[var(--hms-soft-border)] bg-slate-50 p-4">
+            <div className="absolute bottom-6 left-4 right-4 rounded-[20px] border border-[var(--hms-soft-border)] bg-slate-50 p-4">
                 <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--hms-primary)] shadow-sm">
                         <UserRound aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
