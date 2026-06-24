@@ -34,9 +34,9 @@ export function InvoiceTable({
                 {Array.from({ length: 5 }).map((_, index) => (
                     <div
                         key={index}
-                        className="grid gap-4 px-6 py-4 md:grid-cols-6"
+                        className="grid gap-3 px-4 py-4 md:grid-cols-7"
                     >
-                        {Array.from({ length: 6 }).map((__, cellIndex) => (
+                        {Array.from({ length: 7 }).map((__, cellIndex) => (
                             <div
                                 key={cellIndex}
                                 className="h-5 animate-pulse rounded-lg bg-slate-100"
@@ -70,53 +70,53 @@ export function InvoiceTable({
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-[var(--hms-soft-border)]">
+        <div className="overflow-visible">
+            <table className="w-full table-auto border-collapse">
                 <thead className="bg-slate-50">
                     <tr>
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Facture
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Client
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Séjour / chambre
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Montant TTC
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Statut
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Paiement
                         </th>
 
-                        <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Actions
                         </th>
                     </tr>
                 </thead>
 
-                <tbody className="divide-y divide-[var(--hms-soft-border)] bg-white">
+                <tbody className="bg-white">
                     {invoices.map((invoice) => (
                         <tr
                             key={invoice.id}
                             className="transition-colors hover:bg-slate-50"
                         >
-                            <td className="whitespace-nowrap px-6 py-5">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <div>
                                     <p className="text-sm font-bold text-[var(--hms-text)]">
                                         {invoice.invoiceNumber}
                                     </p>
 
-                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                    <p className="mt-1 whitespace-nowrap text-xs text-[var(--hms-text-muted)]">
                                         Créée le{" "}
                                         <InvoiceDate
                                             value={invoice.createdAt}
@@ -127,7 +127,7 @@ export function InvoiceTable({
                                 </div>
                             </td>
 
-                            <td className="whitespace-nowrap px-6 py-5">
+                            <td className="border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <div>
                                     <p className="text-sm font-semibold text-[var(--hms-text)]">
                                         {invoice.clientFullName}
@@ -139,7 +139,7 @@ export function InvoiceTable({
                                 </div>
                             </td>
 
-                            <td className="min-w-64 px-6 py-5">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <div>
                                     <p className="text-sm font-semibold text-[var(--hms-text)]">
                                         {formatInvoiceRoom(invoice)}
@@ -149,13 +149,13 @@ export function InvoiceTable({
                                         Réservation #{invoice.reservationId}
                                     </p>
 
-                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                    <p className="mt-1 whitespace-nowrap text-xs text-[var(--hms-text-muted)]">
                                         {formatInvoicePeriod(invoice)}
                                     </p>
                                 </div>
                             </td>
 
-                            <td className="whitespace-nowrap px-6 py-5">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <div>
                                     <InvoiceAmount
                                         amount={invoice.totalAmount}
@@ -171,41 +171,41 @@ export function InvoiceTable({
                                 </div>
                             </td>
 
-                            <td className="whitespace-nowrap px-6 py-5">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center align-top">
                                 <InvoiceStatusBadge status={invoice.status} />
                             </td>
 
-                            <td className="whitespace-nowrap px-6 py-5">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <p className="text-sm text-[var(--hms-text)]">
                                     {getPaymentMethodDisplayLabel(invoice.paymentMethod)}
                                 </p>
 
-                                <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                <p className="mt-1 whitespace-nowrap text-xs text-[var(--hms-text-muted)]">
                                     Réf. {invoice.paymentReference ?? "—"}
                                 </p>
                             </td>
 
-                            <td className="whitespace-nowrap px-6 py-5 text-right">
-                                <div className="flex justify-end gap-2">
-                                    <Link
-                                        href={`/invoices/${invoice.id}`}
-                                        className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                        aria-label={`Voir la facture ${invoice.invoiceNumber}`}
-                                        title="Voir"
-                                    >
-                                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    </Link>
-
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
+                                <div className="flex justify-end gap-1.5">
                                     {canPrintInvoice(invoice) && (
                                         <Link
                                             href={`/invoices/${invoice.id}/print`}
-                                            className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                                             aria-label={`Imprimer la facture ${invoice.invoiceNumber}`}
                                             title="Imprimer"
                                         >
                                             <Printer aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                         </Link>
                                     )}
+
+                                    <Link
+                                        href={`/invoices/${invoice.id}`}
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        aria-label={`Voir la facture ${invoice.invoiceNumber}`}
+                                        title="Voir"
+                                    >
+                                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                    </Link>
                                 </div>
                             </td>
                         </tr>

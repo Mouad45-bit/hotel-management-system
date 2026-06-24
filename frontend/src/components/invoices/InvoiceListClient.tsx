@@ -195,20 +195,16 @@ export function InvoiceListClient() {
             )}
 
             <HmsCard className="overflow-hidden p-0">
-                <div className="flex flex-col gap-3 border-b border-[var(--hms-soft-border)] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-2 border-b border-[var(--hms-soft-border)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h3 className="text-base font-bold text-[var(--hms-text)]">
-                            Tableau des factures
-                        </h3>
-
-                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
+                        <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
                             {pageResponse
                                 ? `${pageResponse.totalElements} facture(s) trouvée(s)`
                                 : "Chargement des factures"}
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                         <HmsButton
                             type="button"
                             variant="secondary"
