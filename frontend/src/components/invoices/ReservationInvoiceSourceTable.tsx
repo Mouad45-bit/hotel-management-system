@@ -265,7 +265,7 @@ export function ReservationInvoiceSourceTable({
                                         className={cn(
                                             "inline-flex min-h-10 w-full items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 sm:w-auto",
                                             selected &&
-                                                "cursor-pointer border-[var(--hms-primary)] bg-slate-50 text-[var(--hms-primary)]",
+                                                "cursor-pointer border-[var(--hms-primary)] bg-[var(--hms-primary)] text-white hover:bg-[var(--hms-primary-hover)] active:bg-[var(--hms-primary-active)]",
                                             !selected &&
                                                 available &&
                                                 "cursor-pointer border-[var(--hms-border)] bg-white text-[var(--hms-text)] hover:bg-slate-50",
