@@ -224,6 +224,10 @@ export function InvoiceCreateClient() {
             !source.hasActiveInvoice
     ).length;
 
+    const displayedReservationSources = reservationSources.filter(
+        (source) => !source.hasActiveInvoice
+    );
+
     return (
         <div className="space-y-8">
             <section>
@@ -308,7 +312,7 @@ export function InvoiceCreateClient() {
                         </div>
                     ) : (
                         <ReservationInvoiceSourceTable
-                            sources={reservationSources}
+                            sources={displayedReservationSources}
                             selectedReservationId={
                                 selectedReservation?.reservationId ?? null
                             }
