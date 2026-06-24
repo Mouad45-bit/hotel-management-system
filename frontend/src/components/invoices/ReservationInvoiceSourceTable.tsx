@@ -84,37 +84,45 @@ export function ReservationInvoiceSourceTable({
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-[var(--hms-soft-border)]">
-                <thead className="bg-slate-50">
+        <div>
+            <table className="w-full border-collapse">
+                <thead className="hidden bg-slate-50 xl:table-header-group">
                     <tr>
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Réservation
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Client
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Chambre
+                        </th>
+
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Séjour
                         </th>
 
-                        <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Nuits
+                        </th>
+
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Estimation HT
                         </th>
 
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             État
                         </th>
 
-                        <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Action
                         </th>
                     </tr>
                 </thead>
 
-                <tbody className="divide-y divide-[var(--hms-soft-border)] bg-white">
+                <tbody className="grid gap-3 bg-white p-4 xl:table-row-group xl:p-0">
                     {sources.map((source) => {
                         const selected =
                             selectedReservationId === source.reservationId;
@@ -129,12 +137,16 @@ export function ReservationInvoiceSourceTable({
                             <tr
                                 key={source.reservationId}
                                 className={cn(
-                                    "transition",
+                                    "grid gap-x-4 gap-y-3 rounded-2xl border border-[var(--hms-soft-border)] p-4 transition-colors sm:grid-cols-2 xl:table-row xl:rounded-none xl:border-0 xl:p-0",
                                     selected && "bg-slate-50",
                                     !selected && "hover:bg-zinc-50"
                                 )}
                             >
-                                <td className="whitespace-nowrap px-6 py-5">
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Réservation
+                                    </p>
+
                                     <p className="text-sm font-bold text-[var(--hms-text)]">
                                         #{source.reservationId}
                                     </p>
@@ -148,7 +160,11 @@ export function ReservationInvoiceSourceTable({
                                     </p>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-5">
+                                <td className="min-w-0 xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Client
+                                    </p>
+
                                     <p className="text-sm font-semibold text-[var(--hms-text)]">
                                         {source.clientFullName}
                                     </p>
@@ -158,42 +174,74 @@ export function ReservationInvoiceSourceTable({
                                     </p>
                                 </td>
 
-                                <td className="min-w-72 px-6 py-5">
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Chambre
+                                    </p>
+
                                     <p className="text-sm font-semibold text-[var(--hms-text)]">
                                         Chambre {source.roomNumber}
                                     </p>
+                                </td>
 
-                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Séjour
+                                    </p>
+
+                                    <p className="text-xs text-[var(--hms-text-muted)]">
+                                        Du{" "}
                                         <InvoiceDate
                                             value={source.checkInDate}
                                             className="text-xs text-zinc-500"
-                                        />{" "}
-                                        →{" "}
+                                        />
+                                    </p>
+
+                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                        Au{" "}
                                         <InvoiceDate
                                             value={source.checkOutDate}
                                             className="text-xs text-zinc-500"
                                         />
                                     </p>
+                                </td>
 
-                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
-                                        {source.nights} nuit(s) ×{" "}
-                                        <InvoiceAmount
-                                            amount={source.pricePerNight}
-                                            variant="muted"
-                                            className="text-xs"
-                                        />
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:text-center xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Nuits
+                                    </p>
+
+                                    <p className="text-sm font-semibold text-[var(--hms-text)]">
+                                        {source.nights}
                                     </p>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-5 text-right">
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:text-right xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Estimation HT
+                                    </p>
+
                                     <InvoiceAmount
                                         amount={subtotal}
                                         variant="strong"
                                         className="text-sm"
                                     />
+
+                                    <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                        <InvoiceAmount
+                                            amount={source.pricePerNight}
+                                            variant="muted"
+                                            className="text-xs"
+                                        />{" "}
+                                        / nuit
+                                    </p>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-5">
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        État
+                                    </p>
+
                                     <span
                                         className={cn(
                                             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset",
@@ -205,20 +253,24 @@ export function ReservationInvoiceSourceTable({
                                     </span>
                                 </td>
 
-                                <td className="whitespace-nowrap px-6 py-5 text-right">
+                                <td className="min-w-0 sm:col-span-2 xl:table-cell xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:text-right xl:align-top">
+                                    <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
+                                        Action
+                                    </p>
+
                                     <button
                                         type="button"
                                         onClick={() => onSelect(source)}
                                         disabled={!available}
                                         className={cn(
-                                            "rounded-xl px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2",
+                                            "inline-flex min-h-10 w-full items-center justify-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 sm:w-auto",
                                             selected &&
-                                                "cursor-pointer bg-[var(--hms-primary)] text-white",
+                                                "cursor-pointer border-[var(--hms-primary)] bg-slate-50 text-[var(--hms-primary)]",
                                             !selected &&
                                                 available &&
-                                                "cursor-pointer border border-[var(--hms-border)] bg-white text-[var(--hms-text)] hover:bg-slate-50",
+                                                "cursor-pointer border-[var(--hms-border)] bg-white text-[var(--hms-text)] hover:bg-slate-50",
                                             !available &&
-                                                "cursor-not-allowed border border-zinc-200 bg-zinc-50 text-zinc-400"
+                                                "cursor-not-allowed border-zinc-200 bg-zinc-50 text-zinc-400"
                                         )}
                                     >
                                         {selected ? "Sélectionnée" : "Sélectionner"}
