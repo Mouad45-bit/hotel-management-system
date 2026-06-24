@@ -7,7 +7,6 @@ import {
     ArrowLeft,
     CircleCheckBig,
     FileText,
-    Info,
     TriangleAlert,
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
@@ -246,27 +245,6 @@ export function InvoiceCreateClient() {
                     ajustez les paramètres puis vérifiez le montant avant génération.
                 </p>
             </section>
-
-            <HmsCard className="p-5">
-                <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-[var(--hms-primary)]">
-                        <Info aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                    </div>
-
-                    <div>
-                        <p className="text-sm font-bold text-[var(--hms-text)]">
-                            Réservations facturables
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
-                            Une facture peut uniquement être générée pour une réservation terminée (
-                            <span className="font-semibold text-[var(--hms-text)]">
-                                CHECKED_OUT
-                            </span>
-                            ) sans facture active.
-                        </p>
-                    </div>
-                </div>
-            </HmsCard>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
