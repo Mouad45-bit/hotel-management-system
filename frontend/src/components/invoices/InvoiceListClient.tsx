@@ -183,14 +183,6 @@ export function InvoiceListClient() {
 
             <InvoiceStatsCards stats={stats} loading={isLoading} />
 
-            <InvoiceFilters
-                filters={filters}
-                errors={filterErrors}
-                loading={isLoading}
-                onApply={handleApplyFilters}
-                onReset={handleResetFilters}
-            />
-
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                     <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
@@ -216,15 +208,23 @@ export function InvoiceListClient() {
                         </p>
                     </div>
 
-                    <HmsButton
-                        type="button"
-                        variant="secondary"
-                        onClick={() => void loadInvoices(filters, currentPage)}
-                        disabled={isLoading}
-                    >
-                        <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                        Actualiser
-                    </HmsButton>
+                    <div className="flex items-center gap-2">
+                        <HmsButton
+                            type="button"
+                            variant="secondary"
+                            onClick={handleResetFilters}
+                            disabled={isLoading}
+                        >
+                            <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                            Actualiser
+                        </HmsButton>
+
+                        <InvoiceFilters
+                            filters={filters}
+                            errors={filterErrors}
+                            onApply={handleApplyFilters}
+                        />
+                    </div>
                 </div>
 
                 <InvoiceTable
