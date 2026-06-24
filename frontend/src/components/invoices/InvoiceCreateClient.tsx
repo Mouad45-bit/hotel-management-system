@@ -241,7 +241,9 @@ export function InvoiceCreateClient() {
                 </h2>
 
                 <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                    Sélectionnez une réservation terminée, ajustez les paramètres puis vérifiez le montant avant génération.
+                    Sélectionnez une réservation terminée,
+                    <br className="hidden md:block" />{" "}
+                    ajustez les paramètres puis vérifiez le montant avant génération.
                 </p>
             </section>
 
