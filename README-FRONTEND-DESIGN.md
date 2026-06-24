@@ -2,7 +2,7 @@
 
 > **Référence officielle du design HMS**  
 > **Fichier à placer à la racine du dépôt : `README-FRONTEND-DESIGN.md`**  
-> La page `/invoices` validée est la référence de qualité, de densité, d’espacement, de composants et de hiérarchie visuelle.  
+> Les pages `/invoices` et `/invoices/create` sont les références visuelles officielles de l’application.  
 > Toute nouvelle interface HMS doit sembler avoir été conçue par le même développeur frontend, pour le même produit, au même moment.
 
 ---
@@ -11,57 +11,80 @@
 
 HMS est une application de gestion hôtelière destinée à la réception, au management et, à terme, aux équipes housekeeping.
 
-Ce document définit la **langue visuelle unique** de l’application. Il sert de source de vérité pour créer ou restyler :
+Ce document définit la langue visuelle unique de l’application. Il sert de source de vérité pour créer ou restyler :
 
 - les pages de liste ;
-- les pages de création et de modification ;
+- les pages de création ;
+- les pages de modification ;
 - les pages de détail ;
 - les historiques ;
 - les formulaires ;
 - les tableaux ;
+- les sélections de ressources ;
+- les aperçus financiers ou métier ;
 - les popups de filtres ;
 - les états vides, erreurs et chargements ;
 - les composants partagés.
 
-L’objectif n’est pas de produire des pages différentes et décoratives selon les modules. L’objectif est d’obtenir une application cohérente, claire, calme et crédible pour une démonstration professionnelle.
+L’objectif n’est pas de créer un style différent pour chaque module. L’objectif est de construire une application cohérente, claire, calme, professionnelle et crédible.
 
-La règle principale est simple :
-
-> **La cohérence avec `/invoices` est prioritaire sur toute nouvelle idée visuelle.**
+> **La cohérence avec `/invoices` et `/invoices/create` est prioritaire sur toute nouvelle idée visuelle.**
 
 ---
 
-## 2. Référence visuelle officielle
+## 2. Références visuelles officielles
 
-### 2.1 Page de référence
+### 2.1 Pages de référence
 
-La route de référence est :
+| Route | Rôle de référence |
+|---|---|
+| `/invoices` | Référence pour les pages de liste, statistiques, filtres, tableaux, badges, pagination et outils de page |
+| `/invoices/create` | Référence pour les pages de création, sélection d’une ressource, formulaire, aperçu métier ou financier et actions finales |
 
-```text
-/invoices
-```
+### 2.2 Ce que fixe `/invoices`
 
-Elle fixe notamment :
+La page `/invoices` définit notamment :
 
 - la largeur de la sidebar ;
 - la hauteur et la structure de la topbar ;
 - la couleur du fond de contenu ;
-- la hiérarchie de titre ;
+- la hiérarchie des titres ;
 - la largeur du contenu ;
-- le style des cards ;
-- la taille des boutons ;
+- le style des cards statistiques ;
+- les boutons principaux et secondaires ;
 - les rayons ;
 - les ombres ;
 - la densité des tableaux ;
 - les badges de statut ;
 - les popups de filtres ;
-- les espacements verticaux et horizontaux.
+- les espacements verticaux et horizontaux ;
+- la pagination ;
+- les actions icon-only dans un tableau.
 
-### 2.2 Ordre de priorité en cas de doute
+### 2.3 Ce que fixe `/invoices/create`
+
+La page `/invoices/create` définit notamment :
+
+- le bouton retour d’une page de création ;
+- la hiérarchie d’un titre de création ;
+- la description métier sur une ou deux lignes ;
+- le bloc de sélection d’une ressource ;
+- le compteur contextuel d’éléments disponibles ;
+- le comportement visuel d’une ligne sélectionnée ;
+- les boutons `Sélectionner` et `Sélectionnée` ;
+- les états disponibles et indisponibles ;
+- la structure d’un tableau de sélection ;
+- le formulaire en card ;
+- l’aperçu métier ou financier ;
+- la grille deux colonnes sur desktop ;
+- la zone finale contenant le contexte sélectionné et les actions ;
+- le flux visuel : choisir, ajuster, vérifier, confirmer.
+
+### 2.4 Ordre de priorité en cas de doute
 
 Lorsqu’un choix visuel doit être fait, appliquer cet ordre :
 
-1. les captures validées de `/invoices` ;
+1. les captures validées de `/invoices` et `/invoices/create` ;
 2. ce document ;
 3. les composants partagés existants dans `frontend/src/components/hms` ;
 4. les composants de layout existants dans `frontend/src/components/layout` ;
@@ -81,7 +104,7 @@ Ne jamais créer une direction artistique différente pour un module isolé.
 - Tailwind CSS v4 ;
 - Inter chargée avec `next/font/google` ;
 - `lucide-react` pour toute nouvelle icône ;
-- Headless UI autorisé uniquement pour des comportements accessibles : `Dialog`, `Menu`, `Listbox`, `Popover`, `Transition`.
+- Headless UI autorisé uniquement pour des comportements accessibles comme `Dialog`, `Menu`, `Listbox`, `Popover` et `Transition`.
 
 ### 3.2 Respect du métier
 
@@ -93,11 +116,12 @@ Un changement frontend esthétique ne doit jamais modifier :
 - les paramètres de requête ;
 - les types TypeScript métier ;
 - les schémas Zod ;
-- les mocks ;
 - les validations métier ;
 - les calculs ;
 - les règles de statut ;
-- les données affichées.
+- les données affichées ;
+- les contrats backend ;
+- les règles d’éligibilité métier.
 
 Les composants métier ne réalisent pas directement les appels API. Les appels restent dans les services existants.
 
@@ -106,8 +130,9 @@ Les composants métier ne réalisent pas directement les appels API. Les appels 
 - tout bouton, lien visuellement cliquable, action d’icône, onglet et ligne interactive utilise `cursor-pointer` ;
 - un contrôle réellement désactivé utilise `disabled` et `cursor-not-allowed` ;
 - les boutons d’icône possèdent un `aria-label` ;
-- tout nouveau contrôle clavier doit conserver un focus visible ;
-- ne pas introduire de nouvel UI kit.
+- tout contrôle doit conserver un focus visible ;
+- ne pas introduire de nouvel UI kit ;
+- ne pas ajouter de dépendance npm sans demande explicite.
 
 ---
 
@@ -131,7 +156,9 @@ Le design doit rester :
 - lisible ;
 - structuré ;
 - dense sans être serré ;
-- élégant sans devenir décoratif.
+- élégant sans devenir décoratif ;
+- cohérent entre les modules ;
+- adapté à une démonstration professionnelle.
 
 ### 4.1 Ce que HMS ne doit jamais devenir
 
@@ -145,45 +172,44 @@ Ne pas transformer HMS en :
 - application où chaque module a une palette différente ;
 - écran avec des ombres fortes pour compenser une hiérarchie confuse ;
 - interface où chaque texte est dans une card ;
-- interface trop arrondie, enfantine ou “SaaS générique”.
+- interface trop arrondie, enfantine ou générique ;
+- interface décorative qui masque les données métier.
 
 ---
 
 ## 5. Identité visuelle et tokens
 
-Les nouvelles couleurs ne doivent pas être inventées dans les composants. Les tokens doivent rester centralisés dans :
+Les nouvelles couleurs ne doivent pas être inventées dans les composants.
 
-```text
-frontend/src/app/globals.css
-```
+Les tokens doivent rester centralisés dans :
+
+    frontend/src/app/globals.css
 
 ### 5.1 Tokens officiels
 
-```css
-:root {
-  --hms-primary: #191970;
-  --hms-primary-hover: #15155f;
-  --hms-primary-active: #111150;
+    :root {
+      --hms-primary: #191970;
+      --hms-primary-hover: #15155f;
+      --hms-primary-active: #111150;
 
-  --hms-surface: #ffffff;
-  --hms-page: #eceff1;
+      --hms-surface: #ffffff;
+      --hms-page: #eceff1;
 
-  --hms-text: #0d0907;
-  --hms-text-muted: rgba(13, 9, 7, 0.62);
+      --hms-text: #0d0907;
+      --hms-text-muted: rgba(13, 9, 7, 0.62);
 
-  --hms-border: #d8dee2;
-  --hms-soft-border: #e3e7ea;
+      --hms-border: #d8dee2;
+      --hms-soft-border: #e3e7ea;
 
-  --hms-focus: #191970;
-}
-```
+      --hms-focus: #191970;
+    }
 
 ### 5.2 Palette fonctionnelle
 
 | Usage | Valeur | Règle |
 |---|---:|---|
 | Action primaire / navigation active | `#191970` | Réservée à l’action principale, menu actif, profil et focus |
-| Hover primaire | `#15155f` | Utilisée uniquement lors du survol d’un élément primaire |
+| Hover primaire | `#15155F` | Utilisée uniquement lors du survol d’un élément primaire |
 | Fond de page | `#ECEFF1` | Surface de la zone de contenu principale |
 | Surface / card / tableau / popup | `#FFFFFF` | Fond de toutes les surfaces métier |
 | Texte fort | `#0D0907` | Titres, montants, données importantes |
@@ -197,18 +223,18 @@ Les couleurs sémantiques servent uniquement à communiquer un état métier.
 
 | État | Usage visuel |
 |---|---|
-| Succès / payé / disponible | texte vert sombre, fond vert très pâle, bordure vert clair |
-| Information / émise / réservée | texte bleu, fond bleu très pâle, bordure bleu clair |
-| Neutre / brouillon / attente | texte gris sombre, fond gris très pâle, bordure grise |
-| Attention / maintenance | texte orange foncé, fond orange très pâle, bordure orange claire |
-| Danger / annulé / erreur | texte rouge sombre, fond rouge très pâle, bordure rouge claire |
-| Remboursement | texte violet, fond violet très pâle, bordure violette claire |
+| Succès / payé / disponible / prêt | Texte vert sombre, fond vert très pâle, bordure vert clair |
+| Information / émise / réservée | Texte bleu, fond bleu très pâle, bordure bleu clair |
+| Neutre / brouillon / attente / non terminée | Texte gris sombre, fond gris très pâle, bordure grise |
+| Attention / maintenance | Texte orange foncé, fond orange très pâle, bordure orange claire |
+| Danger / annulé / erreur | Texte rouge sombre, fond rouge très pâle, bordure rouge claire |
+| Remboursement | Texte violet, fond violet très pâle, bordure violette claire |
 
 Règles obligatoires :
 
 - jamais de badge rempli avec une couleur saturée ;
 - jamais de texte blanc dans un badge de statut ;
-- jamais la couleur seule pour expliquer un état ;
+- jamais utiliser la couleur seule pour expliquer un état ;
 - un même statut conserve la même couleur dans tous les modules ;
 - les couleurs de statut ne remplacent pas Midnight Blue comme couleur de marque.
 
@@ -220,21 +246,17 @@ Règles obligatoires :
 
 La police unique de HMS est **Inter**.
 
-```tsx
-import { Inter } from "next/font/google";
+    import { Inter } from "next/font/google";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-```
+    const inter = Inter({
+      variable: "--font-inter",
+      subsets: ["latin"],
+      display: "swap",
+    });
 
-```css
-body {
-  font-family: var(--font-inter), system-ui, sans-serif;
-}
-```
+    body {
+      font-family: var(--font-inter), system-ui, sans-serif;
+    }
 
 Ne pas utiliser :
 
@@ -249,26 +271,28 @@ Ne pas utiliser :
 
 | Élément | Taille | Graisse | Traitement |
 |---|---:|---:|---|
-| Titre de page | 36–40px | 750–800 | texte Crow, `tracking-tight`, ligne compacte |
-| Description de page | 16–18px | 400–500 | texte secondaire, deux lignes maximum |
-| Titre de section | 18–20px | 700 | texte Crow |
-| Titre de card | 16–18px | 700 | texte Crow |
-| Libellé de card statistique | 14px | 500–600 | texte secondaire |
-| Valeur statistique / montant clé | 26–30px | 750–800 | Crow, vert uniquement lorsqu’il indique une information positive utile |
-| Entête de colonne | 12–13px | 700 | uppercase discret, ton secondaire |
+| Titre de page | 36–40px | 750–800 | Texte Crow, `tracking-tight`, ligne compacte |
+| Description de page | 16–18px | 400–500 | Texte secondaire, une ou deux lignes |
+| Titre de section | 18–20px | 700 | Texte Crow |
+| Titre de card | 16–18px | 700 | Texte Crow |
+| Libellé de card statistique | 14px | 500–600 | Texte secondaire |
+| Valeur statistique / montant clé | 26–30px | 750–800 | Crow, vert seulement si l’information est positive |
+| Entête de colonne | 12–13px | 700 | Uppercase discret, ton secondaire |
 | Texte principal de table | 14–15px | 600–700 | Crow |
-| Texte secondaire de table | 13–14px | 400–500 | texte secondaire |
-| Champ et bouton | 14px | 600 | compact et lisible |
-| Badge | 12–13px | 600 | jamais trop petit |
+| Texte secondaire de table | 13–14px | 400–500 | Texte secondaire |
+| Champ et bouton | 14px | 600 | Compact et lisible |
+| Badge | 12–13px | 600 | Jamais trop petit |
 
 ### 6.3 Règles de texte
 
 - utiliser `tracking-tight` seulement pour les titres et les grands chiffres ;
 - ne pas écrire de paragraphes en uppercase ;
 - garder des libellés en phrase naturelle ;
-- utiliser des verbes directs : `Générer une facture`, `Enregistrer`, `Appliquer les filtres` ;
+- utiliser des verbes directs ;
+- utiliser `Générer une facture`, `Enregistrer`, `Appliquer les filtres`, `Sélectionner` ;
 - ne pas écrire `Soumettre`, `Valider` ou `Confirmer` lorsqu’un terme métier précis existe ;
-- utiliser des chiffres tabulaires pour les montants si cela améliore l’alignement dans les tableaux.
+- utiliser des chiffres tabulaires pour les montants si cela améliore l’alignement dans les tableaux ;
+- une description peut être volontairement forcée sur deux lignes lorsqu’elle améliore la lecture du flux.
 
 ---
 
@@ -278,14 +302,14 @@ Ne pas utiliser :
 
 | Nom | Valeur | Utilisation |
 |---|---:|---|
-| `xs` | 4px | micro-écart, icône ↔ libellé |
-| `sm` | 8px | badges, actions compactes |
-| `md` | 12px | label ↔ champ, actions proches |
-| `lg` | 16px | groupes internes |
-| `xl` | 24px | padding d’une card, sections proches |
-| `2xl` | 32px | sections principales |
-| `3xl` | 40px | header de page ↔ premier contenu |
-| `4xl` | 48px | padding horizontal desktop |
+| `xs` | 4px | Micro-écart, icône ↔ libellé |
+| `sm` | 8px | Badges, actions compactes |
+| `md` | 12px | Label ↔ champ, actions proches |
+| `lg` | 16px | Groupes internes |
+| `xl` | 24px | Padding d’une card, sections proches |
+| `2xl` | 32px | Sections principales |
+| `3xl` | 40px | Header de page ↔ premier contenu |
+| `4xl` | 48px | Padding horizontal desktop |
 
 ### 7.2 Rayons
 
@@ -301,35 +325,31 @@ Ne pas utiliser :
 
 ### 7.3 Bordures et ombres
 
-- Les cards ont une bordure douce, un fond blanc et une ombre `shadow-sm` discrète.
-- Les champs et boutons secondaires utilisent une bordure légère mais visible.
-- Les lignes de table utilisent `--hms-soft-border`.
-- Ne pas utiliser `shadow-xl`, d’ombres colorées, de double bordure, de bordure noire épaisse ou d’effet 3D.
+- les cards ont une bordure douce, un fond blanc et une ombre `shadow-sm` discrète ;
+- les champs et boutons secondaires utilisent une bordure légère mais visible ;
+- les lignes de table utilisent `--hms-soft-border` ;
+- ne pas utiliser `shadow-xl`, ombres colorées, double bordure, bordure noire épaisse ou effet 3D.
 
 ---
 
 ## 8. Shell global : sidebar, topbar et contenu
 
-Toutes les pages applicatives passent par le layout partagé :
+Toutes les pages applicatives passent par le layout partagé.
 
-```tsx
-<AppLayout>
-  {/* contenu métier */}
-</AppLayout>
-```
+    <AppLayout>
+      {/* contenu métier */}
+    </AppLayout>
 
 ### 8.1 Structure
 
-```text
-┌───────────────────────────┬────────────────────────────────────────────────┐
-│ Sidebar fixe              │ Topbar blanche                                 │
-│                           ├────────────────────────────────────────────────┤
-│                           │ Zone de contenu sur fond Mist Gray              │
-│                           │                                                │
-│                           │ Header de page                                 │
-│                           │ Cards / tableaux / formulaires / détails       │
-└───────────────────────────┴────────────────────────────────────────────────┘
-```
+    ┌───────────────────────────┬────────────────────────────────────────────────┐
+    │ Sidebar fixe              │ Topbar blanche                                 │
+    │                           ├────────────────────────────────────────────────┤
+    │                           │ Zone de contenu sur fond Mist Gray              │
+    │                           │                                                │
+    │                           │ Header de page                                 │
+    │                           │ Cards / tableaux / formulaires / détails       │
+    └───────────────────────────┴────────────────────────────────────────────────┘
 
 ### 8.2 Dimensions desktop de référence
 
@@ -338,7 +358,7 @@ La référence est le rendu desktop à **1440px** puis à **1600px**.
 | Élément | Cible |
 |---|---:|
 | Sidebar | `280px` fixe |
-| Topbar | environ `100px` |
+| Topbar | Environ `100px` |
 | Padding zone contenu | `40px 48px 48px` |
 | Écart header → premier bloc | `32px` à `40px` |
 | Écart entre sections | `24px` à `32px` |
@@ -374,11 +394,11 @@ La sidebar est le socle de navigation visuelle de HMS.
 
 | État | Apparence |
 |---|---|
-| Actif | fond Midnight Blue, texte blanc, icône blanche, rayon généreux |
-| Inactif | fond transparent, texte atténué, icône gris sombre |
-| Hover | fond primaire très pâle ou gris doux |
-| Futur | entrée normale avec badge `BIENTÔT` discret |
-| Désactivé | visuellement secondaire, non cliquable |
+| Actif | Fond Midnight Blue, texte blanc, icône blanche, rayon généreux |
+| Inactif | Fond transparent, texte atténué, icône gris sombre |
+| Hover | Fond primaire très pâle ou gris doux |
+| Futur | Entrée normale avec badge `BIENTÔT` discret |
+| Désactivé | Visuellement secondaire, non cliquable |
 
 ### 9.4 Icônes recommandées
 
@@ -436,20 +456,18 @@ La sidebar est le socle de navigation visuelle de HMS.
 
 | Contrôle | Traitement |
 |---|---|
-| Notification | carré blanc, bordure douce, icône `Bell` sombre |
-| Profil | carré Midnight Blue, icône `UserRound` blanche |
-| Action icon-only | zone cliquable d’au moins 44px, `aria-label` obligatoire |
+| Notification | Carré blanc, bordure douce, icône `Bell` sombre |
+| Profil | Carré Midnight Blue, icône `UserRound` blanche |
+| Action icon-only | Zone cliquable d’au moins 44px, `aria-label` obligatoire |
 
 ---
 
 ## 11. Header de page
 
-Chaque page métier commence par une zone cohérente :
+Chaque page métier commence par une zone cohérente.
 
-```text
-Titre de page                                  Action primaire
-Description courte, utile et concrète
-```
+    Titre de page                                  Action primaire
+    Description courte, utile et concrète
 
 ### 11.1 Règles
 
@@ -459,21 +477,27 @@ Description courte, utile et concrète
 - la description ne doit pas être dans une card ;
 - ne pas ajouter d’eyebrow décoratif sans information réelle ;
 - ne pas répéter le libellé déjà visible dans la sidebar ;
-- une page de détail peut afficher un retour et un identifiant au-dessus du titre.
+- une page de détail peut afficher un retour et un identifiant au-dessus du titre ;
+- une page de création peut placer le bouton retour au-dessus du titre.
 
 ### 11.2 Retour et identifiant
 
 Pour une page de création, modification ou détail :
 
-```text
-[ArrowLeft]  INV-2026-000012
-Titre de page
-Description utile
-```
+    [ArrowLeft]  Retour à la liste
+
+    Titre de page
+    Description utile
+
+Règles :
 
 - le bouton retour est secondaire et discret ;
-- l’identifiant est un micro-libellé secondaire ;
-- le retour n’est jamais l’action primaire de la page.
+- il utilise `ArrowLeft` ;
+- il est blanc, bordé et compact ;
+- il reste au-dessus du titre ;
+- le retour n’est jamais l’action primaire ;
+- un identifiant peut être ajouté près du retour lorsqu’il apporte du contexte ;
+- le header reste hors card.
 
 ### 11.3 Action principale
 
@@ -482,7 +506,8 @@ Une page a une seule action primaire visuelle :
 - `Générer une facture` ;
 - `Nouvelle chambre` ;
 - `Créer une réservation` ;
-- `Créer une tâche`.
+- `Créer une tâche` ;
+- `Enregistrer les modifications`.
 
 Elle associe une icône et un libellé clair.
 
@@ -494,11 +519,12 @@ Elle associe une icône et un libellé clair.
 
 | Variante | Usage | Apparence |
 |---|---|---|
-| Primaire | action principale de l’écran | Midnight Blue, texte blanc |
-| Secondaire | action non critique | blanc, bordure douce, texte Crow |
-| Danger | action destructive confirmée | rouge, texte blanc |
-| Icon-only secondaire | action de ligne, impression, notification | blanc, bordure douce |
-| Ghost | action mineure dans une zone déjà encadrée | texte sombre, fond transparent |
+| Primaire | Action principale de l’écran | Midnight Blue, texte blanc |
+| Secondaire | Action non critique | Blanc, bordure douce, texte Crow |
+| Danger | Action destructive confirmée | Rouge, texte blanc |
+| Icon-only secondaire | Action de ligne, impression, notification | Blanc, bordure douce |
+| Ghost | Action mineure dans une zone déjà encadrée | Texte sombre, fond transparent |
+| Désactivé | Action impossible selon les règles métier | Opacité réduite, curseur interdit |
 
 ### 12.2 Forme
 
@@ -508,7 +534,7 @@ Elle associe une icône et un libellé clair.
 - écart icône ↔ texte : `8px` ;
 - rayon : `14px` à `16px` ;
 - libellé explicite ;
-- `cursor-pointer` obligatoire.
+- `cursor-pointer` obligatoire pour une action active.
 
 ### 12.3 États
 
@@ -527,11 +553,9 @@ Elle associe une icône et un libellé clair.
 
 Une card regroupe un ensemble logique d’informations ou d’actions.
 
-```tsx
-<HmsCard className="rounded-[20px] border border-[var(--hms-soft-border)] bg-white p-6 shadow-sm">
-  {/* contenu */}
-</HmsCard>
-```
+    <HmsCard className="rounded-[20px] border border-[var(--hms-soft-border)] bg-white p-6 shadow-sm">
+      {/* contenu */}
+    </HmsCard>
 
 Une card standard possède :
 
@@ -547,11 +571,9 @@ Une card standard possède :
 
 Composition :
 
-```text
-libellé                                   pictogramme
-valeur forte
-phrase de contexte
-```
+    libellé                                   pictogramme
+    valeur forte
+    phrase de contexte
 
 Règles :
 
@@ -560,7 +582,7 @@ Règles :
 - une seule icône par card ;
 - valeur plus importante que la métadonnée ;
 - pas de fond coloré saturé ;
-- le vert n’est utilisé que lorsqu’il a une signification métier positive.
+- le vert est utilisé seulement lorsqu’il a une signification métier positive.
 
 ### 13.3 Cards de détail
 
@@ -581,12 +603,10 @@ Ne pas créer une mosaïque de micro-cards si une grande card structurée est pl
 
 ### 14.1 Structure de champ
 
-```text
-Label
-Champ
-Erreur éventuelle
-Aide seulement si elle est nécessaire
-```
+    Label
+    Champ
+    Erreur éventuelle
+    Aide seulement si elle est nécessaire
 
 ### 14.2 Inputs et selects
 
@@ -623,11 +643,9 @@ Les filtres suivent le modèle de `/invoices`.
 
 ### 15.1 Bouton de filtre
 
-Pour une page dense, les filtres sont masqués par défaut derrière un bouton secondaire :
+Pour une page dense, les filtres sont masqués par défaut derrière un bouton secondaire.
 
-```text
-[ListFilter] Filtrer
-```
+    [ListFilter] Filtrer
 
 ### 15.2 Popup de filtres
 
@@ -644,13 +662,11 @@ Pour une page dense, les filtres sont masqués par défaut derrière un bouton s
 
 ### 15.3 Organisation interne
 
-```text
-Filtres
-[Champ 1] [Champ 2] [Champ 3]
-[Champ 4] [Du]      [Au]
+    Filtres
+    [Champ 1] [Champ 2] [Champ 3]
+    [Champ 4] [Du]      [Au]
 
-                           [Réinitialiser] [Appliquer les filtres]
-```
+                               [Réinitialiser] [Appliquer les filtres]
 
 Règles :
 
@@ -669,13 +685,11 @@ Les tableaux HMS sont riches mais sobres.
 
 ### 16.1 Structure visuelle
 
-```text
-Grande card blanche
-  Ligne titre / compteur / outils utiles
-  Entête gris très pâle
-  Lignes blanches avec séparateurs doux
-  Pagination en bas
-```
+    Grande card blanche
+      Ligne titre / compteur / outils utiles
+      Entête gris très pâle
+      Lignes blanches avec séparateurs doux
+      Pagination ou actions de bas de page
 
 ### 16.2 Règles
 
@@ -688,7 +702,7 @@ Grande card blanche
 - les montants sont alignés à droite lorsqu’ils forment une colonne ;
 - les actions de ligne sont à droite ;
 - les actions icon-only sont carrées, blanches et bordées ;
-- chaque action icon-only a un `aria-label`.
+- chaque action icon-only possède un `aria-label`.
 
 ### 16.3 Densité desktop
 
@@ -715,9 +729,90 @@ En cas d’adaptation :
 
 ---
 
-## 17. Badges de statut
+## 17. Tableaux de sélection
 
-### 17.1 Forme
+Les tableaux de sélection suivent le modèle visuel de `/invoices/create`.
+
+Ils servent à choisir une ressource avant de remplir un formulaire, générer un document, créer une réservation ou démarrer une action métier.
+
+Exemples :
+
+- sélectionner une réservation pour générer une facture ;
+- sélectionner une chambre pour créer une réservation ;
+- sélectionner un client pour créer un séjour ;
+- sélectionner un agent pour affecter une tâche ;
+- sélectionner une tâche pour lancer une opération.
+
+### 17.1 Structure
+
+    Titre de la sélection                              [Compteur contextuel]
+    Description courte expliquant ce qui doit être choisi.
+
+    | Ressource | Informations | État | Action |
+    | ...       | ...          | Prête | Sélectionner |
+    | ...       | ...          | Prête | Sélectionnée |
+    | ...       | ...          | Indisponible | Sélectionner désactivé |
+
+### 17.2 Card de sélection
+
+- grande card blanche ;
+- titre et description à gauche ;
+- compteur ou résumé contextuel discret à droite ;
+- entête de tableau gris très pâle ;
+- aucune marge excessive entre le titre de la card et le début réel du tableau ;
+- compteur compact, aligné à droite, jamais dominant ;
+- lignes lisibles, séparées par une bordure douce ;
+- aucune décoration inutile.
+
+### 17.3 Ressource sélectionnée
+
+Lorsqu’une ressource pilote le reste du formulaire :
+
+- une seule ressource peut être sélectionnée à la fois ;
+- la ligne sélectionnée est légèrement teintée ;
+- le bouton devient primaire Midnight Blue ;
+- le libellé affiché est `Sélectionnée` ;
+- les autres ressources disponibles affichent `Sélectionner` ;
+- sélectionner une autre ligne déplace l’état de sélection ;
+- l’aperçu et la zone finale doivent refléter la sélection active.
+
+### 17.4 Ressource non disponible
+
+Une ressource non disponible peut rester visible seulement lorsqu’elle apporte une information utile.
+
+Elle doit alors :
+
+- afficher un statut neutre, clair et lisible ;
+- conserver son contexte principal ;
+- avoir un bouton désactivé ;
+- utiliser `cursor-not-allowed` ;
+- ne pas être confondue avec une ressource sélectionnable ;
+- ne pas encombrer la liste avec des données déjà inutiles.
+
+Les ressources devenues non pertinentes ou impossibles à utiliser ne doivent pas rester affichées sans raison métier ou pédagogique.
+
+### 17.5 Équilibre des colonnes
+
+Les colonnes d’un tableau de sélection doivent être équilibrées selon leur contenu.
+
+Règles :
+
+- la colonne Client ne doit pas prendre une largeur disproportionnée ;
+- les colonnes identifiant, ressource, période et montant reçoivent une largeur proportionnelle à leur contenu ;
+- les colonnes principales doivent rester équilibrées ;
+- une colonne numérique courte comme `Nuits` reste compacte ;
+- la colonne État doit être centrée horizontalement ;
+- l’entête État doit être centré ;
+- les badges ou valeurs d’état doivent être centrés ;
+- la colonne Action reste compacte et alignée à droite ;
+- éviter tout scroll horizontal à partir de 1440px lorsque le tableau présente un nombre raisonnable de colonnes ;
+- réduire d’abord les paddings et ajuster les colonnes avant de réduire fortement la taille du texte.
+
+---
+
+## 18. Badges de statut
+
+### 18.1 Forme
 
 - `rounded-full` ;
 - fond pâle ;
@@ -726,32 +821,170 @@ En cas d’adaptation :
 - icône facultative de 14px à 16px ;
 - padding compact.
 
-### 17.2 Exemple Invoice
+### 18.2 Exemple Invoice
 
 | Valeur API | Libellé UI | Traitement |
 |---|---|---|
-| `DRAFT` | Brouillon | gris |
-| `ISSUED` | Émise | bleu |
-| `PAID` | Payée | vert |
-| `CANCELLED` | Annulée | rouge |
-| `REFUNDED` | Remboursée | violet |
+| `DRAFT` | Brouillon | Gris |
+| `ISSUED` | Émise | Bleu |
+| `PAID` | Payée | Vert |
+| `CANCELLED` | Annulée | Rouge |
+| `REFUNDED` | Remboursée | Violet |
 
-Les mêmes principes sont réutilisés dans les modules Chambres, Réservations et Housekeeping.
+### 18.3 Exemple de sélection
+
+| Situation | Libellé UI | Traitement |
+|---|---|---|
+| Ressource prête | Prête à facturer / Disponible / Prête | Vert |
+| Ressource non terminée | Non terminée | Gris |
+| Ressource déjà utilisée | Déjà traitée / Facture existante | À masquer si elle ne sert plus au flux |
+| Ressource sélectionnée | Sélectionnée | Bouton primaire, pas badge de statut |
+
+Les mêmes principes sont réutilisés dans les modules Chambres, Réservations, Clients et Housekeeping.
 
 ---
 
-## 18. Pages par type
+## 19. Pages de création, modification et sélection
 
-### 18.1 Pages de liste
+Les pages de création, modification ou sélection suivent le modèle de `/invoices/create`.
+
+### 19.1 Flux visuel obligatoire
+
+Une page de création doit guider l’utilisateur selon ce flux naturel :
+
+1. choisir ;
+2. ajuster ;
+3. vérifier ;
+4. confirmer.
+
+### 19.2 Structure de page
+
+    [← Retour à la liste]
+
+    Titre de création
+    Description utile sur une ou deux lignes.
+
+    Premier bloc métier
+
+    Sélection ou formulaire principal
+
+    Paramètres                    Aperçu
+    Champs modifiables            Données calculées ou figées
+
+    Contexte sélectionné                          [Annuler] [Action principale]
+
+### 19.3 Header d’une page de création
+
+Ordre obligatoire :
+
+1. bouton retour secondaire ;
+2. titre fort de la page ;
+3. description courte et utile ;
+4. premier bloc métier.
+
+Règles :
+
+- le bouton retour est discret, blanc, bordé, avec `ArrowLeft` ;
+- il reste au-dessus du titre ;
+- le titre est noir, fort, sans eyebrow décoratif ;
+- la description peut volontairement être limitée à deux lignes lorsque cela améliore la lecture ;
+- le header ne doit pas être enfermé dans une card ;
+- aucune card informative inutile ne doit s’intercaler entre le header et l’action principale de la page ;
+- le premier bloc après le header doit correspondre à l’action réelle : sélection, formulaire ou configuration.
+
+### 19.4 Aide métier
+
+Les règles métier informatives doivent être affichées seulement lorsqu’elles sont utiles.
+
+Règles :
+
+- privilégier une aide courte intégrée à la page ;
+- éviter les grandes cards redondantes ;
+- ne pas répéter une règle que l’interface démontre déjà clairement ;
+- ne jamais supprimer une règle métier réelle ;
+- la simplification visuelle ne doit pas modifier le comportement métier.
+
+### 19.5 Formulaire et aperçu sur deux colonnes
+
+Après une sélection, le formulaire et l’aperçu métier forment deux grandes cards sur desktop.
+
+    ┌──────────────────────────────┐  ┌──────────────────────────────┐
+    │ Paramètres                   │  │ Aperçu                       │
+    │ Champs modifiables           │  │ Données calculées            │
+    │ Notes                        │  │ Total et informations clés   │
+    └──────────────────────────────┘  └──────────────────────────────┘
+
+Règles :
+
+- les deux cards ont une largeur visuellement équilibrée ;
+- elles sont séparées par un espace de 24px à 32px ;
+- sur tablette ou mobile, elles se superposent verticalement ;
+- la card de gauche contient les champs modifiables ;
+- la card de droite contient les données calculées ou figées ;
+- les deux cards utilisent les mêmes surfaces, rayons, bordures, ombres et paddings ;
+- le formulaire conserve des labels au-dessus des champs ;
+- une zone Notes peut être plus haute qu’un input standard ;
+- les champs restent spacieux sans devenir surdimensionnés.
+
+### 19.6 Aperçu métier ou financier
+
+L’aperçu contient les informations calculées, liées à la sélection ou figées au moment de l’action.
+
+Règles :
+
+- l’aperçu possède une zone de synthèse interne légèrement teintée ;
+- cette zone regroupe les informations liées : client, ressource, séjour, chambre, identifiant ou contexte ;
+- les libellés sont secondaires ;
+- les valeurs sont plus fortes et plus foncées ;
+- les montants ou informations de calcul sont affichés dans une liste verticale lisible ;
+- les valeurs importantes sont alignées à droite ;
+- la valeur finale utilise une surface distincte mais discrète ;
+- le total final ou le résultat final doit être le point de lecture principal de la card ;
+- ne pas utiliser de gradient, de surface saturée ou d’ombre forte pour souligner un montant.
+
+### 19.7 Zone finale d’actions
+
+Les formulaires à impact métier utilisent une grande zone finale.
+
+    [Document] Ressource #26 sélectionnée
+
+                                          [Annuler] [Générer la facture]
+
+Règles :
+
+- grande card blanche horizontale ;
+- contexte de la sélection à gauche, avec une icône Lucide discrète ;
+- actions à droite ;
+- bouton Annuler secondaire ;
+- action de confirmation primaire Midnight Blue ;
+- l’action primaire doit reprendre le verbe métier exact : Générer, Créer, Enregistrer, Planifier, Affecter ;
+- la zone doit rester lisible lorsque le contenu principal est long ;
+- sur petits écrans, contexte et actions peuvent se superposer verticalement.
+
+### 19.8 Pages de modification
+
+Une page de modification reprend le même langage visuel qu’une page de création :
+
+1. retour ;
+2. identifiant contextuel ;
+3. titre ;
+4. description courte ;
+5. grande card de formulaire ;
+6. éventuelle card d’aperçu ou de résumé ;
+7. actions alignées à droite.
+
+---
+
+## 20. Pages par type
+
+### 20.1 Pages de liste
 
 Exemples :
 
-```text
-/invoices
-/rooms
-/reservations
-/housekeeping/tasks
-```
+    /invoices
+    /rooms
+    /reservations
+    /housekeeping/tasks
 
 Ordre recommandé :
 
@@ -761,43 +994,36 @@ Ordre recommandé :
 4. tableau ;
 5. pagination ou état vide.
 
-### 18.2 Création et modification
+Référence principale : `/invoices`.
+
+### 20.2 Pages de création
 
 Exemples :
 
-```text
-/invoices/create
-/rooms/create
-/rooms/[id]/edit
-```
+    /invoices/create
+    /rooms/create
+    /reservations/create
+    /housekeeping/tasks/create
 
 Ordre recommandé :
 
 1. retour ;
-2. identifiant ou micro-libellé si utile ;
-3. titre ;
-4. description courte ;
-5. grande card de formulaire ;
-6. éventuelle card d’aperçu ;
-7. actions alignées à droite.
+2. titre ;
+3. description courte ;
+4. sélection ou premier bloc métier ;
+5. formulaire ;
+6. aperçu ;
+7. zone finale d’actions.
 
-Règles :
+Référence principale : `/invoices/create`.
 
-- les formulaires respirent ;
-- labels au-dessus des champs ;
-- deux colonnes équilibrées sur desktop ;
-- zones de texte généreuses quand nécessaire ;
-- aucune logique métier ne disparaît pour simplifier visuellement l’écran.
-
-### 18.3 Pages de détail
+### 20.3 Pages de détail
 
 Exemples :
 
-```text
-/invoices/[id]
-/rooms/[id]
-/housekeeping/tasks/[id]
-```
+    /invoices/[id]
+    /rooms/[id]
+    /housekeeping/tasks/[id]
 
 Ordre recommandé :
 
@@ -811,7 +1037,7 @@ Ordre recommandé :
 8. historique ;
 9. notes.
 
-### 18.4 Pages d’historique
+### 20.4 Pages d’historique
 
 - header centré sur la ressource concernée ;
 - synthèse courte financière ou opérationnelle ;
@@ -821,17 +1047,15 @@ Ordre recommandé :
 
 ---
 
-## 19. États vides, chargements et erreurs
+## 21. États vides, chargements et erreurs
 
-### 19.1 État vide
+### 21.1 État vide
 
 Un état vide doit expliquer l’absence de données et proposer l’action logique.
 
-```text
-Aucune facture trouvée
-Modifiez vos filtres ou générez une facture depuis une réservation terminée.
-[Générer une facture]
-```
+    Aucune facture trouvée
+    Modifiez vos filtres ou générez une facture depuis une réservation terminée.
+    [Générer une facture]
 
 Règles :
 
@@ -840,14 +1064,14 @@ Règles :
 - pas d’illustration géante ;
 - action claire seulement si une action est possible.
 
-### 19.2 Chargement
+### 21.2 Chargement
 
 - skeleton léger ou message court ;
 - jamais de spinner géant ;
 - garder la structure de l’écran lorsque possible ;
 - ne pas faire bouger excessivement le layout pendant le chargement.
 
-### 19.3 Erreur
+### 21.3 Erreur
 
 - surface claire ;
 - titre explicite ;
@@ -857,9 +1081,9 @@ Règles :
 
 ---
 
-## 20. Icônes Lucide
+## 22. Icônes Lucide
 
-### 20.1 Règles
+### 22.1 Règles
 
 - toute nouvelle icône vient de `lucide-react` ;
 - taille habituelle : 18px ou 20px ;
@@ -868,7 +1092,7 @@ Règles :
 - éviter plusieurs icônes pour une même action ;
 - les actions icon-only possèdent un `aria-label`.
 
-### 20.2 Icônes communes
+### 22.2 Icônes communes
 
 | Action | Icône |
 |---|---|
@@ -886,10 +1110,12 @@ Règles :
 | Supprimer | `Trash2` |
 | Notification | `Bell` |
 | Profil | `UserRound` |
+| Information | `Info` |
+| Document / facture | `FileText` ou `ReceiptText` |
 
 ---
 
-## 21. Accessibilité et mouvements
+## 23. Accessibilité et mouvements
 
 Chaque page respecte les règles suivantes :
 
@@ -914,52 +1140,58 @@ Les animations sont discrètes :
 
 ---
 
-## 22. Architecture de composants
+## 24. Architecture de composants
 
-Les motifs visuels communs doivent être centralisés. Ne pas recopier des classes Tailwind fragiles dans chaque module.
+Les motifs visuels communs doivent être centralisés.
 
-```text
-frontend/src/components/
-├── hms/
-│   ├── HmsButton.tsx
-│   ├── HmsCard.tsx
-│   ├── HmsBadge.tsx
-│   ├── HmsInput.tsx
-│   ├── HmsSelect.tsx
-│   ├── HmsIconButton.tsx
-│   ├── HmsPageHeader.tsx
-│   ├── HmsStatsCard.tsx
-│   ├── HmsTable.tsx
-│   └── HmsEmptyState.tsx
-├── layout/
-│   ├── AppLayout.tsx
-│   ├── Sidebar.tsx
-│   └── Topbar.tsx
-├── invoices/
-├── rooms/
-├── reservations/
-├── clients/
-└── housekeeping/
-```
+Ne pas recopier des classes Tailwind fragiles dans chaque module.
 
-### 22.1 Responsabilités
+    frontend/src/components/
+    ├── hms/
+    │   ├── HmsButton.tsx
+    │   ├── HmsCard.tsx
+    │   ├── HmsBadge.tsx
+    │   ├── HmsInput.tsx
+    │   ├── HmsSelect.tsx
+    │   ├── HmsIconButton.tsx
+    │   ├── HmsPageHeader.tsx
+    │   ├── HmsStatsCard.tsx
+    │   ├── HmsTable.tsx
+    │   ├── HmsSelectionTable.tsx
+    │   ├── HmsSummaryCard.tsx
+    │   ├── HmsFormActions.tsx
+    │   └── HmsEmptyState.tsx
+    ├── layout/
+    │   ├── AppLayout.tsx
+    │   ├── Sidebar.tsx
+    │   └── Topbar.tsx
+    ├── invoices/
+    ├── rooms/
+    ├── reservations/
+    ├── clients/
+    └── housekeeping/
+
+### 24.1 Responsabilités
 
 | Composant | Rôle |
 |---|---|
-| `AppLayout` | shell global : sidebar, topbar, zone contenu |
-| `Sidebar` | navigation et état actif |
-| `Topbar` | recherche, notifications, profil |
-| `HmsPageHeader` | titre, description, action principale |
-| `HmsCard` | surface standard HMS |
-| `HmsButton` | variantes de bouton |
-| `HmsIconButton` | action sans texte accessible |
-| `HmsBadge` | badge de statut cohérent |
-| `HmsInput` / `HmsSelect` | champs cohérents |
-| `HmsStatsCard` | card statistique |
-| `HmsTable` | enveloppe et conventions de tableau |
-| Composant métier | données et actions propres au module |
+| `AppLayout` | Shell global : sidebar, topbar, zone contenu |
+| `Sidebar` | Navigation et état actif |
+| `Topbar` | Recherche, notifications, profil |
+| `HmsPageHeader` | Titre, description, action principale ou retour |
+| `HmsCard` | Surface standard HMS |
+| `HmsButton` | Variantes de bouton |
+| `HmsIconButton` | Action sans texte accessible |
+| `HmsBadge` | Badge de statut cohérent |
+| `HmsInput` / `HmsSelect` | Champs cohérents |
+| `HmsStatsCard` | Card statistique |
+| `HmsTable` | Enveloppe et conventions de tableau |
+| `HmsSelectionTable` | Tableau réutilisable avec état de sélection |
+| `HmsSummaryCard` | Aperçu financier ou métier |
+| `HmsFormActions` | Zone finale avec contexte et actions |
+| Composant métier | Données et actions propres au module |
 
-### 22.2 Règle de réutilisation
+### 24.2 Règle de réutilisation
 
 Créer ou améliorer un composant partagé lorsqu’il :
 
@@ -972,9 +1204,9 @@ Ne pas sur-abstraire un composant à usage unique simple.
 
 ---
 
-## 23. Règles Tailwind
+## 25. Règles Tailwind
 
-### 23.1 À faire
+### 25.1 À faire
 
 - utiliser les tokens CSS avec `var(--hms-...)` ;
 - utiliser `clsx` pour les classes conditionnelles ;
@@ -984,7 +1216,7 @@ Ne pas sur-abstraire un composant à usage unique simple.
 - utiliser l’échelle d’espacement de ce document ;
 - ajouter un focus visible à tout contrôle interactif.
 
-### 23.2 À éviter
+### 25.2 À éviter
 
 - `bg-zinc-*`, `text-stone-*`, `border-slate-*` arbitraires dans les nouveaux composants ;
 - palette différente par module ;
@@ -998,11 +1230,11 @@ Ne pas sur-abstraire un composant à usage unique simple.
 
 ---
 
-## 24. Checklist de validation visuelle
+## 26. Checklist de validation visuelle
 
 Avant de considérer une page comme terminée, vérifier :
 
-### Shell global
+### 26.1 Shell global
 
 - [ ] sidebar proche de 280px sur desktop ;
 - [ ] topbar blanche stable ;
@@ -1011,14 +1243,15 @@ Avant de considérer une page comme terminée, vérifier :
 - [ ] Midnight Blue limité au primaire et à l’actif ;
 - [ ] aucune palette spécifique ajoutée par le module.
 
-### Header
+### 26.2 Header
 
 - [ ] titre noir, fort et lisible ;
 - [ ] une seule action primaire ;
 - [ ] description concrète et utile ;
-- [ ] alignement propre à 1440px et 1600px.
+- [ ] alignement propre à 1440px et 1600px ;
+- [ ] aucun eyebrow décoratif inutile.
 
-### Composants
+### 26.3 Composants
 
 - [ ] cards blanches, bordure douce, rayon cohérent ;
 - [ ] boutons de hauteur cohérente ;
@@ -1027,7 +1260,7 @@ Avant de considérer une page comme terminée, vérifier :
 - [ ] badges cohérents ;
 - [ ] `cursor-pointer` sur tous les contrôles actifs.
 
-### Données
+### 26.4 Données
 
 - [ ] table sans scroll horizontal à 1440px lorsque cela est raisonnablement possible ;
 - [ ] lignes et colonnes alignées ;
@@ -1035,7 +1268,24 @@ Avant de considérer une page comme terminée, vérifier :
 - [ ] dates et durées non cassées inutilement ;
 - [ ] actions icon-only avec `aria-label`.
 
-### États
+### 26.5 Pages de création et sélection
+
+- [ ] bouton retour secondaire placé avant le titre ;
+- [ ] titre et description hors card ;
+- [ ] premier bloc directement utile à l’action métier ;
+- [ ] tableau de sélection sans marges inutiles ;
+- [ ] compteur contextuel compact et aligné ;
+- [ ] état sélectionné immédiatement identifiable ;
+- [ ] une seule action de sélection active lorsque le flux le demande ;
+- [ ] statuts centrés dans leur colonne ;
+- [ ] colonnes équilibrées sans largeur excessive ;
+- [ ] formulaire et aperçu équilibrés sur desktop ;
+- [ ] données calculées clairement hiérarchisées ;
+- [ ] total ou résultat final visuellement dominant sans surcharge ;
+- [ ] zone finale avec contexte à gauche et actions à droite ;
+- [ ] aucune modification des règles métier pour simplifier le design.
+
+### 26.6 États
 
 - [ ] chargement cohérent ;
 - [ ] erreur claire ;
@@ -1045,23 +1295,26 @@ Avant de considérer une page comme terminée, vérifier :
 
 ---
 
-## 25. Processus obligatoire pour une nouvelle interface
+## 27. Processus obligatoire pour une nouvelle interface
 
-1. Identifier le type de page : liste, création, modification, détail ou historique.
+1. Identifier le type de page : liste, création, modification, détail, historique ou sélection.
 2. Lire ce fichier intégralement.
 3. Lire les composants HMS et layout réellement utilisés.
 4. Réutiliser `AppLayout`.
-5. Construire le header selon le modèle HMS.
-6. Réutiliser les composants partagés avant d’écrire du style spécifique.
-7. Implémenter uniquement le design sans toucher aux contrats métier.
-8. Vérifier la page à 1440px et 1600px.
-9. Vérifier un rendu tablette sous 1024px.
-10. Lancer `npm run lint` depuis `frontend/`.
-11. Faire valider visuellement avant tout commit.
+5. Choisir la référence adaptée :
+   - `/invoices` pour une liste, un tableau, des statistiques ou des filtres ;
+   - `/invoices/create` pour une création, une sélection, un formulaire, un aperçu ou une confirmation.
+6. Construire le header selon le modèle HMS.
+7. Réutiliser les composants partagés avant d’écrire du style spécifique.
+8. Implémenter uniquement le design sans toucher aux contrats métier.
+9. Vérifier la page à 1440px et 1600px.
+10. Vérifier un rendu tablette sous 1024px.
+11. Lancer `npm run lint` depuis `frontend/`.
+12. Faire valider visuellement avant tout commit.
 
 ---
 
-## 26. Interdictions explicites
+## 28. Interdictions explicites
 
 Ne pas :
 
@@ -1078,44 +1331,50 @@ Ne pas :
 - supprimer une donnée métier importante au lieu de la structurer ;
 - créer des badges surdimensionnés ;
 - utiliser des ombres fortes pour simuler la hiérarchie ;
+- laisser plusieurs ressources sélectionnées lorsqu’une seule sélection est attendue ;
 - lancer un commit sans validation visuelle explicite.
 
 ---
 
-## 27. Prompt de référence pour OpenCode
+## 29. Prompt de référence pour Codex ou OpenCode
 
 Pour tout travail frontend futur, commencer le prompt avec ce bloc :
 
-```text
-Lis intégralement README-FRONTEND-DESIGN.md à la racine du projet avant toute modification.
-Ce fichier est la source de vérité du design HMS.
-La page /invoices validée est la référence visuelle.
-Toute page modifiée doit reprendre exactement le même shell, les mêmes tokens, la même typographie Inter, les mêmes proportions, les mêmes surfaces, les mêmes boutons, les mêmes champs, les mêmes badges et la même densité visuelle.
+    Lis intégralement README-FRONTEND-DESIGN.md à la racine du projet avant toute modification.
+    Ce fichier est la source de vérité du design HMS.
 
-Ne touche pas aux règles métier, aux routes, aux services API, aux types TypeScript, aux validations, aux schémas Zod ni aux données.
-Utilise lucide-react pour toute nouvelle icône.
-Ajoute cursor-pointer à tout contrôle actif.
-Avant toute modification, lis aussi AGENTS.md, le skill frontend-design local et les composants réellement utilisés par la page concernée.
-```
+    Utilise /invoices comme référence pour les pages de liste, statistiques, filtres, tableaux et pagination.
+
+    Utilise /invoices/create comme référence pour les pages de création, modification, sélection, formulaire, aperçu métier ou financier et actions finales.
+
+    Toute page modifiée doit reprendre exactement le même shell, les mêmes tokens, la même typographie Inter, les mêmes proportions, les mêmes surfaces, les mêmes boutons, les mêmes champs, les mêmes badges, les mêmes états sélectionnés et la même densité visuelle.
+
+    Ne touche pas aux règles métier, aux routes, aux services API, aux types TypeScript, aux validations, aux schémas Zod ni aux données.
+
+    Utilise lucide-react pour toute nouvelle icône.
+    Ajoute cursor-pointer à tout contrôle actif.
+
+    Avant toute modification, lis aussi AGENTS.md, le skill frontend-design local et les composants réellement utilisés par la page concernée.
 
 Pour un restyling de page, ajouter :
 
-```text
-Restyle uniquement la page demandée. Ne modifie pas les autres pages ni le layout global sans instruction explicite.
-Après la modification, lance npm run lint depuis frontend/, liste les fichiers modifiés, explique brièvement quoi vérifier visuellement, puis attends ma validation avant git add ou commit.
-```
+    Restyle uniquement la page demandée.
+    Ne modifie pas les autres pages ni le layout global sans instruction explicite.
+
+    Après la modification, lance npm run lint depuis frontend/, liste les fichiers modifiés, explique brièvement quoi vérifier visuellement, puis attends ma validation avant git add ou commit.
 
 ---
 
-## 28. Définition de terminé
+## 30. Définition de terminé
 
 Une page respecte le design system HMS lorsqu’elle :
 
 - est immédiatement reconnaissable comme une page HMS ;
-- semble appartenir à la même application que `/invoices` ;
+- semble appartenir à la même application que `/invoices` et `/invoices/create` ;
 - reprend les mêmes proportions, surfaces, couleurs, typographie et comportements ;
 - reste fidèle aux données et règles métier de son module ;
 - est claire pour la réception comme pour le management ;
+- guide naturellement l’utilisateur dans son flux ;
 - reste professionnelle sans dépendre d’effets décoratifs.
 
 > **La cohérence est prioritaire sur la nouveauté.**
