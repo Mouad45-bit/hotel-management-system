@@ -85,38 +85,38 @@ export function ReservationInvoiceSourceTable({
 
     return (
         <div>
-            <table className="w-full border-collapse">
+            <table className="w-full table-fixed border-collapse">
                 <thead className="hidden bg-slate-50 xl:table-header-group">
                     <tr>
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[12%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Réservation
                         </th>
 
-                        <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[14%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Client
                         </th>
 
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[11%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Chambre
                         </th>
 
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[16%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Séjour
                         </th>
 
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[6%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Nuits
                         </th>
 
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[14%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Estimation HT
                         </th>
 
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[15%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             État
                         </th>
 
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[12%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Action
                         </th>
                     </tr>
@@ -237,7 +237,7 @@ export function ReservationInvoiceSourceTable({
                                     </p>
                                 </td>
 
-                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:align-top">
+                                <td className="min-w-0 xl:whitespace-nowrap xl:border-b xl:border-[var(--hms-soft-border)] xl:px-3 xl:py-4 xl:text-center xl:align-top">
                                     <p className="mb-1 text-xs font-semibold text-[var(--hms-text-muted)] xl:hidden">
                                         État
                                     </p>
