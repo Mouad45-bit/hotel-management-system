@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+    ArrowLeft,
     Plus,
     RefreshCw,
     TriangleAlert,
@@ -207,24 +208,34 @@ export function HousekeepingTasksListClient() {
 
     return (
         <div className="space-y-8">
-            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Tâches housekeeping
-                    </h2>
-
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Suivez les tâches liées aux chambres, leur priorité, leur agent et leur statut opérationnel.
-                    </p>
-                </div>
-
+            <section>
                 <Link
-                    href="/housekeeping/tasks/create"
-                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    href="/housekeeping"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                 >
-                    <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                    Créer une tâche
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                    Retour au dashboard
                 </Link>
+
+                <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                        <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                            Tâches housekeeping
+                        </h2>
+
+                        <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                            Suivez les tâches liées aux chambres, leur priorité, leur agent et leur statut opérationnel.
+                        </p>
+                    </div>
+
+                    <Link
+                        href="/housekeeping/tasks/create"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    >
+                        <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Créer une tâche
+                    </Link>
+                </div>
             </section>
 
             <HousekeepingStatsCards stats={stats} loading={isLoading} />
