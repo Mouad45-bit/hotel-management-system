@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    ArrowPathIcon,
-    ExclamationTriangleIcon,
-    UserCircleIcon,
-} from "@heroicons/react/24/outline";
+    LayoutDashboard,
+    RefreshCw,
+    TriangleAlert,
+} from "lucide-react";
+import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingTaskTable } from "@/components/housekeeping/HousekeepingTaskTable";
 import {
@@ -73,33 +74,34 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
     }
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-stone-700">
-                            Agent simulé #{agentId}
-                        </p>
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-950">
-                            Mes tâches housekeeping
-                        </h2>
-                        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                            Cette vue n’affiche que les tâches assignées à l’agent connecté simulé.
-                        </p>
-                    </div>
-                    <Link
-                        href="/housekeeping"
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                    >
-                        <UserCircleIcon className="h-5 w-5" />
-                        Dashboard
-                    </Link>
+        <div className="space-y-8">
+            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
+                        Agent simulé #{agentId}
+                    </p>
+
+                    <h2 className="mt-3 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                        Mes tâches housekeeping
+                    </h2>
+
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                        Suivi personnel des tâches affectées à l’agent connecté simulé.
+                    </p>
                 </div>
-            </HmsCard>
+
+                <Link
+                    href="/housekeeping"
+                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                >
+                    <LayoutDashboard aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                    Dashboard
+                </Link>
+            </section>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <div>
                         <p className="font-semibold">Erreur</p>
                         <p className="mt-1">{errorMessage}</p>
@@ -107,25 +109,23 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
                 </div>
             )}
 
-            <HmsCard className="p-0">
-                <div className="flex flex-col gap-3 border-b border-zinc-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <HmsCard className="overflow-hidden p-0">
+                <div className="flex flex-col gap-2 border-b border-[var(--hms-soft-border)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h3 className="text-sm font-semibold text-zinc-950">
-                            Tâches assignées
-                        </h3>
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
                             {tasks.length} tâche(s) pour l’agent #{agentId}
                         </p>
                     </div>
-                    <button
+
+                    <HmsButton
                         type="button"
+                        variant="secondary"
                         onClick={() => void loadTasks()}
                         disabled={isLoading}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        <ArrowPathIcon className="h-4 w-4" />
+                        <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                         Actualiser
-                    </button>
+                    </HmsButton>
                 </div>
                 <HousekeepingTaskTable
                     tasks={tasks}
