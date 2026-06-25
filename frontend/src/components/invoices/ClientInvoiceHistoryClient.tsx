@@ -136,11 +136,7 @@ export function ClientInvoiceHistoryClient({
                         Retour aux factures
                     </Link>
 
-                    <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
-                        Historique de facturation
-                    </p>
-
-                    <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                    <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
                         Historique des factures
                     </h2>
 
