@@ -80,15 +80,18 @@ export function HousekeepingTaskTable({
     }
 
     return (
-        <div className="overflow-visible">
+        <div className="overflow-x-auto">
             <table className="w-full table-auto border-collapse">
                 <thead className="bg-slate-50">
                     <tr>
                         <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Chambre
                         </th>
-                        <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Intervention
+                        </th>
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Priorité
                         </th>
                         <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Agent
@@ -120,11 +123,12 @@ export function HousekeepingTaskTable({
                                     </p>
                                 </td>
 
-                                <td className="border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
-                                    <div className="flex flex-wrap gap-2">
-                                        <TaskTypeBadge type={task.type} />
-                                        <PriorityBadge priority={task.priority} />
-                                    </div>
+                                <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center align-top">
+                                    <TaskTypeBadge type={task.type} />
+                                </td>
+
+                                <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center align-top">
+                                    <PriorityBadge priority={task.priority} />
                                 </td>
 
                                 <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
