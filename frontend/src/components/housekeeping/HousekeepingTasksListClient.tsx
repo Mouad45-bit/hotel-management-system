@@ -66,6 +66,10 @@ function extractFilterErrors(
     return errors;
 }
 
+function formatTaskCount(count: number, singularSuffix: string, pluralSuffix = `${singularSuffix}s`) {
+    return `${count} ${count > 1 ? "tâches" : "tâche"} ${count > 1 ? pluralSuffix : singularSuffix}`;
+}
+
 export function HousekeepingTasksListClient() {
     const [filters, setFilters] = useState<HousekeepingTaskFiltersState>(
         DEFAULT_HOUSEKEEPING_FILTERS
@@ -250,7 +254,7 @@ export function HousekeepingTasksListClient() {
                     <div>
                         <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
                             {pageResponse
-                                ? `${pageResponse.totalElements} tâche(s) trouvée(s)`
+                                ? formatTaskCount(pageResponse.totalElements, "trouvée")
                                 : "Chargement des tâches"}
                         </p>
                     </div>
