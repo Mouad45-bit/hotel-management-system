@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    ArrowLeftIcon,
-    ExclamationTriangleIcon,
-    HomeIcon,
-} from "@heroicons/react/24/outline";
+    ArrowLeft,
+    Ban,
+    CheckCircle2,
+    Clock3,
+    ListChecks,
+    TriangleAlert,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingDate } from "@/components/housekeeping/HousekeepingDate";
 import { RoomCleaningHistoryTable } from "@/components/housekeeping/RoomCleaningHistoryTable";
@@ -60,37 +63,28 @@ export function RoomCleaningHistoryClient({ roomId }: RoomCleaningHistoryClientP
     const roomNumber = history[0]?.roomNumber ?? String(roomId);
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <Link
-                            href="/housekeeping/tasks"
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
-                        >
-                            <ArrowLeftIcon className="h-4 w-4" />
-                            Retour aux tâches
-                        </Link>
-                        <div className="mt-5 flex items-center gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-white">
-                                <HomeIcon className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
-                                    Historique chambre {roomNumber}
-                                </h2>
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    Suivi chronologique des nettoyages, inspections et annulations.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </HmsCard>
+        <div className="space-y-8">
+            <section>
+                <Link
+                    href="/housekeeping/tasks"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                >
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                    Retour aux tâches
+                </Link>
+
+                <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                    Historique chambre {roomNumber}
+                </h2>
+
+                <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                    Suivi chronologique des nettoyages, inspections et annulations pour cette chambre.
+                </p>
+            </section>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <div>
                         <p className="font-semibold">Erreur</p>
                         <p className="mt-1">{errorMessage}</p>
@@ -98,43 +92,66 @@ export function RoomCleaningHistoryClient({ roomId }: RoomCleaningHistoryClientP
                 </div>
             )}
 
-            <div className="grid gap-4 md:grid-cols-4">
-                <HmsCard>
-                    <p className="text-sm text-zinc-500">Total</p>
-                    <p className="mt-2 text-2xl font-semibold text-zinc-950">
-                        {history.length}
-                    </p>
-                </HmsCard>
-                <HmsCard>
-                    <p className="text-sm text-zinc-500">Terminées</p>
-                    <p className="mt-2 text-2xl font-semibold text-emerald-700">
-                        {doneCount}
-                    </p>
-                </HmsCard>
-                <HmsCard>
-                    <p className="text-sm text-zinc-500">Annulées</p>
-                    <p className="mt-2 text-2xl font-semibold text-red-700">
-                        {cancelledCount}
-                    </p>
-                </HmsCard>
-                <HmsCard>
-                    <p className="text-sm text-zinc-500">Dernier nettoyage</p>
-                    <p className="mt-2 text-sm font-semibold text-zinc-950">
-                        {latestCleaning ? (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                {[
+                    {
+                        label: "Total",
+                        value: `${history.length} ${history.length > 1 ? "tâches" : "tâche"}`,
+                        icon: ListChecks,
+                        tone: "bg-zinc-100 text-zinc-700",
+                    },
+                    {
+                        label: "Terminées",
+                        value: `${doneCount} ${doneCount > 1 ? "terminées" : "terminée"}`,
+                        icon: CheckCircle2,
+                        tone: "bg-emerald-50 text-emerald-700",
+                    },
+                    {
+                        label: "Annulées",
+                        value: `${cancelledCount} ${cancelledCount > 1 ? "annulées" : "annulée"}`,
+                        icon: Ban,
+                        tone: "bg-red-50 text-red-700",
+                    },
+                    {
+                        label: "Dernier nettoyage",
+                        value: latestCleaning ? (
                             <HousekeepingDate value={latestCleaning.completedAt ?? latestCleaning.scheduledDate} />
                         ) : (
                             "—"
-                        )}
-                    </p>
-                </HmsCard>
+                        ),
+                        icon: Clock3,
+                        tone: "bg-blue-50 text-blue-700",
+                    },
+                ].map((card) => {
+                    const Icon = card.icon;
+
+                    return (
+                        <HmsCard key={card.label} className="p-6">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <p className="text-sm font-medium text-[var(--hms-text-muted)]">
+                                        {card.label}
+                                    </p>
+                                    <p className="mt-2 text-2xl font-bold tracking-tight text-[var(--hms-text)]">
+                                        {card.value}
+                                    </p>
+                                </div>
+                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${card.tone}`}>
+                                    <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                                </div>
+                            </div>
+                        </HmsCard>
+                    );
+                })}
             </div>
 
-            <HmsCard className="p-0">
-                <div className="border-b border-zinc-200 px-6 py-4">
-                    <h3 className="text-sm font-semibold text-zinc-950">
+            <HmsCard className="overflow-hidden p-0">
+                <div className="border-b border-[var(--hms-soft-border)] px-4 py-5">
+                    <h3 className="text-lg font-bold text-[var(--hms-text)]">
                         Historique chronologique
                     </h3>
-                    <p className="mt-1 text-sm text-zinc-500">
+
+                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                         {history.length} événement(s) de housekeeping pour cette chambre.
                     </p>
                 </div>
