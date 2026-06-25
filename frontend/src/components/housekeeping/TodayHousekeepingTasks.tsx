@@ -91,6 +91,39 @@ export function TodayHousekeepingTasks({
                 </div>
             ) : (
                 <div className="divide-y divide-[var(--hms-soft-border)]">
+                    <div className="hidden bg-slate-50 px-4 py-3 lg:grid lg:grid-cols-[minmax(120px,0.9fr)_minmax(180px,1.3fr)_minmax(130px,1fr)_auto] lg:items-center xl:px-5">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Chambre
+                            </span>
+                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Date planifiée
+                            </span>
+                        </div>
+
+                        <div className="flex min-w-0 flex-wrap gap-3">
+                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Intervention
+                            </span>
+                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Priorité
+                            </span>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Agent
+                            </span>
+                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Statut
+                            </span>
+                        </div>
+
+                        <span className="text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Action
+                        </span>
+                    </div>
+
                     {tasks.map((task) => (
                         <div
                             key={task.id}
