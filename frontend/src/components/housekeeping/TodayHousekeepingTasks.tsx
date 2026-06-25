@@ -91,34 +91,25 @@ export function TodayHousekeepingTasks({
                 </div>
             ) : (
                 <div className="divide-y divide-[var(--hms-soft-border)]">
-                    <div className="hidden bg-slate-50 px-4 py-3 lg:grid lg:grid-cols-[minmax(120px,0.9fr)_minmax(180px,1.3fr)_minmax(130px,1fr)_auto] lg:items-center xl:px-5">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                                Chambre
-                            </span>
-                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                                Date planifiée
-                            </span>
-                        </div>
-
-                        <div className="flex min-w-0 flex-wrap gap-3">
-                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                                Intervention
-                            </span>
-                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                                Priorité
-                            </span>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                                Agent
-                            </span>
-                            <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                                Statut
-                            </span>
-                        </div>
-
+                    <div className="hidden bg-slate-50 px-4 py-3 lg:grid lg:grid-cols-[minmax(105px,0.8fr)_minmax(120px,0.9fr)_minmax(150px,1.1fr)_minmax(90px,0.75fr)_minmax(130px,1fr)_minmax(95px,0.8fr)_auto] lg:items-center lg:gap-4 xl:px-5">
+                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Chambre
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Date planifiée
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Intervention
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Priorité
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Agent
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                            Statut
+                        </span>
                         <span className="text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Action
                         </span>
@@ -127,23 +118,26 @@ export function TodayHousekeepingTasks({
                     {tasks.map((task) => (
                         <div
                             key={task.id}
-                            className="grid gap-4 px-4 py-4 transition-colors hover:bg-slate-50 lg:grid-cols-[minmax(120px,0.9fr)_minmax(180px,1.3fr)_minmax(130px,1fr)_auto] lg:items-start xl:px-5"
+                            className="grid gap-4 px-4 py-4 transition-colors hover:bg-slate-50 lg:grid-cols-[minmax(105px,0.8fr)_minmax(120px,0.9fr)_minmax(150px,1.1fr)_minmax(90px,0.75fr)_minmax(130px,1fr)_minmax(95px,0.8fr)_auto] lg:items-start xl:px-5"
                         >
                             <div className="min-w-0">
                                 <p className="text-sm font-bold text-[var(--hms-text)]">
                                     Chambre {task.roomNumber}
                                 </p>
-
-                                <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
-                                    <HousekeepingDate
-                                        value={task.scheduledDate}
-                                        className="text-xs text-[var(--hms-text-muted)]"
-                                    />
-                                </p>
                             </div>
 
-                            <div className="flex min-w-0 flex-wrap gap-2">
+                            <div className="min-w-0">
+                                <HousekeepingDate
+                                    value={task.scheduledDate}
+                                    className="text-xs text-[var(--hms-text-muted)]"
+                                />
+                            </div>
+
+                            <div className="min-w-0">
                                 <TaskTypeBadge type={task.type} />
+                            </div>
+
+                            <div className="min-w-0">
                                 <PriorityBadge priority={task.priority} />
                             </div>
 
@@ -151,10 +145,10 @@ export function TodayHousekeepingTasks({
                                 <p className="truncate text-sm font-semibold text-[var(--hms-text)]">
                                     {task.assignedAgentName ?? "Non assignée"}
                                 </p>
+                            </div>
 
-                                <div className="mt-2">
-                                    <HousekeepingStatusBadge status={task.status} />
-                                </div>
+                            <div className="min-w-0">
+                                <HousekeepingStatusBadge status={task.status} />
                             </div>
 
                             <div className="flex justify-start lg:justify-end">
