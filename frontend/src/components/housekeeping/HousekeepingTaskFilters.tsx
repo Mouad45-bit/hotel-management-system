@@ -1,10 +1,9 @@
 "use client";
 
-import type { FormEvent } from "react";
-import { Check, RotateCcw } from "lucide-react";
-import { HmsButton } from "@/components/hms/HmsButton";
-import { HmsCard } from "@/components/hms/HmsCard";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { ListFilter } from "lucide-react";
 import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
+import { cn } from "@/lib/utils";
 import {
     HOUSEKEEPING_STATUS_FILTER_LABELS,
     HOUSEKEEPING_TYPE_FILTER_LABELS,
@@ -18,9 +17,7 @@ import {
 interface HousekeepingTaskFiltersProps {
     filters: HousekeepingTaskFiltersState;
     errors?: Partial<Record<keyof HousekeepingTaskFiltersState, string>>;
-    loading?: boolean;
     onApply: (filters: HousekeepingTaskFiltersState) => void;
-    onReset: () => void;
 }
 
 const STATUS_OPTIONS: HousekeepingStatusFilter[] = [
@@ -50,9 +47,7 @@ const PRIORITY_OPTIONS: PriorityFilter[] = [
 export function HousekeepingTaskFilters({
     filters,
     errors = {},
-    loading = false,
     onApply,
-    onReset,
 }: HousekeepingTaskFiltersProps) {
     function updateField<K extends keyof HousekeepingTaskFiltersState>(
         field: K,
@@ -64,25 +59,24 @@ export function HousekeepingTaskFilters({
         });
     }
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        onApply(filters);
-    }
-
     return (
-        <HmsCard className="p-5">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <h3 className="text-lg font-bold text-[var(--hms-text)]">
-                        Filtres
-                    </h3>
+        <Popover className="relative">
+            {({ open }) => (
+                <>
+                    <PopoverButton
+                        className={cn(
+                            "inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2",
+                            open
+                                ? "bg-[var(--hms-primary-active)]"
+                                : "bg-[var(--hms-primary)] hover:bg-[var(--hms-primary-hover)]"
+                        )}
+                    >
+                        <ListFilter aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Filtrer
+                    </PopoverButton>
 
-                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
-                        Filtrer par statut, type, priorité, chambre, agent ou date planifiée.
-                    </p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <PopoverPanel className="absolute right-0 top-full z-30 mt-3 w-[min(820px,calc(100vw-2.5rem))] rounded-[20px] border border-[var(--hms-soft-border)] bg-white p-5 shadow-[0_24px_70px_rgba(13,9,7,0.14)]">
+                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     <HmsSelect
                         id="housekeeping-status-filter"
                         label="Statut"
@@ -172,25 +166,10 @@ export function HousekeepingTaskFilters({
                         }
                         error={errors.scheduledDate}
                     />
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                    <HmsButton
-                        type="button"
-                        variant="secondary"
-                        onClick={onReset}
-                        disabled={loading}
-                    >
-                        <RotateCcw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                        Réinitialiser
-                    </HmsButton>
-
-                    <HmsButton type="submit" disabled={loading}>
-                        <Check aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                        Appliquer les filtres
-                    </HmsButton>
-                </div>
-            </form>
-        </HmsCard>
+                        </div>
+                    </PopoverPanel>
+                </>
+            )}
+        </Popover>
     );
 }

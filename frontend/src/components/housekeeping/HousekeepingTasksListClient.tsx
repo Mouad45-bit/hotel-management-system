@@ -135,11 +135,6 @@ export function HousekeepingTasksListClient() {
         void loadTasks(nextFilters, 0);
     }
 
-    function handleResetFilters() {
-        setFilters(DEFAULT_HOUSEKEEPING_FILTERS);
-        void loadTasks(DEFAULT_HOUSEKEEPING_FILTERS, 0);
-    }
-
     function handlePreviousPage() {
         if (currentPage === 0) {
             return;
@@ -240,14 +235,6 @@ export function HousekeepingTasksListClient() {
 
             <HousekeepingStatsCards stats={stats} loading={isLoading} />
 
-            <HousekeepingTaskFilters
-                filters={filters}
-                errors={filterErrors}
-                loading={isLoading}
-                onApply={handleApplyFilters}
-                onReset={handleResetFilters}
-            />
-
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                     <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
@@ -278,6 +265,12 @@ export function HousekeepingTasksListClient() {
                             <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                             Actualiser
                         </HmsButton>
+
+                        <HousekeepingTaskFilters
+                            filters={filters}
+                            errors={filterErrors}
+                            onApply={handleApplyFilters}
+                        />
                     </div>
                 </div>
 
