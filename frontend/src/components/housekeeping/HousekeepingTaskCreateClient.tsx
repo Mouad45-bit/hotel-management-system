@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-    ArrowLeftIcon,
-    ClipboardDocumentListIcon,
-    ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+    ArrowLeft,
+    TriangleAlert,
+} from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import {
     HousekeepingTaskForm,
@@ -135,43 +134,29 @@ export function HousekeepingTaskCreateClient() {
     }
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                        <Link
-                            href="/housekeeping/tasks"
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
-                        >
-                            <ArrowLeftIcon className="h-4 w-4" />
-                            Retour aux tâches
-                        </Link>
-                        <div className="mt-5 flex items-center gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-white">
-                                <ClipboardDocumentListIcon className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
-                                    Création manuelle
-                                </h2>
-                                <p className="mt-1 text-sm text-zinc-500">
-                                    Créez une tâche TODO liée à une chambre existante.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-                        <p className="font-semibold">Règle V1</p>
-                        <p className="mt-1">
-                            La création manuelle est réservée aux managers ou administrateurs.
-                        </p>
-                    </div>
-                </div>
-            </HmsCard>
+        <div className="space-y-8">
+            <section>
+                <Link
+                    href="/housekeeping/tasks"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                >
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                    Retour aux tâches
+                </Link>
+
+                <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                    Créer une tâche
+                </h2>
+
+                <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                    Planifiez une intervention housekeeping,
+                    <br className="hidden md:block" /> choisissez la chambre, la priorité et l’agent si l’affectation est déjà connue.
+                </p>
+            </section>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <div>
                         <p className="font-semibold">Erreur</p>
                         <p className="mt-1">{errorMessage}</p>
@@ -181,7 +166,7 @@ export function HousekeepingTaskCreateClient() {
 
             {isLoading ? (
                 <HmsCard>
-                    <div className="h-80 animate-pulse rounded-xl bg-zinc-100" />
+                    <div className="h-80 animate-pulse rounded-xl bg-slate-100" />
                 </HmsCard>
             ) : (
                 <HousekeepingTaskForm
