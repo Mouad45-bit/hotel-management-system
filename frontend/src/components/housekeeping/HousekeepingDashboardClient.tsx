@@ -84,6 +84,14 @@ export function HousekeepingDashboardClient() {
 
                 <div className="flex flex-col gap-2 sm:flex-row">
                     <Link
+                        href="/housekeeping/my-tasks"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    >
+                        <UserRoundCheck aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Mes tâches
+                    </Link>
+
+                    <Link
                         href="/housekeeping/tasks"
                         className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                     >
@@ -97,14 +105,6 @@ export function HousekeepingDashboardClient() {
                     >
                         <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                         Créer une tâche
-                    </Link>
-
-                    <Link
-                        href="/housekeeping/my-tasks"
-                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <UserRoundCheck aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                        Mes tâches
                     </Link>
                 </div>
             </section>
