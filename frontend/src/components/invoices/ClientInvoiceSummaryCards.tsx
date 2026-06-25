@@ -26,6 +26,10 @@ interface ClientInvoiceSummaryCardsProps {
     loading?: boolean;
 }
 
+function formatCount(count: number, singular: string, plural: string) {
+    return `${count} ${count > 1 ? plural : singular}`;
+}
+
 export function ClientInvoiceSummaryCards({
     summary,
     loading = false,
@@ -41,21 +45,29 @@ export function ClientInvoiceSummaryCards({
     }[] = [
         {
             label: "Total factures",
-            description: "Toutes les factures du client",
+            description: `${formatCount(summary.totalInvoices, "facture", "factures")} au total`,
             icon: FileText,
             tone: "default",
             count: summary.totalInvoices,
         },
         {
             label: "Chiffre payé",
-            description: `${summary.paidInvoices} facture(s) payée(s)`,
+            description: formatCount(
+                summary.paidInvoices,
+                "facture payée",
+                "factures payées"
+            ),
             icon: CircleCheckBig,
             tone: "success",
             amount: summary.totalRevenue,
         },
         {
             label: "En attente",
-            description: `${summary.issuedInvoices} facture(s) émise(s)`,
+            description: formatCount(
+                summary.issuedInvoices,
+                "facture émise",
+                "factures émises"
+            ),
             icon: Clock3,
             tone: "pending",
             amount: summary.pendingAmount,
@@ -63,7 +75,11 @@ export function ClientInvoiceSummaryCards({
         },
         {
             label: "Remboursé",
-            description: `${summary.refundedInvoices} facture(s) remboursée(s)`,
+            description: formatCount(
+                summary.refundedInvoices,
+                "facture remboursée",
+                "factures remboursées"
+            ),
             icon: RotateCcw,
             tone: "refunded",
             amount: summary.refundedAmount,
