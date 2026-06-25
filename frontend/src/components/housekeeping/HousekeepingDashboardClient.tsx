@@ -9,26 +9,11 @@ import {
     TriangleAlert,
     UserRoundCheck,
 } from "lucide-react";
-import { HousekeepingStatsCards } from "@/components/housekeeping/HousekeepingStatsCards";
 import { TodayHousekeepingTasks } from "@/components/housekeeping/TodayHousekeepingTasks";
-import {
-    getHousekeepingStats,
-    getTodayHousekeepingTasks,
-} from "@/services/housekeepingApi";
-import type { HousekeepingStats, HousekeepingTask } from "@/types/housekeeping";
-
-const EMPTY_STATS: HousekeepingStats = {
-    total: 0,
-    todo: 0,
-    inProgress: 0,
-    done: 0,
-    cancelled: 0,
-    urgent: 0,
-    unassigned: 0,
-};
+import { getTodayHousekeepingTasks } from "@/services/housekeepingApi";
+import type { HousekeepingTask } from "@/types/housekeeping";
 
 export function HousekeepingDashboardClient() {
-    const [stats, setStats] = useState<HousekeepingStats>(EMPTY_STATS);
     const [tasks, setTasks] = useState<HousekeepingTask[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -38,12 +23,8 @@ export function HousekeepingDashboardClient() {
         setErrorMessage(null);
 
         try {
-            const [loadedStats, todayTasks] = await Promise.all([
-                getHousekeepingStats(),
-                getTodayHousekeepingTasks(),
-            ]);
+            const todayTasks = await getTodayHousekeepingTasks();
 
-            setStats(loadedStats);
             setTasks(todayTasks);
         } catch (error) {
             setErrorMessage(
@@ -118,8 +99,6 @@ export function HousekeepingDashboardClient() {
                     </div>
                 </div>
             )}
-
-            <HousekeepingStatsCards stats={stats} loading={isLoading} variant="dashboard" />
 
             <div className="grid gap-6 xl:grid-cols-2">
                 <TodayHousekeepingTasks
