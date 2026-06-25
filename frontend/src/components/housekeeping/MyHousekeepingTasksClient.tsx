@@ -172,20 +172,24 @@ function MyTasksTable({
 
                                 <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
                                     <div className="flex justify-end gap-1.5">
-                                        <Link
-                                            href={`/housekeeping/tasks/${task.id}`}
-                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                            aria-label={`Voir la tâche ${task.id}`}
-                                            title="Voir"
-                                        >
-                                            <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                        </Link>
+                                        {canCancelTask(task) && onCancel && (
+                                            <button
+                                                type="button"
+                                                onClick={() => onCancel(task)}
+                                                disabled={disabled}
+                                                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-red-200 bg-white text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                                aria-label={`Annuler la tâche ${task.id}`}
+                                                title="Annuler"
+                                            >
+                                                <Ban aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                            </button>
+                                        )}
                                         {canStartTask(task) && onStart && (
                                             <button
                                                 type="button"
                                                 onClick={() => onStart(task)}
                                                 disabled={disabled}
-                                                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-primary)] bg-[var(--hms-primary)] text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                                                 aria-label={`Démarrer la tâche ${task.id}`}
                                                 title="Démarrer"
                                             >
@@ -204,18 +208,14 @@ function MyTasksTable({
                                                 <CheckCircle2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                             </button>
                                         )}
-                                        {canCancelTask(task) && onCancel && (
-                                            <button
-                                                type="button"
-                                                onClick={() => onCancel(task)}
-                                                disabled={disabled}
-                                                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-red-200 bg-white text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                                                aria-label={`Annuler la tâche ${task.id}`}
-                                                title="Annuler"
-                                            >
-                                                <Ban aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                            </button>
-                                        )}
+                                        <Link
+                                            href={`/housekeeping/tasks/${task.id}`}
+                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            aria-label={`Voir la tâche ${task.id}`}
+                                            title="Voir"
+                                        >
+                                            <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                        </Link>
                                     </div>
                                 </td>
                             </tr>
