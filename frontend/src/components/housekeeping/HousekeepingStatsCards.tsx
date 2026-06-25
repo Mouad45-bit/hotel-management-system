@@ -64,14 +64,14 @@ export function HousekeepingStatsCards({
         {
             label: "Terminées",
             value: stats.done,
-            description: `${stats.cancelled} tâche(s) annulée(s)`,
+            description: `${formatCount(stats.cancelled, "tâche annulée", "tâches annulées")}`,
             icon: CheckCircleIcon,
             tone: "success",
         },
         {
             label: "Urgentes",
             value: stats.urgent,
-            description: `${stats.unassigned} tâche(s) non assignée(s)`,
+            description: `${formatCount(stats.unassigned, "tâche non assignée", "tâches non assignées")}`,
             icon: ExclamationTriangleIcon,
             tone: "warning",
         },
