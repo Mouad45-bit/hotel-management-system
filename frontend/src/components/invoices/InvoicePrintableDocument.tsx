@@ -20,36 +20,38 @@ export function InvoicePrintableDocument({
     const paymentLabel = getPaymentMethodDisplayLabel(invoice.paymentMethod);
 
     return (
-        <article className="hms-print-document min-h-[297mm] rounded-2xl bg-white p-10 text-zinc-950 shadow-xl ring-1 ring-zinc-200 print:min-h-0 print:rounded-none print:p-0 print:shadow-none print:ring-0">
-            <header className="flex flex-col gap-8 border-b border-zinc-200 pb-8 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-900 text-xl font-bold text-white print:bg-stone-900">
-                        HMS
+        <article className="hms-print-document min-h-[297mm] w-[210mm] max-w-full rounded-[20px] border border-[var(--hms-soft-border)] bg-white p-8 text-[var(--hms-text)] shadow-[0_18px_55px_rgba(13,9,7,0.06)] sm:p-10 print:min-h-0 print:w-full print:max-w-none print:rounded-none print:border-0 print:p-0 print:shadow-none">
+            <header className="hms-print-avoid-break grid gap-8 border-b border-[var(--hms-soft-border)] pb-8 sm:grid-cols-[1fr_auto] sm:items-start">
+                <div className="max-w-md">
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--hms-primary)] text-xl font-extrabold tracking-tight text-white print:bg-[var(--hms-primary)]">
+                            HMS
+                        </div>
+
+                        <div>
+                            <p className="text-lg font-bold tracking-tight text-[var(--hms-text)]">
+                                Hotel Management System
+                            </p>
+
+                            <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
+                                Gestion hôtelière · Facturation · Paiements
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="mt-4">
-                        <p className="text-lg font-semibold tracking-tight">
-                            Hotel Management System
-                        </p>
-
-                        <p className="mt-1 text-sm leading-6 text-zinc-500">
-                            Gestion hôtelière · Facturation · Paiements
-                        </p>
-                    </div>
-
-                    <div className="mt-5 text-sm leading-6 text-zinc-500">
+                    <div className="mt-6 space-y-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         <p>Adresse : Casablanca, Maroc</p>
                         <p>Téléphone : +212 5 00 00 00 00</p>
                         <p>Email : billing@hms.local</p>
                     </div>
                 </div>
 
-                <div className="text-left sm:text-right">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                <div className="sm:min-w-72 sm:text-right">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
                         Facture
                     </p>
 
-                    <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+                    <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-[var(--hms-text)]">
                         {invoice.invoiceNumber}
                     </h1>
 
@@ -57,61 +59,69 @@ export function InvoicePrintableDocument({
                         <InvoiceStatusBadge status={invoice.status} />
                     </div>
 
-                    <div className="mt-5 space-y-1 text-sm text-zinc-500">
-                        <p>
-                            Date d’émission :{" "}
-                            <InvoiceDate
-                                value={issueDate}
-                                withTime
-                                className="text-sm text-zinc-600"
-                            />
-                        </p>
+                    <dl className="mt-6 space-y-2 text-sm">
+                        <div className="flex justify-between gap-4 sm:justify-end">
+                            <dt className="text-[var(--hms-text-muted)]">
+                                Date d’émission
+                            </dt>
+                            <dd className="font-medium text-[var(--hms-text)]">
+                                <InvoiceDate
+                                    value={issueDate}
+                                    withTime
+                                    className="text-sm text-[var(--hms-text)]"
+                                />
+                            </dd>
+                        </div>
 
-                        <p>
-                            Créée le :{" "}
-                            <InvoiceDate
-                                value={invoice.createdAt}
-                                withTime
-                                className="text-sm text-zinc-600"
-                            />
-                        </p>
-                    </div>
+                        <div className="flex justify-between gap-4 sm:justify-end">
+                            <dt className="text-[var(--hms-text-muted)]">
+                                Créée le
+                            </dt>
+                            <dd className="font-medium text-[var(--hms-text)]">
+                                <InvoiceDate
+                                    value={invoice.createdAt}
+                                    withTime
+                                    className="text-sm text-[var(--hms-text)]"
+                                />
+                            </dd>
+                        </div>
+                    </dl>
                 </div>
             </header>
 
-            <section className="grid gap-6 border-b border-zinc-200 py-8 md:grid-cols-2">
+            <section className="hms-print-avoid-break grid gap-6 border-b border-[var(--hms-soft-border)] py-8 md:grid-cols-2">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                         Facturé à
                     </p>
 
-                    <p className="mt-3 text-base font-semibold">
+                    <p className="mt-3 text-base font-bold text-[var(--hms-text)]">
                         {invoice.clientFullName}
                     </p>
 
-                    <div className="mt-2 text-sm leading-6 text-zinc-500">
+                    <div className="mt-3 space-y-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         <p>Client #{invoice.clientId}</p>
                         <p>Réservation #{invoice.reservationId}</p>
                     </div>
                 </div>
 
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                         Séjour
                     </p>
 
-                    <p className="mt-3 text-base font-semibold">
+                    <p className="mt-3 text-base font-bold text-[var(--hms-text)]">
                         {formatInvoiceRoom(invoice)}
                     </p>
 
-                    <div className="mt-2 text-sm leading-6 text-zinc-500">
-                        <p>{formatInvoicePeriod(invoice)}</p>
+                    <div className="mt-3 space-y-1 text-sm leading-6 text-[var(--hms-text-muted)]">
+                        <p className="whitespace-nowrap">{formatInvoicePeriod(invoice)}</p>
 
                         <p>
                             Check-in :{" "}
                             <InvoiceDate
                                 value={invoice.checkInDate}
-                                className="text-sm text-zinc-500"
+                                className="text-sm text-[var(--hms-text-muted)]"
                             />
                         </p>
 
@@ -119,7 +129,7 @@ export function InvoicePrintableDocument({
                             Check-out :{" "}
                             <InvoiceDate
                                 value={invoice.checkOutDate}
-                                className="text-sm text-zinc-500"
+                                className="text-sm text-[var(--hms-text-muted)]"
                             />
                         </p>
 
@@ -129,50 +139,50 @@ export function InvoicePrintableDocument({
             </section>
 
             <section className="py-8">
-                <table className="w-full border-collapse text-sm">
-                    <thead>
-                        <tr className="border-b border-zinc-200">
-                            <th className="py-3 pr-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                <table className="w-full table-fixed border-collapse text-sm">
+                    <thead className="bg-slate-50">
+                        <tr>
+                            <th className="w-[18%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Type
                             </th>
 
-                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[34%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Description
                             </th>
 
-                            <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                                Qté
+                            <th className="w-[12%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                                Quantité
                             </th>
 
-                            <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[18%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Prix unitaire
                             </th>
 
-                            <th className="py-3 pl-4 text-right text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <th className="w-[18%] border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Total
                             </th>
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody className="bg-white">
                         {invoice.lines.map((line) => (
                             <tr
                                 key={line.id}
-                                className="border-b border-zinc-100"
+                                className="hms-print-line border-b border-[var(--hms-soft-border)]"
                             >
-                                <td className="py-4 pr-4 align-top font-medium">
+                                <td className="px-3 py-4 align-top text-sm font-semibold text-[var(--hms-text)]">
                                     {getInvoiceLineTypeDisplayLabel(line.type)}
                                 </td>
 
-                                <td className="px-4 py-4 align-top text-zinc-600">
+                                <td className="px-3 py-4 align-top text-sm leading-6 text-[var(--hms-text-muted)]">
                                     {line.description}
                                 </td>
 
-                                <td className="px-4 py-4 text-right align-top text-zinc-600">
+                                <td className="px-3 py-4 text-center align-top text-sm text-[var(--hms-text-muted)]">
                                     {line.quantity}
                                 </td>
 
-                                <td className="px-4 py-4 text-right align-top">
+                                <td className="whitespace-nowrap px-3 py-4 text-right align-top">
                                     <InvoiceAmount
                                         amount={line.unitPrice}
                                         variant="muted"
@@ -180,7 +190,7 @@ export function InvoicePrintableDocument({
                                     />
                                 </td>
 
-                                <td className="py-4 pl-4 text-right align-top">
+                                <td className="whitespace-nowrap px-3 py-4 text-right align-top">
                                     <InvoiceAmount
                                         amount={line.lineTotal}
                                         variant="default"
@@ -193,13 +203,13 @@ export function InvoicePrintableDocument({
                 </table>
             </section>
 
-            <section className="grid gap-8 border-t border-zinc-200 pt-8 md:grid-cols-[1fr_320px]">
+            <section className="hms-print-avoid-break grid gap-8 border-t border-[var(--hms-soft-border)] pt-8 md:grid-cols-[1fr_320px]">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                         Paiement
                     </p>
 
-                    <div className="mt-3 text-sm leading-6 text-zinc-600">
+                    <div className="mt-3 space-y-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         <p>Méthode : {paymentLabel}</p>
                         <p>Référence : {invoice.paymentReference ?? "—"}</p>
 
@@ -209,7 +219,7 @@ export function InvoicePrintableDocument({
                                 <InvoiceDate
                                     value={invoice.paidAt}
                                     withTime
-                                    className="text-sm text-zinc-600"
+                                    className="text-sm text-[var(--hms-text-muted)]"
                                 />
                             </p>
                         )}
@@ -217,11 +227,11 @@ export function InvoicePrintableDocument({
 
                     {invoice.notes && (
                         <div className="mt-6">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                                 Notes
                             </p>
 
-                            <p className="mt-2 text-sm leading-6 text-zinc-600">
+                            <p className="mt-2 text-sm leading-6 text-[var(--hms-text-muted)]">
                                 {invoice.notes}
                             </p>
                         </div>
@@ -244,10 +254,10 @@ export function InvoicePrintableDocument({
                     )}
                 </div>
 
-                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+                <div className="hms-print-total rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-5">
                     <div className="space-y-3">
                         <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-zinc-500">Montant HT</span>
+                            <span className="text-[var(--hms-text-muted)]">Montant HT</span>
 
                             <InvoiceAmount
                                 amount={invoice.subtotalAmount}
@@ -257,7 +267,7 @@ export function InvoicePrintableDocument({
                         </div>
 
                         <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-zinc-500">
+                            <span className="text-[var(--hms-text-muted)]">
                                 Taxe ({invoice.taxRate}%)
                             </span>
 
@@ -268,8 +278,8 @@ export function InvoicePrintableDocument({
                             />
                         </div>
 
-                        <div className="flex items-center justify-between gap-4 border-t border-zinc-200 pt-4">
-                            <span className="text-sm font-semibold">
+                        <div className="flex items-center justify-between gap-4 border-t border-[var(--hms-border)] pt-4">
+                            <span className="text-sm font-bold text-[var(--hms-text)]">
                                 Total TTC
                             </span>
 
@@ -283,24 +293,24 @@ export function InvoicePrintableDocument({
                 </div>
             </section>
 
-            <footer className="mt-12 grid gap-8 border-t border-zinc-200 pt-8 md:grid-cols-2">
+            <footer className="hms-print-footer mt-12 grid gap-8 border-t border-[var(--hms-soft-border)] pt-8 md:grid-cols-2">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                         Conditions
                     </p>
 
-                    <p className="mt-2 text-sm leading-6 text-zinc-500">
+                    <p className="mt-2 text-sm leading-6 text-[var(--hms-text-muted)]">
                         Cette facture est générée par HMS à partir des données de
                         réservation figées au moment de la facturation.
                     </p>
                 </div>
 
                 <div className="text-left md:text-right">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                         Signature
                     </p>
 
-                    <div className="mt-10 border-t border-zinc-300 pt-2 text-sm text-zinc-500">
+                    <div className="mt-10 border-t border-[var(--hms-border)] pt-2 text-sm text-[var(--hms-text-muted)]">
                         Responsable réception / facturation
                     </div>
                 </div>

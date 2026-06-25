@@ -29,7 +29,7 @@ body {
 
 @page {
   size: A4;
-  margin: 14mm;
+  margin: 12mm;
 }
 
 @media print {
@@ -53,6 +53,11 @@ body {
     background: white !important;
   }
 
+  .hms-print-canvas {
+    width: 100% !important;
+    background: white !important;
+  }
+
   .hms-print-document {
     width: 100% !important;
     max-width: none !important;
@@ -61,5 +66,31 @@ body {
     border-radius: 0 !important;
     box-shadow: none !important;
     padding: 0 !important;
+  }
+
+  .hms-print-document * {
+    box-shadow: none !important;
+  }
+
+  .hms-print-document,
+  .hms-print-document * {
+    border-radius: 0 !important;
+  }
+
+  .hms-print-line,
+  .hms-print-total,
+  .hms-print-footer,
+  .hms-print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .hms-print-document thead {
+    display: table-header-group;
+  }
+
+  .hms-print-document tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
