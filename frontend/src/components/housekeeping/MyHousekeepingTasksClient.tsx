@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     ArrowLeft,
-    LayoutDashboard,
     RefreshCw,
     TriangleAlert,
 } from "lucide-react";
@@ -85,7 +84,7 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
                     Retour au dashboard
                 </Link>
 
-                <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div className="mt-6">
                     <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
                         Agent simulé #{agentId}
@@ -99,14 +98,6 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
                         Suivi personnel des tâches affectées à l’agent connecté simulé.
                     </p>
                     </div>
-
-                    <Link
-                        href="/housekeeping"
-                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <LayoutDashboard aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                        Dashboard
-                    </Link>
                 </div>
             </section>
 
