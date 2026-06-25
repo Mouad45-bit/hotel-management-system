@@ -159,23 +159,13 @@ export function ClientInvoiceHistoryClient({
 
             <ClientInvoiceSummaryCards summary={summary} loading={isLoading} />
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="space-y-6">
                 <HmsCard className="overflow-hidden p-0">
-                    <div className="flex flex-col gap-3 border-b border-[var(--hms-soft-border)] px-4 py-5 sm:flex-row sm:items-center sm:justify-between xl:px-5">
-                        <div>
-                            <h3 className="text-lg font-bold text-[var(--hms-text)]">
-                                Factures du client
-                            </h3>
-
-                            <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
-                                Liste chronologique des factures liées au client.
-                            </p>
-                        </div>
-
+                    <div className="flex justify-end border-b border-[var(--hms-soft-border)] px-3 py-3">
                         <span className="w-fit rounded-full border border-[var(--hms-soft-border)] bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-[var(--hms-text-muted)]">
                             {isLoading
                                 ? "Chargement"
-                                : `${summary.totalInvoices} résultat(s)`}
+                                : `${summary.totalInvoices} ${summary.totalInvoices > 1 ? "résultats" : "résultat"}`}
                         </span>
                     </div>
 

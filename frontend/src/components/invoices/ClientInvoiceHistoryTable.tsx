@@ -188,15 +188,6 @@ export function ClientInvoiceHistoryTable({
 
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
                                 <div className="flex items-center justify-end gap-1.5">
-                                    <Link
-                                        href={`/invoices/${invoice.id}`}
-                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                        aria-label={`Voir la facture ${invoice.invoiceNumber}`}
-                                        title="Voir"
-                                    >
-                                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    </Link>
-
                                     {canPrintInvoice(invoice) && (
                                         <Link
                                             href={`/invoices/${invoice.id}/print`}
@@ -207,6 +198,15 @@ export function ClientInvoiceHistoryTable({
                                             <Printer aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                         </Link>
                                     )}
+
+                                    <Link
+                                        href={`/invoices/${invoice.id}`}
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        aria-label={`Voir la facture ${invoice.invoiceNumber}`}
+                                        title="Voir"
+                                    >
+                                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                    </Link>
                                 </div>
                             </td>
                         </tr>
