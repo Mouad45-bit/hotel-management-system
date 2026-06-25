@@ -7,8 +7,8 @@ import {
     ClockIcon,
     ExclamationTriangleIcon,
     NoSymbolIcon,
-    UserMinusIcon,
 } from "@heroicons/react/24/outline";
+import { ListTodo } from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { cn } from "@/lib/utils";
 import type { HousekeepingStats } from "@/types/housekeeping";
@@ -26,7 +26,7 @@ interface StatCard {
     value: number;
     description: string;
     icon: StatIcon;
-    tone: "default" | "info" | "success" | "danger" | "warning";
+    tone: "default" | "info" | "success" | "danger" | "warning" | "pending";
 }
 
 const TONE_CLASSES: Record<StatCard["tone"], string> = {
@@ -35,6 +35,7 @@ const TONE_CLASSES: Record<StatCard["tone"], string> = {
     success: "bg-emerald-50 text-emerald-700",
     danger: "bg-red-50 text-red-700",
     warning: "bg-orange-50 text-orange-700",
+    pending: "bg-amber-50 text-amber-700",
 };
 
 function formatCount(count: number, singular: string, plural = `${singular}s`) {
@@ -58,8 +59,8 @@ export function HousekeepingStatsCards({
             label: "À faire",
             value: stats.todo,
             description: "Tâches en attente de démarrage",
-            icon: ClockIcon,
-            tone: "info",
+            icon: ListTodo,
+            tone: "pending",
         },
         {
             label: "Terminées",
@@ -79,7 +80,7 @@ export function HousekeepingStatsCards({
             label: "En cours",
             value: stats.inProgress,
             description: "Chambres temporairement indisponibles",
-            icon: UserMinusIcon,
+            icon: ClockIcon,
             tone: "info",
         },
         {
