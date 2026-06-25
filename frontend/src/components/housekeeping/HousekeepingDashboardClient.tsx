@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
     ClipboardList,
     Plus,
-    Sparkles,
     TriangleAlert,
     UserRoundCheck,
 } from "lucide-react";
@@ -107,8 +106,9 @@ export function HousekeepingDashboardClient() {
                     tasks={urgentTasks}
                     loading={isLoading}
                     emptyMessage="Aucune tâche urgente."
-                    icon={Sparkles}
+                    icon={TriangleAlert}
                     tone="warning"
+                    className="xl:col-span-2"
                 />
 
                 <TodayHousekeepingTasks
