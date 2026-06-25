@@ -98,10 +98,10 @@ export function TodayHousekeepingTasks({
                         <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Date planifiée
                         </span>
-                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <span className="text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Intervention
                         </span>
-                        <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <span className="text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Priorité
                         </span>
                         <span className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
@@ -133,11 +133,11 @@ export function TodayHousekeepingTasks({
                                 />
                             </div>
 
-                            <div className="min-w-0">
+                            <div className="flex min-w-0 justify-center">
                                 <TaskTypeBadge type={task.type} />
                             </div>
 
-                            <div className="min-w-0">
+                            <div className="flex min-w-0 justify-center">
                                 <PriorityBadge priority={task.priority} />
                             </div>
 
