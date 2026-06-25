@@ -11,6 +11,7 @@ import {
     Settings,
     Sparkles,
     UserRound,
+    UserRoundCog,
     UsersRound,
     type LucideIcon,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const navigation: NavigationItem[] = [
     { name: "Réservations", href: "#", icon: CalendarDays, disabled: true },
     { name: "Factures", href: "/invoices", icon: FileText, disabled: false },
     { name: "Housekeeping", href: "/housekeeping", icon: Sparkles, disabled: false },
+    { name: "Personnel", href: "/staff", icon: UserRoundCog, disabled: false },
     { name: "Paramètres", href: "#", icon: Settings, disabled: true },
 ];
 
