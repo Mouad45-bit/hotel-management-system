@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UserPlusIcon } from "@heroicons/react/24/outline";
+import { UserPlus } from "lucide-react";
 import { HousekeepingActionModal } from "@/components/housekeeping/HousekeepingActionModal";
+import { HmsSelect } from "@/components/hms/HmsField";
 import { assignHousekeepingTaskSchema } from "@/schemas/housekeeping.schema";
 import type {
     AssignHousekeepingTaskRequest,
@@ -64,7 +65,7 @@ export function AssignTaskModal({
             open={open}
             title="Assigner la tâche"
             description="Choisissez un agent housekeeping actif. L’assignation ne change pas forcément le statut."
-            icon={UserPlusIcon}
+            icon={UserPlus}
             iconClassName="bg-blue-50 text-blue-700"
             confirmLabel="Assigner"
             submitting={submitting}
@@ -73,31 +74,25 @@ export function AssignTaskModal({
             onConfirm={handleConfirm}
         >
             <div className="space-y-4">
-                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700">
+                <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text)]">
                     Chambre {task.roomNumber} · Tâche #{task.id}
                 </div>
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Agent housekeeping
-                    </label>
-                    <select
-                        value={assignedAgentId}
-                        onChange={(event) => setAssignedAgentId(event.target.value)}
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    >
-                        {agents.length === 0 && (
-                            <option value="">Aucun agent actif</option>
-                        )}
-                        {agents.map((agent) => (
-                            <option key={agent.id} value={agent.id}>
-                                {agent.fullName}
-                            </option>
-                        ))}
-                    </select>
-                    {errorMessage && (
-                        <p className="mt-1 text-xs text-red-600">{errorMessage}</p>
+                <HmsSelect
+                    id="assign-housekeeping-agent"
+                    label="Agent housekeeping"
+                    value={assignedAgentId}
+                    onChange={(event) => setAssignedAgentId(event.target.value)}
+                    error={errorMessage ?? undefined}
+                >
+                    {agents.length === 0 && (
+                        <option value="">Aucun agent actif</option>
                     )}
-                </div>
+                    {agents.map((agent) => (
+                        <option key={agent.id} value={agent.id}>
+                            {agent.fullName}
+                        </option>
+                    ))}
+                </HmsSelect>
             </div>
         </HousekeepingActionModal>
     );

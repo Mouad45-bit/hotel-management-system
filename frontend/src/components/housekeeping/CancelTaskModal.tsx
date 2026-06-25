@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { NoSymbolIcon } from "@heroicons/react/24/outline";
+import { Ban } from "lucide-react";
+import { HmsTextarea } from "@/components/hms/HmsField";
 import { HousekeepingActionModal } from "@/components/housekeeping/HousekeepingActionModal";
 import { cancelHousekeepingTaskSchema } from "@/schemas/housekeeping.schema";
 import type {
@@ -57,7 +58,7 @@ export function CancelTaskModal({
             open={open}
             title="Annuler la tâche"
             description="Cette action passe la tâche à Annulée. Le motif est obligatoire."
-            icon={NoSymbolIcon}
+            icon={Ban}
             iconClassName="bg-red-50 text-red-700"
             confirmLabel="Annuler la tâche"
             submitting={submitting}
@@ -66,24 +67,18 @@ export function CancelTaskModal({
             onConfirm={handleConfirm}
         >
             <div className="space-y-4">
-                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
                     Chambre {task.roomNumber} · tâche #{task.id}
                 </div>
-                <div>
-                    <label className="text-xs font-medium text-zinc-600">
-                        Motif d’annulation
-                    </label>
-                    <textarea
-                        value={reason}
-                        onChange={(event) => setReason(event.target.value)}
-                        rows={4}
-                        placeholder="Exemple : chambre bloquée pour maintenance"
-                        className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                    />
-                    {errorMessage && (
-                        <p className="mt-1 text-xs text-red-600">{errorMessage}</p>
-                    )}
-                </div>
+                <HmsTextarea
+                    id="cancel-housekeeping-reason"
+                    label="Motif d’annulation"
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value)}
+                    rows={4}
+                    placeholder="Exemple : chambre bloquée pour maintenance"
+                    error={errorMessage ?? undefined}
+                />
             </div>
         </HousekeepingActionModal>
     );
