@@ -22,6 +22,10 @@ interface MyHousekeepingTasksClientProps {
     agentId: number;
 }
 
+function formatAssignedTaskCount(count: number) {
+    return `${count} ${count > 1 ? "tâches assignées" : "tâche assignée"}`;
+}
+
 export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClientProps) {
     const [tasks, setTasks] = useState<HousekeepingTask[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -109,7 +113,7 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
                 <div className="flex flex-col gap-2 border-b border-[var(--hms-soft-border)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
-                            {tasks.length} tâche(s) pour l’agent #{agentId}
+                            {formatAssignedTaskCount(tasks.length)}
                         </p>
                     </div>
 
