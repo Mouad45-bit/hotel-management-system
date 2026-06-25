@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    ArrowPathIcon,
-    ExclamationTriangleIcon,
-    PlusIcon,
-} from "@heroicons/react/24/outline";
+    Plus,
+    RefreshCw,
+    TriangleAlert,
+} from "lucide-react";
+import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingStatsCards } from "@/components/housekeeping/HousekeepingStatsCards";
 import { HousekeepingTaskFilters } from "@/components/housekeeping/HousekeepingTaskFilters";
@@ -205,29 +206,26 @@ export function HousekeepingTasksListClient() {
     const tasks = pageResponse?.content ?? [];
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-stone-700">
-                            Module Housekeeping
-                        </p>
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-950">
-                            Liste des tâches de nettoyage
-                        </h2>
-                        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                            Suivez les tâches liées aux chambres, leur priorité, leur agent et leur statut opérationnel.
-                        </p>
-                    </div>
-                    <Link
-                        href="/housekeeping/tasks/create"
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800"
-                    >
-                        <PlusIcon className="h-5 w-5" />
-                        Créer une tâche
-                    </Link>
+        <div className="space-y-8">
+            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                        Tâches housekeeping
+                    </h2>
+
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                        Suivez les tâches liées aux chambres, leur priorité, leur agent et leur statut opérationnel.
+                    </p>
                 </div>
-            </HmsCard>
+
+                <Link
+                    href="/housekeeping/tasks/create"
+                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                >
+                    <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                    Créer une tâche
+                </Link>
+            </section>
 
             <HousekeepingStatsCards stats={stats} loading={isLoading} />
 
@@ -241,7 +239,7 @@ export function HousekeepingTasksListClient() {
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <div>
                         <p className="font-semibold">Erreur</p>
                         <p className="mt-1">{errorMessage}</p>
@@ -249,27 +247,27 @@ export function HousekeepingTasksListClient() {
                 </div>
             )}
 
-            <HmsCard className="p-0">
-                <div className="flex flex-col gap-3 border-b border-zinc-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <HmsCard className="overflow-hidden p-0">
+                <div className="flex flex-col gap-2 border-b border-[var(--hms-soft-border)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h3 className="text-sm font-semibold text-zinc-950">
-                            Tableau des tâches
-                        </h3>
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
                             {pageResponse
                                 ? `${pageResponse.totalElements} tâche(s) trouvée(s)`
                                 : "Chargement des tâches"}
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => void loadTasks(filters, currentPage)}
-                        disabled={isLoading}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        <ArrowPathIcon className="h-4 w-4" />
-                        Actualiser
-                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                        <HmsButton
+                            type="button"
+                            variant="secondary"
+                            onClick={() => void loadTasks(filters, currentPage)}
+                            disabled={isLoading}
+                        >
+                            <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                            Actualiser
+                        </HmsButton>
+                    </div>
                 </div>
 
                 <HousekeepingTaskTable
@@ -283,27 +281,31 @@ export function HousekeepingTasksListClient() {
                     onCancel={handleCancel}
                 />
 
-                <div className="flex items-center justify-between border-t border-zinc-200 px-6 py-4">
-                    <p className="text-sm text-zinc-500">
-                        Page <span className="font-medium text-zinc-900">{pageResponse ? pageResponse.page + 1 : 1}</span> sur <span className="font-medium text-zinc-900">{pageResponse?.totalPages || 1}</span>
+                <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
+                    <p className="text-sm text-[var(--hms-text-muted)]">
+                        Page <span className="font-medium text-[var(--hms-text)]">{pageResponse ? pageResponse.page + 1 : 1}</span> sur <span className="font-medium text-[var(--hms-text)]">{pageResponse?.totalPages || 1}</span>
                     </p>
+
                     <div className="flex items-center gap-2">
-                        <button
+                        <HmsButton
                             type="button"
+                            variant="secondary"
                             onClick={handlePreviousPage}
                             disabled={isLoading || currentPage === 0}
-                            className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="min-h-10 px-3"
                         >
                             Précédent
-                        </button>
-                        <button
+                        </HmsButton>
+
+                        <HmsButton
                             type="button"
+                            variant="secondary"
                             onClick={handleNextPage}
                             disabled={isLoading || !pageResponse || pageResponse.last}
-                            className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="min-h-10 px-3"
                         >
                             Suivant
-                        </button>
+                        </HmsButton>
                     </div>
                 </div>
             </HmsCard>

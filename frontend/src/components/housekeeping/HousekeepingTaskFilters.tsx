@@ -1,7 +1,10 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { Check, RotateCcw } from "lucide-react";
+import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
 import {
     HOUSEKEEPING_STATUS_FILTER_LABELS,
     HOUSEKEEPING_TYPE_FILTER_LABELS,
@@ -67,163 +70,125 @@ export function HousekeepingTaskFilters({
     }
 
     return (
-        <HmsCard>
+        <HmsCard className="p-5">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <h3 className="text-sm font-semibold text-zinc-950">
+                    <h3 className="text-lg font-bold text-[var(--hms-text)]">
                         Filtres
                     </h3>
-                    <p className="mt-1 text-sm text-zinc-500">
+
+                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                         Filtrer par statut, type, priorité, chambre, agent ou date planifiée.
                     </p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Statut
-                        </label>
-                        <select
-                            value={filters.status}
-                            onChange={(event) =>
-                                updateField(
-                                    "status",
-                                    event.target.value as HousekeepingStatusFilter
-                                )
-                            }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        >
-                            {STATUS_OPTIONS.map((status) => (
-                                <option key={status} value={status}>
-                                    {HOUSEKEEPING_STATUS_FILTER_LABELS[status]}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.status && (
-                            <p className="mt-1 text-xs text-red-600">{errors.status}</p>
-                        )}
-                    </div>
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <HmsSelect
+                        id="housekeeping-status-filter"
+                        label="Statut"
+                        value={filters.status}
+                        onChange={(event) =>
+                            updateField(
+                                "status",
+                                event.target.value as HousekeepingStatusFilter
+                            )
+                        }
+                        error={errors.status}
+                    >
+                        {STATUS_OPTIONS.map((status) => (
+                            <option key={status} value={status}>
+                                {HOUSEKEEPING_STATUS_FILTER_LABELS[status]}
+                            </option>
+                        ))}
+                    </HmsSelect>
 
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Type
-                        </label>
-                        <select
-                            value={filters.type}
-                            onChange={(event) =>
-                                updateField(
-                                    "type",
-                                    event.target.value as HousekeepingTaskTypeFilter
-                                )
-                            }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        >
-                            {TYPE_OPTIONS.map((type) => (
-                                <option key={type} value={type}>
-                                    {HOUSEKEEPING_TYPE_FILTER_LABELS[type]}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.type && (
-                            <p className="mt-1 text-xs text-red-600">{errors.type}</p>
-                        )}
-                    </div>
+                    <HmsSelect
+                        id="housekeeping-type-filter"
+                        label="Type"
+                        value={filters.type}
+                        onChange={(event) =>
+                            updateField(
+                                "type",
+                                event.target.value as HousekeepingTaskTypeFilter
+                            )
+                        }
+                        error={errors.type}
+                    >
+                        {TYPE_OPTIONS.map((type) => (
+                            <option key={type} value={type}>
+                                {HOUSEKEEPING_TYPE_FILTER_LABELS[type]}
+                            </option>
+                        ))}
+                    </HmsSelect>
 
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Priorité
-                        </label>
-                        <select
-                            value={filters.priority}
-                            onChange={(event) =>
-                                updateField(
-                                    "priority",
-                                    event.target.value as PriorityFilter
-                                )
-                            }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        >
-                            {PRIORITY_OPTIONS.map((priority) => (
-                                <option key={priority} value={priority}>
-                                    {PRIORITY_FILTER_LABELS[priority]}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.priority && (
-                            <p className="mt-1 text-xs text-red-600">{errors.priority}</p>
-                        )}
-                    </div>
+                    <HmsSelect
+                        id="housekeeping-priority-filter"
+                        label="Priorité"
+                        value={filters.priority}
+                        onChange={(event) =>
+                            updateField(
+                                "priority",
+                                event.target.value as PriorityFilter
+                            )
+                        }
+                        error={errors.priority}
+                    >
+                        {PRIORITY_OPTIONS.map((priority) => (
+                            <option key={priority} value={priority}>
+                                {PRIORITY_FILTER_LABELS[priority]}
+                            </option>
+                        ))}
+                    </HmsSelect>
 
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Chambre ID
-                        </label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={filters.roomId}
-                            onChange={(event) => updateField("roomId", event.target.value)}
-                            placeholder="201"
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
-                        {errors.roomId && (
-                            <p className="mt-1 text-xs text-red-600">{errors.roomId}</p>
-                        )}
-                    </div>
+                    <HmsInput
+                        id="housekeeping-room-filter"
+                        label="Chambre"
+                        type="text"
+                        inputMode="numeric"
+                        value={filters.roomId}
+                        onChange={(event) => updateField("roomId", event.target.value)}
+                        placeholder="201"
+                        error={errors.roomId}
+                    />
 
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Agent ID
-                        </label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={filters.agentId}
-                            onChange={(event) => updateField("agentId", event.target.value)}
-                            placeholder="101"
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
-                        {errors.agentId && (
-                            <p className="mt-1 text-xs text-red-600">{errors.agentId}</p>
-                        )}
-                    </div>
+                    <HmsInput
+                        id="housekeeping-agent-filter"
+                        label="Agent"
+                        type="text"
+                        inputMode="numeric"
+                        value={filters.agentId}
+                        onChange={(event) => updateField("agentId", event.target.value)}
+                        placeholder="101"
+                        error={errors.agentId}
+                    />
 
-                    <div>
-                        <label className="text-xs font-medium text-zinc-600">
-                            Date planifiée
-                        </label>
-                        <input
-                            type="date"
-                            value={filters.scheduledDate}
-                            onChange={(event) =>
-                                updateField("scheduledDate", event.target.value)
-                            }
-                            className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-stone-400 focus:ring-2 focus:ring-stone-100"
-                        />
-                        {errors.scheduledDate && (
-                            <p className="mt-1 text-xs text-red-600">
-                                {errors.scheduledDate}
-                            </p>
-                        )}
-                    </div>
+                    <HmsInput
+                        id="housekeeping-date-filter"
+                        label="Date planifiée"
+                        type="date"
+                        value={filters.scheduledDate}
+                        onChange={(event) =>
+                            updateField("scheduledDate", event.target.value)
+                        }
+                        error={errors.scheduledDate}
+                    />
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                    <button
+                    <HmsButton
                         type="button"
+                        variant="secondary"
                         onClick={onReset}
                         disabled={loading}
-                        className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
+                        <RotateCcw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                         Réinitialiser
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
+                    </HmsButton>
+
+                    <HmsButton type="submit" disabled={loading}>
+                        <Check aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                         Appliquer les filtres
-                    </button>
+                    </HmsButton>
                 </div>
             </form>
         </HmsCard>
