@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeftIcon, SparklesIcon } from "@heroicons/react/24/outline";
-import { HmsCard } from "@/components/hms/HmsCard";
+import { ArrowLeft } from "lucide-react";
 import { HousekeepingStatusBadge } from "@/components/housekeeping/HousekeepingStatusBadge";
 import { PriorityBadge } from "@/components/housekeeping/PriorityBadge";
 import { TaskTypeBadge } from "@/components/housekeeping/TaskTypeBadge";
@@ -16,38 +15,36 @@ export function HousekeepingTaskDetailHeader({
     task,
 }: HousekeepingTaskDetailHeaderProps) {
     return (
-        <HmsCard>
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <Link
-                        href="/housekeeping/tasks"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
-                    >
-                        <ArrowLeftIcon className="h-4 w-4" />
-                        Retour vers liste
-                    </Link>
-                    <div className="mt-5 flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-white">
-                            <SparklesIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
-                                Tâche #{task.id} · Chambre {task.roomNumber}
-                            </h2>
-                            <p className="mt-1 text-sm text-zinc-500">
-                                {task.assignedAgentName
-                                    ? `Assignée à ${task.assignedAgentName}`
-                                    : "Tâche non assignée"}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
+        <section className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
+                <Link
+                    href="/housekeeping/tasks"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                >
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                    Retour aux tâches
+                </Link>
+
+                <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
+                    Tâche #{task.id}
+                </p>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                        Chambre {task.roomNumber}
+                    </h2>
+
                     <HousekeepingStatusBadge status={task.status} />
                     <PriorityBadge priority={task.priority} />
                     <TaskTypeBadge type={task.type} />
                 </div>
+
+                <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                    {task.assignedAgentName
+                        ? `Assignée à ${task.assignedAgentName}.`
+                        : "Tâche non assignée."} Suivez son statut, ses informations liées et son historique opérationnel.
+                </p>
             </div>
-        </HmsCard>
+        </section>
     );
 }

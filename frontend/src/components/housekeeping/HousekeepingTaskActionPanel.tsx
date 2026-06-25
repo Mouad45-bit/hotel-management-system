@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import {
-    CheckCircleIcon,
-    NoSymbolIcon,
-    PlayIcon,
-    UserPlusIcon,
-} from "@heroicons/react/24/outline";
+    Ban,
+    CheckCircle2,
+    Play,
+    UserPlus,
+    type LucideIcon,
+} from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { AssignTaskModal } from "@/components/housekeeping/AssignTaskModal";
@@ -44,7 +45,7 @@ type ActiveHousekeepingModal = "assign" | "start" | "complete" | "cancel" | null
 interface ActionCardProps {
     title: string;
     description: string;
-    icon: typeof UserPlusIcon;
+    icon: LucideIcon;
     iconClassName: string;
     buttonLabel: string;
     danger?: boolean;
@@ -63,14 +64,14 @@ function ActionCard({
     onClick,
 }: ActionCardProps) {
     return (
-        <div className="rounded-2xl border border-zinc-200 p-4">
+        <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-white p-4">
             <div className="flex items-start gap-3">
                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}>
-                    <Icon className="h-5 w-5" />
+                    <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </div>
                 <div className="flex-1">
-                    <p className="text-sm font-semibold text-zinc-950">{title}</p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-500">
+                    <p className="text-sm font-bold text-[var(--hms-text)]">{title}</p>
+                    <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         {description}
                     </p>
                     <div className="mt-4">
@@ -155,13 +156,13 @@ export function HousekeepingTaskActionPanel({
 
     return (
         <>
-            <HmsCard>
+            <HmsCard className="p-6">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h3 className="text-sm font-semibold text-zinc-950">
+                        <h3 className="text-lg font-bold text-[var(--hms-text)]">
                             Actions tâche
                         </h3>
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             Les actions métier sont confirmées dans des modals pour éviter les changements accidentels.
                         </p>
                     </div>
@@ -170,7 +171,7 @@ export function HousekeepingTaskActionPanel({
 
                 {feedbackMessage && (
                     <div className="mt-4 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-                        <CheckCircleIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                        <CheckCircle2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.8} />
                         {feedbackMessage}
                     </div>
                 )}
@@ -180,7 +181,7 @@ export function HousekeepingTaskActionPanel({
                     </div>
                 )}
                 {!hasActions && (
-                    <div className="mt-5 rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500">
+                    <div className="mt-5 rounded-xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
                         Aucune action métier n’est disponible pour ce statut final.
                     </div>
                 )}
@@ -190,7 +191,7 @@ export function HousekeepingTaskActionPanel({
                         <ActionCard
                             title="Assigner un agent"
                             description="Choisissez l’agent housekeeping responsable de cette tâche."
-                            icon={UserPlusIcon}
+                            icon={UserPlus}
                             iconClassName="bg-blue-50 text-blue-700"
                             buttonLabel="Assigner"
                             disabled={isSubmitting}
@@ -201,7 +202,7 @@ export function HousekeepingTaskActionPanel({
                         <ActionCard
                             title="Démarrer la tâche"
                             description="La tâche passera de À faire à En cours."
-                            icon={PlayIcon}
+                            icon={Play}
                             iconClassName="bg-amber-50 text-amber-700"
                             buttonLabel="Démarrer"
                             disabled={isSubmitting}
@@ -212,7 +213,7 @@ export function HousekeepingTaskActionPanel({
                         <ActionCard
                             title="Terminer la tâche"
                             description="La tâche passera à Terminée et pourra remettre la chambre en AVAILABLE."
-                            icon={CheckCircleIcon}
+                            icon={CheckCircle2}
                             iconClassName="bg-emerald-50 text-emerald-700"
                             buttonLabel="Terminer"
                             disabled={isSubmitting}
@@ -223,7 +224,7 @@ export function HousekeepingTaskActionPanel({
                         <ActionCard
                             title="Annuler la tâche"
                             description="La tâche passera à Annulée avec un motif obligatoire."
-                            icon={NoSymbolIcon}
+                            icon={Ban}
                             iconClassName="bg-red-50 text-red-700"
                             buttonLabel="Annuler"
                             danger

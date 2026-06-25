@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ArrowLeft, TriangleAlert } from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingTaskActionPanel } from "@/components/housekeeping/HousekeepingTaskActionPanel";
 import { HousekeepingTaskDetailHeader } from "@/components/housekeeping/HousekeepingTaskDetailHeader";
@@ -79,13 +79,13 @@ export function HousekeepingTaskDetailClient({
             <div className="space-y-6">
                 <Link
                     href="/housekeeping/tasks"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-700 transition hover:text-zinc-950"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                 >
-                    <ArrowLeftIcon className="h-4 w-4" />
+                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                     Retour aux tâches
                 </Link>
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <div>
                         <p className="font-semibold">Tâche introuvable</p>
                         <p className="mt-1">
