@@ -8,10 +8,13 @@ import {
     CalendarDays,
     FileText,
     LayoutGrid,
+    LogOut,
+    Shield,
     Sparkles,
     Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
     { name: "Vue générale", href: "/", icon: LayoutGrid, soon: true },
@@ -20,6 +23,7 @@ const navigation = [
     { name: "Réservations", href: "/reservations", icon: CalendarDays, soon: false },
     { name: "Factures", href: "#", icon: FileText, soon: true },
     { name: "Housekeeping", href: "#", icon: Sparkles, soon: true },
+    { name: "Utilisateurs", href: "/users", icon: Shield, soon: false, adminOnly: true },
 ];
 
 function SoonBadge() {
@@ -32,9 +36,10 @@ function SoonBadge() {
 
 export function Sidebar() {
     const pathname = usePathname();
+    const { user, logout } = useAuth();
 
     return (
-        <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-zinc-200 bg-white lg:block">
+        <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-zinc-200 bg-white lg:flex lg:flex-col">
             <Link
                 href="/"
                 className="flex items-center gap-3 px-6 py-6"
@@ -51,8 +56,8 @@ export function Sidebar() {
                 </div>
             </Link>
 
-            <nav className="space-y-1 px-3 py-2">
-                {navigation.map((item) => {
+            <nav className="flex-1 space-y-1 px-3 py-2">
+                {navigation.filter((item) => !('adminOnly' in item && item.adminOnly) || user?.role === 'ADMIN').map((item) => {
                     const Icon = item.icon;
                     const active = item.href !== "#" && pathname.startsWith(item.href) && item.href !== "/";
                     const isRoot = item.href === "/" && pathname === "/";
@@ -87,6 +92,24 @@ export function Sidebar() {
                     );
                 })}
             </nav>
+
+            {user && (
+                <div className="border-t border-zinc-200 px-3 py-4">
+                    <div className="flex items-center justify-between rounded-xl px-3 py-2">
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-zinc-900">{user.firstName} {user.lastName}</p>
+                            <p className="truncate text-xs text-zinc-500">{user.role}</p>
+                        </div>
+                        <button
+                            onClick={logout}
+                            className="ml-2 rounded-lg p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
+                            title="Déconnexion"
+                        >
+                            <LogOut className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </aside>
     );
 }

@@ -24,6 +24,12 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
 
+app:
+  jwt:
+    secret: ${JWT_SECRET:dGhpcyBpcyBhIHZlcnkgc2VjdXJlIGtleSBmb3IgaG90ZWwgbWFuYWdlbWVudCBzeXN0ZW0gand0}
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION:900000}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000}
+
 management:
   endpoints:
     web:
