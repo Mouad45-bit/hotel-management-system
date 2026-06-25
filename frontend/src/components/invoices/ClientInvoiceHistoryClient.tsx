@@ -175,7 +175,7 @@ export function ClientInvoiceHistoryClient({
                     />
                 </HmsCard>
 
-                <div className="space-y-6">
+                <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
                     <HmsCard className="p-6">
                         <h3 className="text-lg font-bold text-[var(--hms-text)]">
                             Synthèse client
