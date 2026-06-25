@@ -50,7 +50,7 @@ export function HousekeepingStatsCards({
         {
             label: "Total tâches",
             value: stats.total,
-            description: `${stats.todo} à faire, ${stats.inProgress} en cours`,
+            description: `${formatCount(stats.todo, "à faire", "à faire")}, ${formatCount(stats.inProgress, "en cours", "en cours")}, ${formatCount(stats.done, "terminée", "terminées")} et ${formatCount(stats.cancelled, "annulée", "annulées")}`,
             icon: ClipboardDocumentListIcon,
             tone: "default",
         },
