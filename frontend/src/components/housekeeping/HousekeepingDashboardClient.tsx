@@ -7,6 +7,7 @@ import {
     Plus,
     TriangleAlert,
     UserRoundCheck,
+    UserRoundPlus,
 } from "lucide-react";
 import { TodayHousekeepingTasks } from "@/components/housekeeping/TodayHousekeepingTasks";
 import { getTodayHousekeepingTasks } from "@/services/housekeepingApi";
@@ -128,7 +129,7 @@ export function HousekeepingDashboardClient() {
                     tasks={unassignedTasks}
                     loading={isLoading}
                     emptyMessage="Toutes les tâches sont assignées."
-                    icon={UserRoundCheck}
+                    icon={UserRoundPlus}
                     tone="info"
                     className="xl:col-span-2"
                 />
