@@ -86,10 +86,6 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
 
                 <div className="mt-6">
                     <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
-                        Agent simulé #{agentId}
-                    </p>
-
                     <h2 className="mt-3 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
                         Mes tâches housekeeping
                     </h2>
