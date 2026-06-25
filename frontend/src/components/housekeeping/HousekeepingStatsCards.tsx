@@ -65,7 +65,7 @@ export function HousekeepingStatsCards({
         {
             label: "Terminées",
             value: stats.done,
-            description: `${formatCount(stats.cancelled, "tâche annulée", "tâches annulées")}`,
+            description: "Tâches finalisées",
             icon: CheckCircleIcon,
             tone: "success",
         },
