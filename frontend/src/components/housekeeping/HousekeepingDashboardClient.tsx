@@ -119,6 +119,7 @@ export function HousekeepingDashboardClient() {
                     emptyMessage="Aucune tâche planifiée aujourd’hui."
                     icon={ClipboardList}
                     tone="default"
+                    className="xl:col-span-2"
                 />
 
                 <TodayHousekeepingTasks
