@@ -131,6 +131,28 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  db-staff:
+    image: mariadb:11.4
+    container_name: db-staff
+    ports:
+      - "3311:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${STAFF_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${STAFF_DB_NAME:-db_staff}
+      MARIADB_USER: ${STAFF_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${STAFF_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-staff-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
   room-service:
     build:
       context: ./room-service
@@ -239,6 +261,41 @@ services:
       start_period: 50s
     restart: unless-stopped
 
+  staff-service:
+    build:
+      context: ./staff-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8087
+    container_name: staff-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      STAFF_SERVICE_PORT: 8087
+      STAFF_DB_HOST: db-staff
+      STAFF_DB_PORT: 3306
+      STAFF_DB_NAME: db_staff
+      STAFF_DB_USER: hotel_user
+      STAFF_DB_PASSWORD: hotel_pass
+    ports:
+      - "8087:8087"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-staff:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8087/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -279,3 +336,5 @@ volumes:
     name: db-invoice-data
   db-housekeeping-data:
     name: db-housekeeping-data
+  db-staff-data:
+    name: db-staff-data
