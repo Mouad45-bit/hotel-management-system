@@ -18,6 +18,7 @@ type StatIcon = ComponentType<SVGProps<SVGSVGElement>>;
 interface HousekeepingStatsCardsProps {
     stats: HousekeepingStats;
     loading?: boolean;
+    variant?: "default" | "dashboard";
 }
 
 interface StatCard {
@@ -36,11 +37,16 @@ const TONE_CLASSES: Record<StatCard["tone"], string> = {
     warning: "bg-orange-50 text-orange-700",
 };
 
+function formatCount(count: number, singular: string, plural = `${singular}s`) {
+    return `${count} ${count > 1 ? plural : singular}`;
+}
+
 export function HousekeepingStatsCards({
     stats,
     loading = false,
+    variant = "default",
 }: HousekeepingStatsCardsProps) {
-    const cards: StatCard[] = [
+    const defaultCards: StatCard[] = [
         {
             label: "Total tâches",
             value: stats.total,
@@ -85,16 +91,53 @@ export function HousekeepingStatsCards({
         },
     ];
 
+    const dashboardCards: StatCard[] = [
+        {
+            label: "Tâches suivies",
+            value: stats.total,
+            description: `${formatCount(stats.todo, "à faire", "à faire")}, ${formatCount(stats.inProgress, "en cours", "en cours")}`,
+            icon: ClipboardDocumentListIcon,
+            tone: "default",
+        },
+        {
+            label: "En cours",
+            value: stats.inProgress,
+            description: "Chambres temporairement indisponibles",
+            icon: ClockIcon,
+            tone: "info",
+        },
+        {
+            label: "Terminées",
+            value: stats.done,
+            description: `${formatCount(stats.cancelled, "tâche annulée", "tâches annulées")}`,
+            icon: CheckCircleIcon,
+            tone: "success",
+        },
+        {
+            label: "À traiter",
+            value: stats.urgent,
+            description: `${formatCount(stats.unassigned, "tâche non assignée", "tâches non assignées")}`,
+            icon: ExclamationTriangleIcon,
+            tone: "warning",
+        },
+    ];
+
+    const cards = variant === "dashboard" ? dashboardCards : defaultCards;
+    const gridClassName =
+        variant === "dashboard"
+            ? "grid gap-5 md:grid-cols-2 xl:grid-cols-4"
+            : "grid gap-4 md:grid-cols-2 xl:grid-cols-3";
+
     return (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className={gridClassName}>
             {cards.map((card) => {
                 const Icon = card.icon;
 
                 return (
-                    <HmsCard key={card.label}>
+                    <HmsCard key={card.label} className={variant === "dashboard" ? "p-6" : undefined}>
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <p className="text-sm text-zinc-500">
+                                <p className="text-sm font-medium text-[var(--hms-text-muted)]">
                                     {card.label}
                                 </p>
 
@@ -102,24 +145,24 @@ export function HousekeepingStatsCards({
                                     {loading ? (
                                         <div className="h-7 w-16 animate-pulse rounded-lg bg-zinc-100" />
                                     ) : (
-                                        <p className="text-2xl font-semibold text-zinc-950">
+                                        <p className="text-2xl font-bold tracking-tight text-[var(--hms-text)]">
                                             {card.value}
                                         </p>
                                     )}
                                 </div>
 
-                                <p className="mt-2 text-xs text-zinc-500">
+                                <p className="mt-2 text-xs text-[var(--hms-text-muted)]">
                                     {card.description}
                                 </p>
                             </div>
 
                             <div
                                 className={cn(
-                                    "flex h-10 w-10 items-center justify-center rounded-2xl",
+                                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
                                     TONE_CLASSES[card.tone]
                                 )}
                             >
-                                <Icon className="h-5 w-5" />
+                                <Icon className="h-5 w-5" aria-hidden="true" />
                             </div>
                         </div>
                     </HmsCard>

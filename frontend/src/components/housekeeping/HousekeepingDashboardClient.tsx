@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    ClipboardDocumentListIcon,
-    ExclamationTriangleIcon,
-    PlusIcon,
-    UserCircleIcon,
-} from "@heroicons/react/24/outline";
-import { HmsCard } from "@/components/hms/HmsCard";
+    ClipboardList,
+    Plus,
+    Sparkles,
+    TriangleAlert,
+    UserRoundCheck,
+} from "lucide-react";
 import { HousekeepingStatsCards } from "@/components/housekeeping/HousekeepingStatsCards";
 import { TodayHousekeepingTasks } from "@/components/housekeeping/TodayHousekeepingTasks";
 import {
@@ -68,50 +68,48 @@ export function HousekeepingDashboardClient() {
     const unassignedTasks = tasks.filter((task) => !task.assignedAgentId);
 
     return (
-        <div className="space-y-6">
-            <HmsCard>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-stone-700">
-                            Module Housekeeping
-                        </p>
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-950">
-                            Vue opérationnelle du jour
-                        </h2>
-                        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                            Pilotez les chambres à nettoyer, les agents affectés et les statuts de remise en état avant remise en vente.
-                        </p>
-                    </div>
+        <div className="space-y-8">
+            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
+                        Housekeeping
+                    </h2>
 
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                        <Link
-                            href="/housekeeping/tasks"
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                        >
-                            <ClipboardDocumentListIcon className="h-5 w-5" />
-                            Liste
-                        </Link>
-                        <Link
-                            href="/housekeeping/tasks/create"
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800"
-                        >
-                            <PlusIcon className="h-5 w-5" />
-                            Créer
-                        </Link>
-                        <Link
-                            href="/housekeeping/my-tasks"
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                        >
-                            <UserCircleIcon className="h-5 w-5" />
-                            My tasks
-                        </Link>
-                    </div>
+                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
+                        Suivez les chambres à nettoyer, les priorités du jour et les tâches à affecter avant remise en vente.
+                    </p>
                 </div>
-            </HmsCard>
+
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <Link
+                        href="/housekeeping/tasks"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    >
+                        <ClipboardList aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Liste des tâches
+                    </Link>
+
+                    <Link
+                        href="/housekeeping/tasks/create"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    >
+                        <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Créer une tâche
+                    </Link>
+
+                    <Link
+                        href="/housekeeping/my-tasks"
+                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                    >
+                        <UserRoundCheck aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Mes tâches
+                    </Link>
+                </div>
+            </section>
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0" />
+                    <TriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <div>
                         <p className="font-semibold">Erreur de chargement</p>
                         <p className="mt-1">{errorMessage}</p>
@@ -119,30 +117,38 @@ export function HousekeepingDashboardClient() {
                 </div>
             )}
 
-            <HousekeepingStatsCards stats={stats} loading={isLoading} />
-
-            <TodayHousekeepingTasks
-                title="Tâches du jour"
-                description="Nettoyages, inspections et remises en état planifiés aujourd’hui."
-                tasks={tasks}
-                loading={isLoading}
-                emptyMessage="Aucune tâche planifiée aujourd’hui."
-            />
+            <HousekeepingStatsCards stats={stats} loading={isLoading} variant="dashboard" />
 
             <div className="grid gap-6 xl:grid-cols-2">
                 <TodayHousekeepingTasks
                     title="Tâches urgentes"
-                    description="Priorités à traiter avant remise en vente."
+                    description="Priorités à traiter rapidement, sans surcharge visuelle."
                     tasks={urgentTasks}
                     loading={isLoading}
                     emptyMessage="Aucune tâche urgente."
+                    icon={Sparkles}
+                    tone="warning"
                 />
+
+                <TodayHousekeepingTasks
+                    title="Tâches du jour"
+                    description="Nettoyages, inspections et remises en état planifiés aujourd’hui."
+                    tasks={tasks}
+                    loading={isLoading}
+                    emptyMessage="Aucune tâche planifiée aujourd’hui."
+                    icon={ClipboardList}
+                    tone="default"
+                />
+
                 <TodayHousekeepingTasks
                     title="Tâches non assignées"
                     description="Tâches à affecter à un agent housekeeping."
                     tasks={unassignedTasks}
                     loading={isLoading}
                     emptyMessage="Toutes les tâches sont assignées."
+                    icon={UserRoundCheck}
+                    tone="info"
+                    className="xl:col-span-2"
                 />
             </div>
         </div>
