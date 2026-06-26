@@ -196,7 +196,6 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                             {employee.fullName}
                         </h2>
                         <DepartmentBadge department={employee.department} />
-                        <StaffStatusBadge active={employee.active} />
                     </div>
 
                     <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
