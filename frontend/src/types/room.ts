@@ -12,6 +12,24 @@ export interface Room {
     status: RoomStatus;
     description?: string;
     active: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface CreateRoomRequest {
+    number: string;
+    floor: number;
+    type: RoomType;
+    pricePerNight: number;
+    capacity: number;
+    status: RoomStatus;
+    description?: string;
+}
+
+export type UpdateRoomRequest = CreateRoomRequest;
+
+export interface UpdateRoomStatusRequest {
+    status: RoomStatus;
 }
 
 export interface RoomStats {

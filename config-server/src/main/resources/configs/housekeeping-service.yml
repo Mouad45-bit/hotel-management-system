@@ -1,0 +1,31 @@
+server:
+  port: ${HOUSEKEEPING_SERVICE_PORT:8086}
+
+spring:
+  application:
+    name: housekeeping-service
+
+  datasource:
+    url: jdbc:mariadb://${HOUSEKEEPING_DB_HOST:localhost}:${HOUSEKEEPING_DB_PORT:3310}/${HOUSEKEEPING_DB_NAME:db_housekeeping}
+    username: ${HOUSEKEEPING_DB_USER:hotel_user}
+    password: ${HOUSEKEEPING_DB_PASSWORD:hotel_pass}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

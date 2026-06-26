@@ -87,6 +87,116 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  db-client:
+    image: mariadb:11.4
+    container_name: db-client
+    ports:
+      - "3309:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${CLIENT_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${CLIENT_DB_NAME:-db_client}
+      MARIADB_USER: ${CLIENT_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${CLIENT_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-client-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-reservation:
+    image: mariadb:11.4
+    container_name: db-reservation
+    ports:
+      - "3310:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${RESERVATION_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${RESERVATION_DB_NAME:-db_reservation}
+      MARIADB_USER: ${RESERVATION_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${RESERVATION_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-reservation-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-invoice:
+    image: mariadb:11.4
+    container_name: db-invoice
+    ports:
+      - "3311:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${INVOICE_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${INVOICE_DB_NAME:-db_invoice}
+      MARIADB_USER: ${INVOICE_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${INVOICE_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-invoice-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-housekeeping:
+    image: mariadb:11.4
+    container_name: db-housekeeping
+    ports:
+      - "3312:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${HOUSEKEEPING_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${HOUSEKEEPING_DB_NAME:-db_housekeeping}
+      MARIADB_USER: ${HOUSEKEEPING_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${HOUSEKEEPING_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-housekeeping-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-staff:
+    image: mariadb:11.4
+    container_name: db-staff
+    ports:
+      - "3313:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${STAFF_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${STAFF_DB_NAME:-db_staff}
+      MARIADB_USER: ${STAFF_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${STAFF_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-staff-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
   room-service:
     build:
       context: ./room-service
@@ -120,28 +230,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 50s
-    restart: unless-stopped
-
-  db-client:
-    image: mariadb:11.4
-    container_name: db-client
-    ports:
-      - "3309:3306"
-    networks:
-      - hotel-network
-    environment:
-      MARIADB_ROOT_PASSWORD: ${CLIENT_DB_ROOT_PASSWORD:-root_hotel}
-      MARIADB_DATABASE: ${CLIENT_DB_NAME:-db_client}
-      MARIADB_USER: ${CLIENT_DB_USER:-hotel_user}
-      MARIADB_PASSWORD: ${CLIENT_DB_PASSWORD:-hotel_pass}
-    volumes:
-      - db-client-data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
     restart: unless-stopped
 
   client-service:
@@ -179,28 +267,6 @@ services:
       start_period: 50s
     restart: unless-stopped
 
-  db-reservation:
-    image: mariadb:11.4
-    container_name: db-reservation
-    ports:
-      - "3310:3306"
-    networks:
-      - hotel-network
-    environment:
-      MARIADB_ROOT_PASSWORD: ${RESERVATION_DB_ROOT_PASSWORD:-root_hotel}
-      MARIADB_DATABASE: ${RESERVATION_DB_NAME:-db_reservation}
-      MARIADB_USER: ${RESERVATION_DB_USER:-hotel_user}
-      MARIADB_PASSWORD: ${RESERVATION_DB_PASSWORD:-hotel_pass}
-    volumes:
-      - db-reservation-data:/var/lib/mysql
-    healthcheck:
-      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    restart: unless-stopped
-
   reservation-service:
     build:
       context: ./reservation-service
@@ -233,6 +299,114 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  invoice-service:
+    build:
+      context: ./invoice-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8085
+    container_name: invoice-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      INVOICE_SERVICE_PORT: 8085
+      INVOICE_DB_HOST: db-invoice
+      INVOICE_DB_PORT: 3306
+      INVOICE_DB_NAME: db_invoice
+      INVOICE_DB_USER: hotel_user
+      INVOICE_DB_PASSWORD: hotel_pass
+    ports:
+      - "8085:8085"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-invoice:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  housekeeping-service:
+    build:
+      context: ./housekeeping-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8086
+    container_name: housekeeping-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      HOUSEKEEPING_SERVICE_PORT: 8086
+      HOUSEKEEPING_DB_HOST: db-housekeeping
+      HOUSEKEEPING_DB_PORT: 3306
+      HOUSEKEEPING_DB_NAME: db_housekeeping
+      HOUSEKEEPING_DB_USER: hotel_user
+      HOUSEKEEPING_DB_PASSWORD: hotel_pass
+      ROOM_SERVICE_URL: "http://room-service:8082"
+      STAFF_SERVICE_URL: "http://staff-service:8087"
+      RESERVATION_SERVICE_URL: "http://reservation-service:8084"
+    ports:
+      - "8086:8086"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-housekeeping:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  staff-service:
+    build:
+      context: ./staff-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8087
+    container_name: staff-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      STAFF_SERVICE_PORT: 8087
+      STAFF_DB_HOST: db-staff
+      STAFF_DB_PORT: 3306
+      STAFF_DB_NAME: db_staff
+      STAFF_DB_USER: hotel_user
+      STAFF_DB_PASSWORD: hotel_pass
+    ports:
+      - "8087:8087"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-staff:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8087/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -315,3 +489,9 @@ volumes:
     name: db-client-data
   db-reservation-data:
     name: db-reservation-data
+  db-invoice-data:
+    name: db-invoice-data
+  db-housekeeping-data:
+    name: db-housekeeping-data
+  db-staff-data:
+    name: db-staff-data

@@ -11,6 +11,7 @@ import {
     LogOut,
     Shield,
     Sparkles,
+    UserRoundCog,
     Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,8 +22,9 @@ const navigation = [
     { name: "Chambres", href: "/rooms", icon: BedDouble, soon: false },
     { name: "Clients", href: "/clients", icon: Users, soon: false },
     { name: "Réservations", href: "/reservations", icon: CalendarDays, soon: false },
-    { name: "Factures", href: "#", icon: FileText, soon: true },
-    { name: "Housekeeping", href: "#", icon: Sparkles, soon: true },
+    { name: "Factures", href: "/invoices", icon: FileText, soon: false },
+    { name: "Housekeeping", href: "/housekeeping", icon: Sparkles, soon: false },
+    { name: "Personnel", href: "/staff", icon: UserRoundCog, soon: false },
     { name: "Utilisateurs", href: "/users", icon: Shield, soon: false, adminOnly: true },
 ];
 

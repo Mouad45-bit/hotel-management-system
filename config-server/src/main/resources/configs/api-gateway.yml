@@ -53,6 +53,21 @@ spring:
           predicates:
             - Path=/api/public/**
 
+        - id: invoice-service
+          uri: lb://invoice-service
+          predicates:
+            - Path=/api/invoices/**
+
+        - id: housekeeping-service
+          uri: lb://housekeeping-service
+          predicates:
+            - Path=/api/housekeeping-tasks/**
+
+        - id: staff-service
+          uri: lb://staff-service
+          predicates:
+            - Path=/api/employees/**
+
 eureka:
   instance:
     prefer-ip-address: true

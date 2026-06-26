@@ -5,17 +5,13 @@ import { PageHeader } from "./PageHeader";
 
 interface AppLayoutProps {
     children: ReactNode;
-    /**
-     * En-tête de page optionnel. Les pages qui ont besoin d'un en-tête riche
-     * (bouton retour, actions...) rendent elles-mêmes <PageHeader /> dans children.
-     */
     title?: string;
     description?: string;
 }
 
 export function AppLayout({ children, title, description }: AppLayoutProps) {
     return (
-        <div className="min-h-screen bg-zinc-50">
+        <div className="min-h-screen bg-[var(--hms-page)]">
             <Sidebar />
 
             <div className="lg:pl-64">
