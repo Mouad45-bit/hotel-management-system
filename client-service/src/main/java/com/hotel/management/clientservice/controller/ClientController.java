@@ -3,7 +3,9 @@ package com.hotel.management.clientservice.controller;
 import com.hotel.management.clientservice.dto.ClientResponse;
 import com.hotel.management.clientservice.dto.CreateClientRequest;
 import com.hotel.management.clientservice.dto.UpdateClientRequest;
+import com.hotel.management.clientservice.dto.external.ClientReservationResponse;
 import com.hotel.management.clientservice.service.ClientService;
+import com.hotel.management.clientservice.service.client.ReservationServiceClient;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.List;
 public class ClientController {
 
     private final ClientService clientService;
+    private final ReservationServiceClient reservationServiceClient;
 
     @PostMapping
     public ResponseEntity<ClientResponse> createClient(@Valid @RequestBody CreateClientRequest request) {
@@ -71,9 +74,9 @@ public class ClientController {
         return ResponseEntity.ok(clientService.getClientByEmail(email));
     }
 
-    // Endpoint stub — sera implémenté via reservation-service
     @GetMapping("/{id}/reservations")
-    public ResponseEntity<List<Object>> getClientReservations(@PathVariable Long id) {
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<List<ClientReservationResponse>> getClientReservations(@PathVariable Long id) {
+        clientService.getClientById(id);
+        return ResponseEntity.ok(reservationServiceClient.getReservationsByClientId(id));
     }
 }
