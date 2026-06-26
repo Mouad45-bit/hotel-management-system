@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
     CalendarDays,
     Home,
@@ -7,16 +8,19 @@ import {
 } from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingDate } from "@/components/housekeeping/HousekeepingDate";
-import { HousekeepingStatusBadge } from "@/components/housekeeping/HousekeepingStatusBadge";
 import { PriorityBadge } from "@/components/housekeeping/PriorityBadge";
 import { TaskTypeBadge } from "@/components/housekeeping/TaskTypeBadge";
 import type { HousekeepingTask } from "@/types/housekeeping";
 
 interface HousekeepingTaskInfoCardsProps {
     task: HousekeepingTask;
+    actions?: ReactNode;
 }
 
-export function HousekeepingTaskInfoCards({ task }: HousekeepingTaskInfoCardsProps) {
+export function HousekeepingTaskInfoCards({
+    task,
+    actions,
+}: HousekeepingTaskInfoCardsProps) {
     return (
         <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-3">
@@ -76,12 +80,11 @@ export function HousekeepingTaskInfoCards({ task }: HousekeepingTaskInfoCardsPro
                 <div className="grid gap-6 md:grid-cols-2">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                            Statut et priorité
+                            Type et priorité
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                            <HousekeepingStatusBadge status={task.status} />
-                            <PriorityBadge priority={task.priority} />
                             <TaskTypeBadge type={task.type} />
+                            <PriorityBadge priority={task.priority} />
                         </div>
                     </div>
                     <div>
@@ -94,6 +97,8 @@ export function HousekeepingTaskInfoCards({ task }: HousekeepingTaskInfoCardsPro
                     </div>
                 </div>
             </HmsCard>
+
+            {actions}
         </div>
     );
 }
