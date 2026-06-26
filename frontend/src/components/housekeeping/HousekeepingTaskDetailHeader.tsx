@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { HousekeepingStatusBadge } from "@/components/housekeeping/HousekeepingStatusBadge";
-import { PriorityBadge } from "@/components/housekeeping/PriorityBadge";
-import { TaskTypeBadge } from "@/components/housekeeping/TaskTypeBadge";
 import type { HousekeepingTask } from "@/types/housekeeping";
 
 interface HousekeepingTaskDetailHeaderProps {
@@ -35,14 +33,10 @@ export function HousekeepingTaskDetailHeader({
                     </h2>
 
                     <HousekeepingStatusBadge status={task.status} />
-                    <PriorityBadge priority={task.priority} />
-                    <TaskTypeBadge type={task.type} />
                 </div>
 
                 <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                    {task.assignedAgentName
-                        ? `Assignée à ${task.assignedAgentName}.`
-                        : "Tâche non assignée."} Suivez son statut, ses informations liées et son historique opérationnel.
+                    Consultez les informations, les priorités et l’avancement de cette tâche.
                 </p>
             </div>
         </section>
