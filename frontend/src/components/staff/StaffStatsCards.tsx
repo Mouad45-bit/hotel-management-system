@@ -3,7 +3,6 @@
 import {
     CircleCheckBig,
     Link2,
-    Sparkles,
     UserRoundX,
     UsersRound,
     type LucideIcon,
@@ -56,13 +55,6 @@ export function StaffStatsCards({ stats, loading = false }: StaffStatsCardsProps
             tone: "warning",
         },
         {
-            label: "Agents housekeeping",
-            value: formatEmployeeCount(stats.housekeeping),
-            description: "Actifs dans le département housekeeping",
-            icon: Sparkles,
-            tone: "success",
-        },
-        {
             label: "Comptes liés",
             value: formatEmployeeCount(stats.linked),
             description: "Employés liés à un utilisateur Auth",
@@ -72,7 +64,7 @@ export function StaffStatsCards({ stats, loading = false }: StaffStatsCardsProps
     ];
 
     return (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {cards.map((card) => {
                 const Icon = card.icon;
 
