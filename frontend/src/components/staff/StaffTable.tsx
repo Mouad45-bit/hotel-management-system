@@ -64,7 +64,7 @@ export function StaffTable({
                             Contact
                         </th>
                         <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
-                            Compte utilisateur
+                            COMPTE SYSTÈME
                         </th>
                         <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Statut
@@ -89,15 +89,23 @@ export function StaffTable({
                                 <p className="mt-1 text-xs text-[var(--hms-text-muted)]">{employee.phone ?? "Téléphone non renseigné"}</p>
                             </td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
-                                <p className="text-sm font-semibold text-[var(--hms-text)]">
-                                    {employee.authUserId ? "Lié" : "Non lié"}
-                                </p>
-                                <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
-                                    {employee.authUserId ? `Utilisateur #${employee.authUserId}` : "Aucun compte Auth"}
-                                </p>
+                                {employee.authUserId ? (
+                                    <>
+                                        <p className="text-sm font-semibold text-[var(--hms-text)]">
+                                            Compte système
+                                        </p>
+                                        <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
+                                            Utilisateur #{employee.authUserId}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p className="text-sm text-[var(--hms-text-muted)]">
+                                        Aucun compte système
+                                    </p>
+                                )}
                             </td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center align-top">
-                                <StaffStatusBadge active={employee.active} />
+                                {employee.authUserId && <StaffStatusBadge active={employee.active} />}
                             </td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
                                 <div className="flex justify-end gap-1.5">
