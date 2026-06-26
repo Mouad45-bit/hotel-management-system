@@ -228,33 +228,33 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                             </div>
                         </dl>
                     </HmsCard>
+
+                    {hasSystemAccount && (
+                        <HmsCard className="p-6">
+                            <h3 className="text-lg font-bold text-[var(--hms-text)]">Actions métier</h3>
+                            <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
+                                L’activation et la désactivation sont des actions dédiées.
+                            </p>
+                            <div className="mt-5">
+                                {employee.active ? (
+                                    <HmsButton type="button" variant="danger" onClick={() => openModal("deactivate")}>
+                                        <UserRoundX aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                        Désactiver l’employé
+                                    </HmsButton>
+                                ) : (
+                                    <HmsButton type="button" onClick={() => openModal("activate")}>
+                                        <CircleCheckBig aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                        Activer l’employé
+                                    </HmsButton>
+                                )}
+                            </div>
+                        </HmsCard>
+                    )}
                 </div>
 
                 <div className="min-w-0 space-y-6">
                     <HmsCard className="p-6">
-                    {hasSystemAccount && (
-                        <h3 className="text-lg font-bold text-[var(--hms-text)]">Actions métier</h3>
-                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
-                            L’activation et la désactivation sont des actions dédiées.
-                        </p>
-                        <div className="mt-5">
-                            {employee.active ? (
-                                <HmsButton type="button" variant="danger" onClick={() => openModal("deactivate")}>
-                                    <UserRoundX aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    Désactiver l’employé
-                                </HmsButton>
-                            ) : (
-                                <HmsButton type="button" onClick={() => openModal("activate")}>
-                                    <CircleCheckBig aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    Activer l’employé
-                                </HmsButton>
-                            )}
-                        </div>
-                    </HmsCard>
-
-                    <HmsCard className="p-6">
                         <h3 className="text-lg font-bold text-[var(--hms-text)]">Historique</h3>
-                    )}
                         <p className="mt-1 text-sm text-[var(--hms-text-muted)]">Dates réellement disponibles sur la fiche.</p>
                         <div className="mt-6">
                             {timelineItems.map((item, index) => {
