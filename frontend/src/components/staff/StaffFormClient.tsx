@@ -31,6 +31,13 @@ interface StaffFormState {
     department: Department;
 }
 
+interface StaffAccountFormState {
+    hasSystemAccount: boolean;
+    username: string;
+    initialPassword: string;
+    newPassword: string;
+}
+
 interface StaffFormClientProps {
     mode: "create" | "edit";
     employeeId?: number;
@@ -43,6 +50,13 @@ const DEFAULT_FORM: StaffFormState = {
     email: "",
     phone: "",
     department: "RECEPTION",
+};
+
+const DEFAULT_ACCOUNT_FORM: StaffAccountFormState = {
+    hasSystemAccount: false,
+    username: "",
+    initialPassword: "",
+    newPassword: "",
 };
 
 type StaffFormField = keyof StaffFormState;
@@ -63,6 +77,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
     const isEdit = mode === "edit";
 
     const [form, setForm] = useState<StaffFormState>(DEFAULT_FORM);
+    const [accountForm, setAccountForm] = useState<StaffAccountFormState>(DEFAULT_ACCOUNT_FORM);
     const [employee, setEmployee] = useState<Employee | null>(null);
     const [errors, setErrors] = useState<Partial<Record<StaffFormField, string>>>({});
     const [isLoading, setIsLoading] = useState(isEdit);
@@ -97,6 +112,19 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
 
     function updateField<K extends keyof StaffFormState>(field: K, value: StaffFormState[K]) {
         setForm((current) => ({ ...current, [field]: value }));
+    }
+
+    function toggleCreateAccountType() {
+        setAccountForm((current) => {
+            const hasSystemAccount = !current.hasSystemAccount;
+
+            return {
+                ...current,
+                hasSystemAccount,
+                username: hasSystemAccount ? current.username : "",
+                initialPassword: "",
+            };
+        });
     }
 
     async function handleSubmit() {
@@ -250,6 +278,45 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                             error={errors.phone}
                             className="md:col-span-2"
                         />
+
+                        {!isEdit && (
+                            <div className="md:col-span-2">
+                                <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={accountForm.hasSystemAccount}
+                                    onClick={toggleCreateAccountType}
+                                    className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                >
+                                    <span>
+                                        <span className="block text-sm font-bold text-[var(--hms-text)]">
+                                            Compte système lié
+                                        </span>
+                                        <span className="mt-1 block text-sm text-[var(--hms-text-muted)]">
+                                            {accountForm.hasSystemAccount
+                                                ? "Cet employé possède un compte système."
+                                                : "Cet employé ne possède pas de compte système."}
+                                        </span>
+                                    </span>
+
+                                    <span
+                                        className={
+                                            accountForm.hasSystemAccount
+                                                ? "flex h-6 w-11 shrink-0 items-center rounded-full bg-[var(--hms-primary)] p-1 transition-colors"
+                                                : "flex h-6 w-11 shrink-0 items-center rounded-full bg-slate-300 p-1 transition-colors"
+                                        }
+                                    >
+                                        <span
+                                            className={
+                                                accountForm.hasSystemAccount
+                                                    ? "h-4 w-4 translate-x-5 rounded-full bg-white transition-transform"
+                                                    : "h-4 w-4 translate-x-0 rounded-full bg-white transition-transform"
+                                            }
+                                        />
+                                    </span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </HmsCard>
 
