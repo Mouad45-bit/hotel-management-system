@@ -57,7 +57,7 @@ export function StaffStatsCards({ stats, loading = false }: StaffStatsCardsProps
         {
             label: "Comptes liés",
             value: formatEmployeeCount(stats.linked),
-            description: "Employés liés à un utilisateur Auth",
+            description: "Employés liés à un utilisateur système",
             icon: Link2,
             tone: "info",
         },
