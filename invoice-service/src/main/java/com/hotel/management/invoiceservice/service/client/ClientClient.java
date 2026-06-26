@@ -1,10 +1,13 @@
 package com.hotel.management.invoiceservice.service.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.hotel.management.invoiceservice.dto.external.ClientSummaryResponse;
+import com.hotel.management.invoiceservice.exception.InvoiceBusinessException;
+import com.hotel.management.invoiceservice.exception.InvoiceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 @Component
 public class ClientClient {
@@ -20,17 +23,18 @@ public class ClientClient {
 
     public ClientSummaryResponse findSummaryById(Long clientId) {
         try {
-            ClientSummaryResponse response = restClient.get()
-                    .uri(clientServiceUrl + "/api/clients/{clientId}/summary", clientId)
+            JsonNode node = restClient.get()
+                    .uri(clientServiceUrl + "/api/clients/{clientId}", clientId)
                     .retrieve()
-                    .body(ClientSummaryResponse.class);
-            if (response != null) {
-                return response;
+                    .body(JsonNode.class);
+            if (node != null) {
+                String fullName = node.path("firstName").asText("") + " " + node.path("lastName").asText("");
+                return new ClientSummaryResponse(node.path("id").asLong(), fullName.trim());
             }
-        } catch (RestClientException ignored) {
-            // Temporary fallback while client-service is not available.
+        } catch (HttpClientErrorException.NotFound ex) {
+            throw new InvoiceNotFoundException("Client not found with id: " + clientId);
         }
 
-        return new ClientSummaryResponse(clientId, "Temporary Client");
+        throw new InvoiceBusinessException("Client service returned an empty response for client: " + clientId);
     }
 }

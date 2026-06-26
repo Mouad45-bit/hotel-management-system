@@ -1,13 +1,12 @@
 package com.hotel.management.invoiceservice.service.client;
 
 import com.hotel.management.invoiceservice.dto.external.ReservationSummaryResponse;
+import com.hotel.management.invoiceservice.exception.InvoiceBusinessException;
+import com.hotel.management.invoiceservice.exception.InvoiceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Component
 public class ReservationClient {
@@ -24,24 +23,16 @@ public class ReservationClient {
     public ReservationSummaryResponse findSummaryById(Long reservationId) {
         try {
             ReservationSummaryResponse response = restClient.get()
-                    .uri(reservationServiceUrl + "/api/reservations/{reservationId}/summary", reservationId)
+                    .uri(reservationServiceUrl + "/api/reservations/{reservationId}", reservationId)
                     .retrieve()
                     .body(ReservationSummaryResponse.class);
             if (response != null) {
                 return response;
             }
-        } catch (RestClientException ignored) {
-            // Temporary fallback while reservation-service is not available.
+        } catch (HttpClientErrorException.NotFound ex) {
+            throw new InvoiceNotFoundException("Reservation not found with id: " + reservationId);
         }
 
-        return new ReservationSummaryResponse(
-                reservationId,
-                "CHECKED_OUT",
-                1L,
-                101L,
-                LocalDate.now().minusDays(3),
-                LocalDate.now(),
-                BigDecimal.valueOf(120)
-        );
+        throw new InvoiceBusinessException("Reservation service returned an empty response for reservation: " + reservationId);
     }
 }

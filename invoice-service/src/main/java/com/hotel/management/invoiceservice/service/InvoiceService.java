@@ -132,7 +132,8 @@ public class InvoiceService {
         }
 
         int nights = calculateNights(reservation.checkInDate(), reservation.checkOutDate());
-        BigDecimal subtotalAmount = reservation.pricePerNight()
+        BigDecimal pricePerNight = room.pricePerNight().setScale(2, RoundingMode.HALF_UP);
+        BigDecimal subtotalAmount = pricePerNight
                 .multiply(BigDecimal.valueOf(nights))
                 .setScale(2, RoundingMode.HALF_UP);
         BigDecimal taxAmount = subtotalAmount
@@ -150,7 +151,7 @@ public class InvoiceService {
         invoice.setCheckInDate(reservation.checkInDate());
         invoice.setCheckOutDate(reservation.checkOutDate());
         invoice.setNights(nights);
-        invoice.setPricePerNight(reservation.pricePerNight().setScale(2, RoundingMode.HALF_UP));
+        invoice.setPricePerNight(pricePerNight);
         invoice.setSubtotalAmount(subtotalAmount);
         invoice.setTaxRate(request.taxRate().setScale(2, RoundingMode.HALF_UP));
         invoice.setTaxAmount(taxAmount);
@@ -162,7 +163,7 @@ public class InvoiceService {
         roomStayLine.setType(InvoiceLineType.ROOM_STAY);
         roomStayLine.setDescription("Sejour chambre %s - %d nuit(s)".formatted(room.roomNumber(), nights));
         roomStayLine.setQuantity(nights);
-        roomStayLine.setUnitPrice(reservation.pricePerNight().setScale(2, RoundingMode.HALF_UP));
+        roomStayLine.setUnitPrice(pricePerNight);
         roomStayLine.setLineTotal(subtotalAmount);
         invoice.addLine(roomStayLine);
 

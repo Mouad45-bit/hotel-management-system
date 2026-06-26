@@ -1,10 +1,12 @@
 package com.hotel.management.invoiceservice.service.client;
 
 import com.hotel.management.invoiceservice.dto.external.RoomSummaryResponse;
+import com.hotel.management.invoiceservice.exception.InvoiceBusinessException;
+import com.hotel.management.invoiceservice.exception.InvoiceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 @Component
 public class RoomClient {
@@ -21,16 +23,16 @@ public class RoomClient {
     public RoomSummaryResponse findSummaryById(Long roomId) {
         try {
             RoomSummaryResponse response = restClient.get()
-                    .uri(roomServiceUrl + "/api/rooms/{roomId}/summary", roomId)
+                    .uri(roomServiceUrl + "/api/rooms/{roomId}", roomId)
                     .retrieve()
                     .body(RoomSummaryResponse.class);
             if (response != null) {
                 return response;
             }
-        } catch (RestClientException ignored) {
-            // Temporary fallback while room-service summary endpoint is not available.
+        } catch (HttpClientErrorException.NotFound ex) {
+            throw new InvoiceNotFoundException("Room not found with id: " + roomId);
         }
 
-        return new RoomSummaryResponse(roomId, "101");
+        throw new InvoiceBusinessException("Room service returned an empty response for room: " + roomId);
     }
 }
