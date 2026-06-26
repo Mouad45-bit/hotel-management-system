@@ -6,6 +6,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "reservations")
@@ -43,6 +44,9 @@ public class Reservation {
     @Column(length = 500)
     private String notes;
 
+    @Column(unique = true)
+    private String reference;
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
@@ -53,6 +57,9 @@ public class Reservation {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
+        if (reference == null) {
+            reference = "HMS-" + LocalDate.now().getYear() + "-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        }
     }
 
     @PreUpdate

@@ -65,7 +65,9 @@ public class ReservationService {
         Reservation reservation = reservationMapper.toEntity(req);
         reservation.setTotalPrice(totalPrice);
 
-        return reservationMapper.toResponse(reservationRepository.save(reservation));
+        Reservation saved = reservationRepository.save(reservation);
+        roomServiceClient.updateRoomStatus(req.roomId(), "RESERVED");
+        return reservationMapper.toResponse(saved);
     }
 
     public List<ReservationResponse> getReservations(Long roomId, Long clientId, String status, Boolean active) {
@@ -110,6 +112,7 @@ public class ReservationService {
         reservation.setActive(false);
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
+        restoreRoomStatusIfNoOtherReservation(reservation.getRoomId());
     }
 
     @Transactional
@@ -119,7 +122,9 @@ public class ReservationService {
             throw new BusinessException("Seules les réservations en statut CREATED peuvent être confirmées.");
         }
         reservation.setStatus(ReservationStatus.CONFIRMED);
-        return reservationMapper.toResponse(reservationRepository.save(reservation));
+        Reservation saved = reservationRepository.save(reservation);
+        roomServiceClient.updateRoomStatus(reservation.getRoomId(), "RESERVED");
+        return reservationMapper.toResponse(saved);
     }
 
     @Transactional
@@ -129,7 +134,9 @@ public class ReservationService {
             throw new BusinessException("Seules les réservations CONFIRMED peuvent passer au check-in.");
         }
         reservation.setStatus(ReservationStatus.CHECKED_IN);
-        return reservationMapper.toResponse(reservationRepository.save(reservation));
+        Reservation saved = reservationRepository.save(reservation);
+        roomServiceClient.updateRoomStatus(reservation.getRoomId(), "OCCUPIED");
+        return reservationMapper.toResponse(saved);
     }
 
     @Transactional
@@ -139,7 +146,9 @@ public class ReservationService {
             throw new BusinessException("Seules les réservations CHECKED_IN peuvent passer au check-out.");
         }
         reservation.setStatus(ReservationStatus.CHECKED_OUT);
-        return reservationMapper.toResponse(reservationRepository.save(reservation));
+        Reservation saved = reservationRepository.save(reservation);
+        restoreRoomStatusIfNoOtherReservation(reservation.getRoomId());
+        return reservationMapper.toResponse(saved);
     }
 
     @Transactional
@@ -151,7 +160,9 @@ public class ReservationService {
             throw new BusinessException("Une réservation en cours, terminée ou no-show ne peut pas être annulée.");
         }
         reservation.setStatus(ReservationStatus.CANCELLED);
-        return reservationMapper.toResponse(reservationRepository.save(reservation));
+        Reservation saved = reservationRepository.save(reservation);
+        restoreRoomStatusIfNoOtherReservation(reservation.getRoomId());
+        return reservationMapper.toResponse(saved);
     }
 
     @Transactional
@@ -161,7 +172,9 @@ public class ReservationService {
             throw new BusinessException("Seules les réservations CONFIRMED peuvent être marquées comme no-show.");
         }
         reservation.setStatus(ReservationStatus.NO_SHOW);
-        return reservationMapper.toResponse(reservationRepository.save(reservation));
+        Reservation saved = reservationRepository.save(reservation);
+        restoreRoomStatusIfNoOtherReservation(reservation.getRoomId());
+        return reservationMapper.toResponse(saved);
     }
 
     public List<ReservationResponse> getReservationsByClient(Long clientId) {
@@ -205,6 +218,27 @@ public class ReservationService {
         if (!checkOut.isAfter(checkIn)) {
             throw new BusinessException("La date de départ doit être strictement après la date d'arrivée.");
         }
+    }
+
+    private void restoreRoomStatusIfNoOtherReservation(Long roomId) {
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+
+        boolean hasCheckedIn = reservationRepository.existsOverlappingReservation(
+                roomId, today, tomorrow, List.of(ReservationStatus.CHECKED_IN));
+        if (hasCheckedIn) {
+            roomServiceClient.updateRoomStatus(roomId, "OCCUPIED");
+            return;
+        }
+
+        boolean hasActiveReservation = reservationRepository.existsOverlappingReservation(
+                roomId, today, tomorrow, List.of(ReservationStatus.CREATED, ReservationStatus.CONFIRMED));
+        if (hasActiveReservation) {
+            roomServiceClient.updateRoomStatus(roomId, "RESERVED");
+            return;
+        }
+
+        roomServiceClient.updateRoomStatus(roomId, "AVAILABLE");
     }
 
     private void checkNoOverlap(Long roomId, LocalDate checkIn, LocalDate checkOut, Long excludeId) {
