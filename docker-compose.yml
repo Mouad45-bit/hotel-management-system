@@ -51,10 +51,10 @@ services:
     networks:
       - hotel-network
     environment:
-      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_hotel}
-      MARIADB_DATABASE: ${MYSQL_DATABASE:-db_auth}
-      MARIADB_USER: ${MYSQL_USER:-hotel_user}
-      MARIADB_PASSWORD: ${MYSQL_PASSWORD:-hotel_pass}
+      MARIADB_ROOT_PASSWORD: ${AUTH_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${AUTH_DB_NAME:-db_auth}
+      MARIADB_USER: ${AUTH_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${AUTH_DB_PASSWORD:-hotel_pass}
     volumes:
       - db-auth-data:/var/lib/mysql
     healthcheck:
@@ -452,9 +452,9 @@ services:
       AUTH_SERVICE_PORT: 8081
       AUTH_DB_HOST: db-auth
       AUTH_DB_PORT: 3306
-      MYSQL_DATABASE: db_auth
-      MYSQL_USER: hotel_user
-      MYSQL_PASSWORD: hotel_pass
+      AUTH_DB_NAME: db_auth
+      AUTH_DB_USER: hotel_user
+      AUTH_DB_PASSWORD: hotel_pass
       JWT_SECRET: "dGhpcyBpcyBhIHZlcnkgc2VjdXJlIGtleSBmb3IgaG90ZWwgbWFuYWdlbWVudCBzeXN0ZW0gand0"
     ports:
       - "8081:8081"
