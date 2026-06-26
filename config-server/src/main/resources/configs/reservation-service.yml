@@ -1,0 +1,32 @@
+server:
+  port: ${RESERVATION_SERVICE_PORT:8084}
+
+spring:
+  datasource:
+    url: jdbc:mariadb://${RESERVATION_DB_HOST:localhost}:${RESERVATION_DB_PORT:3310}/${RESERVATION_DB_NAME:db_reservation}
+    username: ${RESERVATION_DB_USER:hotel_user}
+    password: ${RESERVATION_DB_PASSWORD:hotel_pass}
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+
+app:
+  gateway-url: ${GATEWAY_URL:http://localhost:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
