@@ -5,16 +5,12 @@ import Link from "next/link";
 import {
     ArrowLeft,
     CircleCheckBig,
-    Link2,
-    Link2Off,
     Pencil,
     TriangleAlert,
-    UserRound,
     UserRoundX,
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
-import { HmsInput } from "@/components/hms/HmsField";
 import { DepartmentBadge, StaffStatusBadge } from "@/components/staff/StaffBadges";
 import { StaffActionModal } from "@/components/staff/StaffActionModal";
 import { StaffDate } from "@/components/staff/StaffDate";
@@ -22,18 +18,14 @@ import {
     activateEmployee,
     deactivateEmployee,
     getEmployeeById,
-    linkAuthUser,
-    unlinkAuthUser,
 } from "@/services/staffApi";
-import { linkAuthUserSchema } from "@/schemas/staff.schema";
 import type { Employee } from "@/types/staff";
-import { extractFormErrors } from "@/lib/formErrors";
 
 interface StaffDetailClientProps {
     employeeId: number;
 }
 
-type ModalType = "link" | "unlink" | "activate" | "deactivate" | null;
+type ModalType = "activate" | "deactivate" | null;
 
 interface TimelineItem {
     label: string;
@@ -46,8 +38,6 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [modalType, setModalType] = useState<ModalType>(null);
-    const [userId, setUserId] = useState("");
-    const [fieldErrors, setFieldErrors] = useState<Partial<Record<"userId", string>>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
 
@@ -82,8 +72,6 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
 
     function openModal(type: ModalType) {
         setModalType(type);
-        setUserId("");
-        setFieldErrors({});
         setActionError(null);
     }
 
@@ -98,20 +86,7 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
         try {
             let updatedEmployee: Employee;
 
-            if (modalType === "link") {
-                const validationResult = linkAuthUserSchema.safeParse({ userId });
-
-                if (!validationResult.success) {
-                    setFieldErrors(extractFormErrors<"userId">(validationResult.error.issues));
-                    setIsSubmitting(false);
-                    return;
-                }
-
-                setFieldErrors({});
-                updatedEmployee = await linkAuthUser(employee.id, validationResult.data);
-            } else if (modalType === "unlink") {
-                updatedEmployee = await unlinkAuthUser(employee.id);
-            } else if (modalType === "activate") {
+            if (modalType === "activate") {
                 updatedEmployee = await activateEmployee(employee.id);
             } else {
                 updatedEmployee = await deactivateEmployee(employee.id);
@@ -253,38 +228,6 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
 
                 <div className="min-w-0 space-y-6">
                     <HmsCard className="p-6">
-                        <h3 className="text-lg font-bold text-[var(--hms-text)]">Compte utilisateur lié</h3>
-                        <div className="mt-5 rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4">
-                            <div className="flex items-start gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--hms-primary)] shadow-sm">
-                                    <UserRound aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-[var(--hms-text)]">
-                                        {employee.authUserId ? "Compte lié" : "Aucun compte lié"}
-                                    </p>
-                                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
-                                        {employee.authUserId ? `Utilisateur Auth #${employee.authUserId}` : "L’employé peut rester sans utilisateur Auth."}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-4">
-                            {employee.authUserId ? (
-                                <HmsButton type="button" variant="secondary" onClick={() => openModal("unlink")}>
-                                    <Link2Off aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    Retirer le lien
-                                </HmsButton>
-                            ) : (
-                                <HmsButton type="button" onClick={() => openModal("link")}>
-                                    <Link2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    Lier un compte utilisateur
-                                </HmsButton>
-                            )}
-                        </div>
-                    </HmsCard>
-
-                    <HmsCard className="p-6">
                         <h3 className="text-lg font-bold text-[var(--hms-text)]">Actions métier</h3>
                         <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             L’activation et la désactivation sont des actions dédiées.
@@ -328,47 +271,6 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                     </HmsCard>
                 </div>
             </div>
-
-            <StaffActionModal
-                open={modalType === "link"}
-                title="Lier un compte utilisateur"
-                description="Associez un utilisateur Auth existant à cette fiche employé. Aucun compte n’est créé ici."
-                icon={Link2}
-                iconClassName="bg-blue-50 text-blue-700"
-                confirmLabel="Lier le compte"
-                submitting={isSubmitting}
-                confirmDisabled={!userId}
-                onClose={() => openModal(null)}
-                onConfirm={() => void handleConfirmAction()}
-            >
-                <HmsInput
-                    id="staff-auth-user-id"
-                    label="Identifiant utilisateur *"
-                    inputMode="numeric"
-                    value={userId}
-                    onChange={(event) => setUserId(event.target.value)}
-                    error={fieldErrors.userId}
-                    hint="Renseignez uniquement l’identifiant d’un utilisateur Auth existant."
-                />
-                {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
-            </StaffActionModal>
-
-            <StaffActionModal
-                open={modalType === "unlink"}
-                title="Retirer le lien utilisateur"
-                description="Cette action retire le lien avec l’utilisateur Auth sans désactiver ce compte."
-                icon={Link2Off}
-                iconClassName="bg-zinc-100 text-zinc-700"
-                confirmLabel="Retirer le lien"
-                submitting={isSubmitting}
-                onClose={() => openModal(null)}
-                onConfirm={() => void handleConfirmAction()}
-            >
-                <p className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
-                    Le compte Auth restera inchangé. Seule l’association avec {employee.fullName} sera retirée.
-                </p>
-                {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
-            </StaffActionModal>
 
             <StaffActionModal
                 open={modalType === "deactivate"}
