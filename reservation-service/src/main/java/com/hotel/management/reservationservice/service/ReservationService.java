@@ -160,6 +160,7 @@ public class ReservationService {
             throw new BusinessException("Une réservation en cours, terminée ou no-show ne peut pas être annulée.");
         }
         reservation.setStatus(ReservationStatus.CANCELLED);
+        reservation.setActive(false);
         Reservation saved = reservationRepository.save(reservation);
         restoreRoomStatusIfNoOtherReservation(reservation.getRoomId());
         return reservationMapper.toResponse(saved);
