@@ -1,6 +1,8 @@
 package com.hotel.management.reservationservice.client;
 
+import com.hotel.management.reservationservice.client.dto.ClientCreateRequest;
 import com.hotel.management.reservationservice.client.dto.ClientInfo;
+import com.hotel.management.reservationservice.client.dto.FullClientInfo;
 import com.hotel.management.reservationservice.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -25,6 +27,31 @@ public class ClientServiceClient {
             throw new ResourceNotFoundException("Client introuvable avec l'identifiant : " + clientId);
         } catch (Exception e) {
             throw new RuntimeException("Impossible de contacter le service clients : " + e.getMessage());
+        }
+    }
+
+    public FullClientInfo findByEmail(String email) {
+        try {
+            return restClient.get()
+                    .uri("/api/clients/by-email?email={email}", email)
+                    .retrieve()
+                    .body(FullClientInfo.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de contacter le service clients : " + e.getMessage());
+        }
+    }
+
+    public FullClientInfo createClient(ClientCreateRequest request) {
+        try {
+            return restClient.post()
+                    .uri("/api/clients")
+                    .body(request)
+                    .retrieve()
+                    .body(FullClientInfo.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de créer le client : " + e.getMessage());
         }
     }
 }

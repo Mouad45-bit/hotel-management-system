@@ -86,6 +86,13 @@ public class ClientService {
         clientRepository.save(client);
     }
 
+    public ClientResponse getClientByEmail(String email) {
+        Client client = clientRepository.findByEmail(email)
+            .filter(Client::getActive)
+            .orElseThrow(() -> new ResourceNotFoundException("Client", "email", email));
+        return clientMapper.toResponse(client);
+    }
+
     public List<ClientResponse> searchClients(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return clientRepository.findByActiveTrue().stream()

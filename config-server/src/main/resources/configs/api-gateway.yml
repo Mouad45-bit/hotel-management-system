@@ -12,6 +12,7 @@ spring:
           '[/**]':
             allowedOrigins:
               - "http://localhost:3000"
+              - "http://localhost:3001"
             allowedMethods:
               - GET
               - POST
@@ -46,6 +47,11 @@ spring:
           uri: lb://reservation-service
           predicates:
             - Path=/api/reservations/**
+
+        - id: public-booking
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/public/**
 
 eureka:
   instance:

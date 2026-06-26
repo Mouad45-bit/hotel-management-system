@@ -66,6 +66,11 @@ public class ClientController {
         return ResponseEntity.ok(clientService.searchClients(q));
     }
 
+    @GetMapping("/by-email")
+    public ResponseEntity<ClientResponse> getClientByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(clientService.getClientByEmail(email));
+    }
+
     // Endpoint stub — sera implémenté via reservation-service
     @GetMapping("/{id}/reservations")
     public ResponseEntity<List<Object>> getClientReservations(@PathVariable Long id) {

@@ -35,6 +35,7 @@ public class ReservationMapper {
                 reservation.getStatus(),
                 reservation.getTotalPrice(),
                 reservation.getNotes(),
+                reservation.getReference(),
                 reservation.getActive(),
                 reservation.getCreatedAt(),
                 reservation.getUpdatedAt()

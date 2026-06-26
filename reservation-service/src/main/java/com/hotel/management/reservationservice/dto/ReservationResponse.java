@@ -15,6 +15,7 @@ public record ReservationResponse(
         ReservationStatus status,
         BigDecimal totalPrice,
         String notes,
+        String reference,
         Boolean active,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
