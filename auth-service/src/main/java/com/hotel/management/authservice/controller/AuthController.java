@@ -72,6 +72,9 @@ public class AuthController {
     @PatchMapping("/users/{id}/change-password")
     public ResponseEntity<Void> changePassword(@PathVariable Long id, @AuthenticationPrincipal User user,
                                                 @Valid @RequestBody ChangePasswordRequest request) {
+        if (!id.equals(user.getId()) && user.getRole() != com.hotel.management.authservice.entity.Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         authService.changePassword(user, request);
         return ResponseEntity.noContent().build();
     }

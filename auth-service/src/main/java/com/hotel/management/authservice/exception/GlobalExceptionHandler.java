@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Paramètre invalide : " + ex.getValue(), request);
+        return buildResponse(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Paramètre invalide : " + ex.getName(), request);
     }
 
     @ExceptionHandler(Exception.class)
