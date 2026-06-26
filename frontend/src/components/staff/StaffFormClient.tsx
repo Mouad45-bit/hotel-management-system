@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CircleCheckBig, TriangleAlert, UserRound } from "lucide-react";
+import {
+    ArrowLeft,
+    CircleCheckBig,
+    Eye,
+    EyeOff,
+    TriangleAlert,
+    UserRound,
+} from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
@@ -60,6 +67,75 @@ const DEFAULT_ACCOUNT_FORM: StaffAccountFormState = {
 };
 
 type StaffFormField = keyof StaffFormState;
+type StaffAccountField = keyof StaffAccountFormState;
+
+interface PasswordFieldProps {
+    id: string;
+    label: string;
+    value: string;
+    visible: boolean;
+    error?: string;
+    hint?: string;
+    placeholder?: string;
+    className?: string;
+    onChange: (value: string) => void;
+    onToggleVisibility: () => void;
+}
+
+function PasswordField({
+    id,
+    label,
+    value,
+    visible,
+    error,
+    hint,
+    placeholder,
+    className,
+    onChange,
+    onToggleVisibility,
+}: PasswordFieldProps) {
+    return (
+        <div className={className}>
+            <label
+                htmlFor={id}
+                className="text-xs font-semibold text-[var(--hms-text-muted)]"
+            >
+                {label}
+            </label>
+
+            <div className="relative mt-2">
+                <input
+                    id={id}
+                    type={visible ? "text" : "password"}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                    placeholder={placeholder}
+                    aria-invalid={Boolean(error)}
+                    className="h-12 w-full rounded-xl border border-[var(--hms-border)] bg-white px-4 pr-12 text-sm text-[var(--hms-text)] outline-none transition-colors duration-150 placeholder:text-[rgba(13,9,7,0.38)] focus:border-[var(--hms-focus)] focus:ring-2 focus:ring-[rgba(25,25,112,0.12)]"
+                />
+
+                <button
+                    type="button"
+                    onClick={onToggleVisibility}
+                    className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-xl text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)]"
+                    aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                    {visible ? (
+                        <EyeOff aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                    ) : (
+                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                    )}
+                </button>
+            </div>
+
+            {hint && !error && (
+                <p className="mt-2 text-xs text-[var(--hms-text-muted)]">{hint}</p>
+            )}
+
+            {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+        </div>
+    );
+}
 
 function toFormState(employee: Employee): StaffFormState {
     return {
@@ -80,6 +156,8 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
     const [accountForm, setAccountForm] = useState<StaffAccountFormState>(DEFAULT_ACCOUNT_FORM);
     const [employee, setEmployee] = useState<Employee | null>(null);
     const [errors, setErrors] = useState<Partial<Record<StaffFormField, string>>>({});
+    const [accountErrors, setAccountErrors] = useState<Partial<Record<StaffAccountField, string>>>({});
+    const [showInitialPassword, setShowInitialPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(isEdit);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -114,6 +192,13 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
         setForm((current) => ({ ...current, [field]: value }));
     }
 
+    function updateAccountField<K extends keyof StaffAccountFormState>(
+        field: K,
+        value: StaffAccountFormState[K]
+    ) {
+        setAccountForm((current) => ({ ...current, [field]: value }));
+    }
+
     function toggleCreateAccountType() {
         setAccountForm((current) => {
             const hasSystemAccount = !current.hasSystemAccount;
@@ -125,6 +210,8 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                 initialPassword: "",
             };
         });
+        setShowInitialPassword(false);
+        setAccountErrors({});
     }
 
     async function handleSubmit() {
@@ -132,13 +219,42 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
         setSuccessMessage(null);
 
         const validationResult = staffFormSchema.safeParse(form);
+        const nextAccountErrors: Partial<Record<StaffAccountField, string>> = {};
 
         if (!validationResult.success) {
             setErrors(extractFormErrors<StaffFormField>(validationResult.error.issues));
+        } else {
+            setErrors({});
+        }
+
+        if (!isEdit && accountForm.hasSystemAccount) {
+            if (!accountForm.username.trim()) {
+                nextAccountErrors.username = "Le nom d’utilisateur est obligatoire pour un compte lié.";
+            }
+
+            if (!accountForm.initialPassword) {
+                nextAccountErrors.initialPassword = "Le mot de passe initial est obligatoire pour un compte lié.";
+            }
+        }
+
+        if (Object.keys(nextAccountErrors).length > 0) {
+            setAccountErrors(nextAccountErrors);
             return;
         }
 
-        setErrors({});
+        if (!validationResult.success) {
+            return;
+        }
+
+        setAccountErrors({});
+
+        if (!isEdit && accountForm.hasSystemAccount) {
+            setAccountForm((current) => ({ ...current, initialPassword: "" }));
+            setShowInitialPassword(false);
+            setErrorMessage("La création d’un compte système nécessite une API Auth absente du projet. La fiche employé n’a pas été créée.");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -148,6 +264,12 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                 : await createEmployee(payload);
 
             setSuccessMessage(isEdit ? "Les modifications ont été enregistrées." : "L’employé a été créé.");
+
+            setAccountForm((current) => ({
+                ...current,
+                initialPassword: "",
+            }));
+            setShowInitialPassword(false);
             router.push(`/staff/${savedEmployee.id}`);
         } catch (error) {
             setErrorMessage(error instanceof Error ? error.message : "Impossible d’enregistrer l’employé.");
@@ -316,6 +438,27 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                                     </span>
                                 </button>
                             </div>
+                        )}
+
+                        {!isEdit && accountForm.hasSystemAccount && (
+                            <>
+                                <HmsInput
+                                    id="staff-account-username"
+                                    label="Nom d’utilisateur *"
+                                    value={accountForm.username}
+                                    onChange={(event) => updateAccountField("username", event.target.value)}
+                                    error={accountErrors.username}
+                                />
+                                <PasswordField
+                                    id="staff-account-initial-password"
+                                    label="Mot de passe initial *"
+                                    value={accountForm.initialPassword}
+                                    visible={showInitialPassword}
+                                    error={accountErrors.initialPassword}
+                                    onChange={(value) => updateAccountField("initialPassword", value)}
+                                    onToggleVisibility={() => setShowInitialPassword((current) => !current)}
+                                />
+                            </>
                         )}
                     </div>
                 </HmsCard>
