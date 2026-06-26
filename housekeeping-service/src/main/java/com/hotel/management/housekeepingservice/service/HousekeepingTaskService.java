@@ -147,15 +147,14 @@ public class HousekeepingTaskService {
 
     @Transactional(readOnly = true)
     public HousekeepingStatsResponse getStats() {
-        List<HousekeepingTask> tasks = housekeepingTaskRepository.findAll();
         return new HousekeepingStatsResponse(
-                tasks.size(),
-                countStatus(tasks, HousekeepingTaskStatus.TODO),
-                countStatus(tasks, HousekeepingTaskStatus.IN_PROGRESS),
-                countStatus(tasks, HousekeepingTaskStatus.DONE),
-                countStatus(tasks, HousekeepingTaskStatus.CANCELLED),
-                tasks.stream().filter(task -> task.getPriority() == Priority.URGENT).count(),
-                tasks.stream().filter(task -> task.getAssignedAgentId() == null).count()
+                housekeepingTaskRepository.count(),
+                housekeepingTaskRepository.countByStatus(HousekeepingTaskStatus.TODO),
+                housekeepingTaskRepository.countByStatus(HousekeepingTaskStatus.IN_PROGRESS),
+                housekeepingTaskRepository.countByStatus(HousekeepingTaskStatus.DONE),
+                housekeepingTaskRepository.countByStatus(HousekeepingTaskStatus.CANCELLED),
+                housekeepingTaskRepository.countByPriority(Priority.URGENT),
+                housekeepingTaskRepository.countByAssignedAgentIdIsNull()
         );
     }
 
@@ -231,10 +230,6 @@ public class HousekeepingTaskService {
         if (task.getStatus() != expectedStatus) {
             throw new HousekeepingConflictException(message);
         }
-    }
-
-    private long countStatus(List<HousekeepingTask> tasks, HousekeepingTaskStatus status) {
-        return tasks.stream().filter(task -> task.getStatus() == status).count();
     }
 
     private Specification<HousekeepingTask> buildSpecification(
