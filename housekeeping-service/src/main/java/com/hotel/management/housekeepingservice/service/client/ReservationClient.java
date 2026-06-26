@@ -7,9 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.ResourceAccessException;
-
-import java.time.LocalDate;
 
 @Component
 public class ReservationClient {
@@ -36,9 +33,6 @@ public class ReservationClient {
             }
         } catch (HttpClientErrorException.NotFound exception) {
             throw new HousekeepingTaskNotFoundException("Reservation not found with id: " + reservationId);
-        } catch (ResourceAccessException ignored) {
-            // Temporary fallback while reservation-service is not reachable in V1 demos.
-            return new ReservationSummaryResponse(reservationId, null, "CHECKED_OUT", LocalDate.now());
         }
 
         throw new HousekeepingBusinessException("Reservation service returned an empty response for reservation: " + reservationId);

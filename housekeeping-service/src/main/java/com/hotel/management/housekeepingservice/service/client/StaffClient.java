@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.ResourceAccessException;
 
 @Component
 public class StaffClient {
@@ -26,7 +25,7 @@ public class StaffClient {
     public StaffSummaryResponse findSummaryById(Long employeeId) {
         try {
             StaffSummaryResponse response = restClient.get()
-                    .uri(staffServiceUrl + "/api/staff/{employeeId}", employeeId)
+                    .uri(staffServiceUrl + "/api/employees/{employeeId}", employeeId)
                     .retrieve()
                     .body(StaffSummaryResponse.class);
             if (response != null) {
@@ -34,9 +33,6 @@ public class StaffClient {
             }
         } catch (HttpClientErrorException.NotFound exception) {
             throw new HousekeepingTaskNotFoundException("Staff member not found with id: " + employeeId);
-        } catch (ResourceAccessException ignored) {
-            // Temporary fallback while staff-service is not reachable in V1 demos.
-            return new StaffSummaryResponse(employeeId, "Agent housekeeping " + employeeId, "HOUSEKEEPING", true);
         }
 
         throw new HousekeepingBusinessException("Staff service returned an empty response for staff member: " + employeeId);
