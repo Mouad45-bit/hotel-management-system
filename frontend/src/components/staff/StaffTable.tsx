@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Eye, Pencil, Power, UserRound } from "lucide-react";
-import { HmsButton } from "@/components/hms/HmsButton";
 import { DepartmentBadge, StaffStatusBadge } from "@/components/staff/StaffBadges";
 import type { Employee } from "@/types/staff";
 
@@ -109,14 +108,17 @@ export function StaffTable({
                             </td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
                                 <div className="flex justify-end gap-1.5">
-                                    <Link
-                                        href={`/staff/${employee.id}`}
-                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                        aria-label={`Voir ${employee.fullName}`}
-                                        title="Voir"
-                                    >
-                                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    </Link>
+                                    {employee.authUserId && (
+                                        <button
+                                            type="button"
+                                            className={employee.active ? "inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white p-0 text-red-600 transition-colors hover:bg-slate-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2" : "inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white p-0 text-emerald-600 transition-colors hover:bg-slate-50 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"}
+                                            onClick={() => onToggleActive(employee)}
+                                            aria-label={employee.active ? `Désactiver ${employee.fullName}` : `Activer ${employee.fullName}`}
+                                            title={employee.active ? "Désactiver" : "Activer"}
+                                        >
+                                            <Power aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                        </button>
+                                    )}
                                     <Link
                                         href={`/staff/${employee.id}/edit`}
                                         className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
@@ -125,16 +127,14 @@ export function StaffTable({
                                     >
                                         <Pencil aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                     </Link>
-                                    <HmsButton
-                                        type="button"
-                                        variant="icon"
-                                        className={employee.active ? "h-9 min-h-9 w-9 text-red-600 hover:text-red-700" : "h-9 min-h-9 w-9"}
-                                        onClick={() => onToggleActive(employee)}
-                                        aria-label={employee.active ? `Désactiver ${employee.fullName}` : `Activer ${employee.fullName}`}
-                                        title={employee.active ? "Désactiver" : "Activer"}
+                                    <Link
+                                        href={`/staff/${employee.id}`}
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        aria-label={`Voir ${employee.fullName}`}
+                                        title="Voir"
                                     >
-                                        <Power aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                    </HmsButton>
+                                        <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                    </Link>
                                 </div>
                             </td>
                         </tr>
