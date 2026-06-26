@@ -102,10 +102,17 @@ export function HousekeepingTaskDetailClient({
             <HousekeepingTaskDetailHeader task={task} />
             <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
                 <div className="space-y-6">
-                    <HousekeepingTaskInfoCards task={task} />
+                    <HousekeepingTaskInfoCards
+                        task={task}
+                        actions={(
+                            <HousekeepingTaskActionPanel
+                                task={task}
+                                onTaskUpdated={setTask}
+                            />
+                        )}
+                    />
                 </div>
                 <div className="space-y-6">
-                    <HousekeepingTaskActionPanel task={task} onTaskUpdated={setTask} />
                     <HousekeepingTaskTimeline task={task} />
                 </div>
             </div>
