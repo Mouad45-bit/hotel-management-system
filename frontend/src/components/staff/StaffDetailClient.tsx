@@ -150,7 +150,7 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
             date: employee.updatedAt,
             description: "Les informations disponibles ont été modifiées.",
         },
-    ];
+    ].filter((item) => Boolean(item.date));
 
     return (
         <div className="space-y-8">
@@ -255,7 +255,9 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                 <div className="min-w-0 space-y-6">
                     <HmsCard className="p-6">
                         <h3 className="text-lg font-bold text-[var(--hms-text)]">Historique</h3>
-                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">Dates réellement disponibles sur la fiche.</p>
+                        <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
+                            Suivi des dates enregistrées sur la fiche employé.
+                        </p>
                         <div className="mt-6">
                             {timelineItems.map((item, index) => {
                                 const isLast = index === timelineItems.length - 1;
