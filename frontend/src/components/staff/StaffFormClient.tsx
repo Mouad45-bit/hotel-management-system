@@ -158,6 +158,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
     const [errors, setErrors] = useState<Partial<Record<StaffFormField, string>>>({});
     const [accountErrors, setAccountErrors] = useState<Partial<Record<StaffAccountField, string>>>({});
     const [showInitialPassword, setShowInitialPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(isEdit);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -178,6 +179,10 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                 const loadedEmployee = await getEmployeeById(id);
                 setEmployee(loadedEmployee);
                 setForm(toFormState(loadedEmployee));
+                setAccountForm({
+                    ...DEFAULT_ACCOUNT_FORM,
+                    hasSystemAccount: Boolean(loadedEmployee.authUserId),
+                });
             } catch (error) {
                 setErrorMessage(error instanceof Error ? error.message : "Impossible de charger l’employé.");
             } finally {
@@ -237,6 +242,10 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
             }
         }
 
+        if (isEdit && accountForm.hasSystemAccount && accountForm.newPassword) {
+            nextAccountErrors.newPassword = "La mise à jour du mot de passe nécessite une API Auth indisponible dans ce projet.";
+        }
+
         if (Object.keys(nextAccountErrors).length > 0) {
             setAccountErrors(nextAccountErrors);
             return;
@@ -263,13 +272,15 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                 ? await updateEmployee(employeeId, payload)
                 : await createEmployee(payload);
 
-            setSuccessMessage(isEdit ? "Les modifications ont été enregistrées." : "L’employé a été créé.");
-
             setAccountForm((current) => ({
                 ...current,
                 initialPassword: "",
+                newPassword: "",
             }));
             setShowInitialPassword(false);
+            setShowNewPassword(false);
+
+            setSuccessMessage(isEdit ? "Les modifications ont été enregistrées." : "L’employé a été créé.");
             router.push(`/staff/${savedEmployee.id}`);
         } catch (error) {
             setErrorMessage(error instanceof Error ? error.message : "Impossible d’enregistrer l’employé.");
@@ -471,6 +482,30 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                                     {hasLinkedAccount ? "Lié" : "Non lié"}
                                 </p>
                             </div>
+                        )}
+
+                        {isEdit && hasLinkedAccount && (
+                            <>
+                                <div className="md:col-span-2">
+                                    <p className="text-xs font-semibold text-[var(--hms-text-muted)]">
+                                        Nom d’utilisateur
+                                    </p>
+                                    <div className="mt-2 flex h-12 items-center rounded-xl border border-[var(--hms-border)] bg-slate-50 px-4 text-sm font-semibold text-[var(--hms-text)]">
+                                        Utilisateur #{employee?.authUserId}
+                                    </div>
+                                </div>
+                                <PasswordField
+                                    id="staff-account-new-password"
+                                    label="Nouveau mot de passe"
+                                    value={accountForm.newPassword}
+                                    visible={showNewPassword}
+                                    error={accountErrors.newPassword}
+                                    hint="Laissez ce champ vide pour conserver le mot de passe actuel."
+                                    className="md:col-span-2"
+                                    onChange={(value) => updateAccountField("newPassword", value)}
+                                    onToggleVisibility={() => setShowNewPassword((current) => !current)}
+                                />
+                            </>
                         )}
                     </div>
                 </HmsCard>
