@@ -6,7 +6,7 @@ spring:
     name: staff-service
 
   datasource:
-    url: jdbc:mariadb://${STAFF_DB_HOST:localhost}:${STAFF_DB_PORT:3311}/${STAFF_DB_NAME:db_staff}
+    url: jdbc:mariadb://${STAFF_DB_HOST:localhost}:${STAFF_DB_PORT:3313}/${STAFF_DB_NAME:db_staff}
     username: ${STAFF_DB_USER:hotel_user}
     password: ${STAFF_DB_PASSWORD:hotel_pass}
     driver-class-name: org.mariadb.jdbc.Driver

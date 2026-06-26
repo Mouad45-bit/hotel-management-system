@@ -6,7 +6,7 @@ spring:
     name: housekeeping-service
 
   datasource:
-    url: jdbc:mariadb://${HOUSEKEEPING_DB_HOST:localhost}:${HOUSEKEEPING_DB_PORT:3310}/${HOUSEKEEPING_DB_NAME:db_housekeeping}
+    url: jdbc:mariadb://${HOUSEKEEPING_DB_HOST:localhost}:${HOUSEKEEPING_DB_PORT:3312}/${HOUSEKEEPING_DB_NAME:db_housekeeping}
     username: ${HOUSEKEEPING_DB_USER:hotel_user}
     password: ${HOUSEKEEPING_DB_PASSWORD:hotel_pass}
     driver-class-name: org.mariadb.jdbc.Driver

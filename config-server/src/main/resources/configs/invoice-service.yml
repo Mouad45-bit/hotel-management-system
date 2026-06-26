@@ -6,7 +6,7 @@ spring:
     name: invoice-service
 
   datasource:
-    url: jdbc:mariadb://${INVOICE_DB_HOST:localhost}:${INVOICE_DB_PORT:3309}/${INVOICE_DB_NAME:db_invoice}
+    url: jdbc:mariadb://${INVOICE_DB_HOST:localhost}:${INVOICE_DB_PORT:3311}/${INVOICE_DB_NAME:db_invoice}
     username: ${INVOICE_DB_USER:hotel_user}
     password: ${INVOICE_DB_PASSWORD:hotel_pass}
     driver-class-name: org.mariadb.jdbc.Driver
