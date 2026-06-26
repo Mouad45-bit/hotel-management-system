@@ -199,7 +199,7 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                     </div>
 
                     <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Fiche opérationnelle du personnel : identité, département, coordonnées et lien utilisateur optionnel.
+                        Fiche opérationnelle du personnel : identité, département et coordonnées.
                     </p>
                 </div>
 
