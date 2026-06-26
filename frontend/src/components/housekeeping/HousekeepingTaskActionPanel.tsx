@@ -64,17 +64,18 @@ function ActionCard({
     onClick,
 }: ActionCardProps) {
     return (
-        <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-white p-4">
-            <div className="flex items-start gap-3">
+        <div className="h-full rounded-2xl border border-[var(--hms-soft-border)] bg-white p-4">
+            <div className="flex h-full items-start gap-3">
                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}>
                     <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </div>
-                <div className="flex-1">
+
+                <div className="flex min-w-0 flex-1 flex-col self-stretch text-left">
                     <p className="text-sm font-bold text-[var(--hms-text)]">{title}</p>
                     <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         {description}
                     </p>
-                    <div className="mt-4">
+                    <div className="mt-auto flex justify-end pt-4">
                         <HmsButton
                             type="button"
                             variant={danger ? "danger" : "secondary"}
@@ -148,7 +149,7 @@ export function HousekeepingTaskActionPanel({
         );
     }
 
-    const assignAllowed = canAssignTask(task);
+    const assignAllowed = canAssignTask(task) && !task.assignedAgentId;
     const startAllowed = canStartTask(task);
     const completeAllowed = canCompleteTask(task);
     const cancelAllowed = canCancelTask(task);
@@ -186,7 +187,7 @@ export function HousekeepingTaskActionPanel({
                     </div>
                 )}
 
-                <div className="mt-5 space-y-4">
+                <div className="mt-5 grid gap-4 md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
                     {assignAllowed && (
                         <ActionCard
                             title="Assigner un agent"
@@ -212,7 +213,7 @@ export function HousekeepingTaskActionPanel({
                     {completeAllowed && (
                         <ActionCard
                             title="Terminer la tâche"
-                            description="La tâche passera à Terminée et pourra remettre la chambre en AVAILABLE."
+                            description="La tâche passera à Terminée et pourra remettre la chambre en Disponible."
                             icon={CheckCircle2}
                             iconClassName="bg-emerald-50 text-emerald-700"
                             buttonLabel="Terminer"
