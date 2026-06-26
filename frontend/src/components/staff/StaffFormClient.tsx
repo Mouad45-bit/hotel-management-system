@@ -294,6 +294,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
     }
 
     const fullName = `${form.firstName} ${form.lastName}`.trim() || "Nouvel employé";
+    const hasLinkedAccount = Boolean(employee?.authUserId);
 
     return (
         <div className="space-y-8">
@@ -459,6 +460,17 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                                     onToggleVisibility={() => setShowInitialPassword((current) => !current)}
                                 />
                             </>
+                        )}
+
+                        {isEdit && (
+                            <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 md:col-span-2">
+                                <p className="text-xs font-semibold text-[var(--hms-text-muted)]">
+                                    Compte système
+                                </p>
+                                <p className="mt-1 text-sm font-bold text-[var(--hms-text)]">
+                                    {hasLinkedAccount ? "Lié" : "Non lié"}
+                                </p>
+                            </div>
                         )}
                     </div>
                 </HmsCard>
