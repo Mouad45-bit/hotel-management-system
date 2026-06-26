@@ -22,7 +22,6 @@ import {
     type StaffFiltersFormValues,
 } from "@/schemas/staff.schema";
 import {
-    DEFAULT_STAFF_FILTERS,
     type DepartmentFilter,
     type Employee,
     type PageResponse,
@@ -142,11 +141,6 @@ export function StaffListClient() {
         void loadEmployees(nextFilters, 0);
     }
 
-    function handleResetFilters() {
-        setFilters(DEFAULT_STAFF_FILTERS);
-        void loadEmployees(DEFAULT_STAFF_FILTERS, 0);
-    }
-
     function handlePreviousPage() {
         if (currentPage === 0) {
             return;
@@ -237,7 +231,6 @@ export function StaffListClient() {
                             filters={filters}
                             errors={filterErrors}
                             onApply={handleApplyFilters}
-                            onReset={handleResetFilters}
                         />
                     </div>
                 </div>

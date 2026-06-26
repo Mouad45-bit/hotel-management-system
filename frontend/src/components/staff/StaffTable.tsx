@@ -50,25 +50,25 @@ export function StaffTable({
 
     return (
         <div className="overflow-visible">
-            <table className="w-full table-auto border-collapse">
+            <table className="w-full table-fixed border-collapse">
                 <thead className="bg-slate-50">
                     <tr>
                         <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Employé
                         </th>
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[150px] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Département
                         </th>
                         <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Contact
                         </th>
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             COMPTE SYSTÈME
                         </th>
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[120px] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Statut
                         </th>
-                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[140px] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Actions
                         </th>
                     </tr>
@@ -76,18 +76,18 @@ export function StaffTable({
                 <tbody className="bg-white">
                     {employees.map((employee) => (
                         <tr key={employee.id} className="transition-colors hover:bg-slate-50">
-                            <td className="border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                            <td className="break-words border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <p className="text-sm font-bold text-[var(--hms-text)]">{employee.fullName}</p>
                                 <p className="mt-1 text-xs text-[var(--hms-text-muted)]">CIN {employee.cin}</p>
                             </td>
-                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center align-top">
                                 <DepartmentBadge department={employee.department} />
                             </td>
-                            <td className="border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                            <td className="break-words border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 <p className="text-sm text-[var(--hms-text)]">{employee.email ?? "Email non renseigné"}</p>
                                 <p className="mt-1 text-xs text-[var(--hms-text-muted)]">{employee.phone ?? "Téléphone non renseigné"}</p>
                             </td>
-                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                            <td className="break-words border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
                                 {employee.authUserId ? (
                                     <>
                                         <p className="text-sm font-semibold text-[var(--hms-text)]">
