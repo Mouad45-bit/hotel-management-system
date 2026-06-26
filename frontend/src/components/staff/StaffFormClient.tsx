@@ -317,7 +317,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                 </h2>
                 <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
                     Renseignez l’identité opérationnelle, le CIN et le département.
-                    <br className="hidden md:block" /> Aucun mot de passe, rôle Auth ou salaire n’est demandé.
+                    <br className="hidden md:block" /> Les informations du compte système sont demandées uniquement pour un employé lié.
                 </p>
             </section>
 
