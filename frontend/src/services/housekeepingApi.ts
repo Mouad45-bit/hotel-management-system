@@ -12,6 +12,7 @@ import type {
     RoomCleaningHistoryItem,
     UpdateHousekeepingTaskRequest,
 } from "@/types/housekeeping";
+import type { Room } from "@/types/room";
 
 function buildQueryString(params: HousekeepingTaskSearchParams): string {
     const searchParams = new URLSearchParams();
@@ -129,5 +130,12 @@ export async function getHousekeepingAgents(): Promise<HousekeepingAgentOption[]
 }
 
 export async function getHousekeepingRooms(): Promise<HousekeepingRoomOption[]> {
-    return apiFetch<HousekeepingRoomOption[]>("/api/rooms?active=true");
+    const rooms = await apiFetch<Room[]>("/api/rooms?active=true");
+
+    return rooms.map((room) => ({
+        id: room.id,
+        roomNumber: room.number,
+        floor: room.floor,
+        status: room.status,
+    }));
 }

@@ -47,4 +47,12 @@ public class RoomClient {
                 .retrieve()
                 .toBodilessEntity();
     }
+
+    public void markRoomHousekeeping(Long roomId) {
+        restClient.patch()
+                .uri(roomServiceUrl + "/api/rooms/{roomId}/status", roomId)
+                .body(Map.of("status", "CLEANING"))
+                .retrieve()
+                .toBodilessEntity();
+    }
 }

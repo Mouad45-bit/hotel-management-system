@@ -180,7 +180,10 @@ public class HousekeepingTaskService {
 
         task.setStatus(HousekeepingTaskStatus.IN_PROGRESS);
         task.setStartedAt(LocalDateTime.now());
-        return housekeepingTaskMapper.toResponse(housekeepingTaskRepository.save(task));
+        HousekeepingTask savedTask = housekeepingTaskRepository.save(task);
+
+        roomClient.markRoomHousekeeping(task.getRoomId());
+        return housekeepingTaskMapper.toResponse(savedTask);
     }
 
     @Transactional
@@ -203,10 +206,16 @@ public class HousekeepingTaskService {
             throw new HousekeepingConflictException("Only TODO or IN_PROGRESS housekeeping tasks can be cancelled");
         }
 
+        boolean wasInProgress = task.getStatus() == HousekeepingTaskStatus.IN_PROGRESS;
         task.setStatus(HousekeepingTaskStatus.CANCELLED);
         task.setCancelledAt(LocalDateTime.now());
         task.setCancellationReason(request.reason());
-        return housekeepingTaskMapper.toResponse(housekeepingTaskRepository.save(task));
+        HousekeepingTask savedTask = housekeepingTaskRepository.save(task);
+
+        if (wasInProgress) {
+            roomClient.markRoomAvailable(task.getRoomId());
+        }
+        return housekeepingTaskMapper.toResponse(savedTask);
     }
 
     private HousekeepingTask getTaskEntity(Long id) {

@@ -130,6 +130,7 @@ class HousekeepingTaskServiceTest {
 
         assertThat(response.status()).isEqualTo(HousekeepingTaskStatus.IN_PROGRESS);
         assertThat(response.startedAt()).isNotNull();
+        verify(roomClient).markRoomHousekeeping(301L);
     }
 
     @Test
@@ -141,6 +142,7 @@ class HousekeepingTaskServiceTest {
                 .hasMessageContaining("Only TODO housekeeping tasks can be started");
 
         verify(housekeepingTaskRepository, never()).save(any(HousekeepingTask.class));
+        verify(roomClient, never()).markRoomHousekeeping(any());
     }
 
     @Test
@@ -179,6 +181,7 @@ class HousekeepingTaskServiceTest {
         assertThat(response.status()).isEqualTo(HousekeepingTaskStatus.CANCELLED);
         assertThat(response.cancelledAt()).isNotNull();
         assertThat(response.cancellationReason()).isEqualTo("Chambre bloquée");
+        verify(roomClient, never()).markRoomAvailable(any());
     }
 
     @Test
@@ -192,6 +195,7 @@ class HousekeepingTaskServiceTest {
         assertThat(response.status()).isEqualTo(HousekeepingTaskStatus.CANCELLED);
         assertThat(response.cancelledAt()).isNotNull();
         assertThat(response.cancellationReason()).isEqualTo("Priorité modifiée");
+        verify(roomClient).markRoomAvailable(301L);
     }
 
     @Test
