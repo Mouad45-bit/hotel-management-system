@@ -9,10 +9,7 @@ export default async function StaffDetailPage({ params }: StaffDetailPageProps) 
     const { id } = await params;
 
     return (
-        <AppLayout
-            title="Détail employé"
-            description="Identité, département, statut et lien utilisateur"
-        >
+        <AppLayout>
             <StaffDetailClient employeeId={Number(id)} />
         </AppLayout>
     );

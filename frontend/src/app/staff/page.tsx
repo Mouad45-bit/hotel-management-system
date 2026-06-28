@@ -17,10 +17,7 @@ function StaffListFallback() {
 
 export default function StaffPage() {
     return (
-        <AppLayout
-            title="Personnel"
-            description="Gestion des employés et de leur statut opérationnel"
-        >
+        <AppLayout>
             <Suspense fallback={<StaffListFallback />}>
                 <StaffListClient />
             </Suspense>

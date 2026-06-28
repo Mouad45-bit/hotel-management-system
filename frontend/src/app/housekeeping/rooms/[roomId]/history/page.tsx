@@ -13,10 +13,7 @@ export default async function RoomCleaningHistoryPage({
     const { roomId } = await params;
 
     return (
-        <AppLayout
-            title="Historique chambre"
-            description="Historique de nettoyage et remise en état"
-        >
+        <AppLayout>
             <RoomCleaningHistoryClient roomId={Number(roomId)} />
         </AppLayout>
     );

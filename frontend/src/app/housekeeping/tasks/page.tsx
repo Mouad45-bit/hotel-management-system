@@ -3,10 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 
 export default function HousekeepingTasksPage() {
     return (
-        <AppLayout
-            title="Tâches housekeeping"
-            description="Liste, filtres et actions de nettoyage"
-        >
+        <AppLayout>
             <HousekeepingTasksListClient />
         </AppLayout>
     );

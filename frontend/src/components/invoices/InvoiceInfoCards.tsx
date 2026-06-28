@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
     BedDouble,
     CalendarDays,
@@ -33,9 +34,9 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
                             Client
                         </p>
 
-                        <p className="mt-2 text-base font-bold text-[var(--hms-text)]">
+                        <Link href={`/clients/${invoice.clientId}`} className="mt-2 block text-base font-bold text-[var(--hms-text)] hover:text-[var(--hms-primary)] transition-colors">
                             {invoice.clientFullName}
-                        </p>
+                        </Link>
 
                         <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             Identifiant client #{invoice.clientId}
@@ -55,9 +56,9 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
                             Chambre
                         </p>
 
-                        <p className="mt-2 text-base font-bold text-[var(--hms-text)]">
+                        <Link href={`/rooms/${invoice.roomId}`} className="mt-2 block text-base font-bold text-[var(--hms-text)] hover:text-[var(--hms-primary)] transition-colors">
                             {formatInvoiceRoom(invoice)}
-                        </p>
+                        </Link>
 
                         <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
                             Identifiant chambre #{invoice.roomId}
@@ -197,9 +198,9 @@ export function InvoiceInfoCards({ invoice }: InvoiceInfoCardsProps) {
                         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Réservation
                         </p>
-                        <p className="mt-2 font-bold text-[var(--hms-text)]">
+                        <Link href={`/reservations/${invoice.reservationId}`} className="mt-2 block font-bold text-[var(--hms-text)] hover:text-[var(--hms-primary)] transition-colors">
                             #{invoice.reservationId}
-                        </p>
+                        </Link>
                     </div>
 
                     <div>

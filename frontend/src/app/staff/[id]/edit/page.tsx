@@ -9,10 +9,7 @@ export default async function EditStaffPage({ params }: EditStaffPageProps) {
     const { id } = await params;
 
     return (
-        <AppLayout
-            title="Modifier l’employé"
-            description="Mettre à jour les informations opérationnelles"
-        >
+        <AppLayout>
             <StaffFormClient mode="edit" employeeId={Number(id)} />
         </AppLayout>
     );

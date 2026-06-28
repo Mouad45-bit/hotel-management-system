@@ -3,10 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 
 export default function MyHousekeepingTasksPage() {
     return (
-        <AppLayout
-            title="My tasks"
-            description="Tâches housekeeping de l'agent connecté"
-        >
+        <AppLayout>
             <MyHousekeepingTasksClient agentId={101} />
         </AppLayout>
     );

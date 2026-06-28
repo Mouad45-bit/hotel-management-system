@@ -3,10 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 
 export default function HousekeepingPage() {
     return (
-        <AppLayout
-            title="Housekeeping"
-            description="Vue opérationnelle du jour"
-        >
+        <AppLayout>
             <HousekeepingDashboardClient />
         </AppLayout>
     );
