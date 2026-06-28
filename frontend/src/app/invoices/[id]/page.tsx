@@ -14,10 +14,7 @@ export default async function InvoiceDetailPage({
     const invoiceId = Number(id);
 
     return (
-        <AppLayout
-            title="Détail de facture"
-            description="Consultation financière et actions de cycle de vie"
-        >
+        <AppLayout>
             <InvoiceDetailClient invoiceId={invoiceId} />
         </AppLayout>
     );

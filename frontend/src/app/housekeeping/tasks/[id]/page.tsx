@@ -14,10 +14,7 @@ export default async function HousekeepingTaskDetailPage({
     const taskId = Number(id);
 
     return (
-        <AppLayout
-            title="Détail tâche"
-            description="Consultation et actions housekeeping"
-        >
+        <AppLayout>
             <HousekeepingTaskDetailClient taskId={taskId} />
         </AppLayout>
     );
