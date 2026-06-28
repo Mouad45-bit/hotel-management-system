@@ -5,6 +5,8 @@ import { RoomStatusBadge } from "./RoomStatusBadge";
 
 interface RoomTableProps {
     rooms: Room[];
+    loading?: boolean;
+    emptyMessage?: string;
     onDeleteClick: (room: Room) => void;
     onActivateClick?: (room: Room) => void;
 }
@@ -14,7 +16,30 @@ const TYPE_LABELS: Record<RoomType, string> = {
     SUITE: "Suite", FAMILY: "Family", DELUXE: "Deluxe",
 };
 
-export function RoomTable({ rooms, onDeleteClick, onActivateClick }: RoomTableProps) {
+export function RoomTable({
+    rooms,
+    loading = false,
+    emptyMessage = "Aucune chambre trouvée.",
+    onDeleteClick,
+    onActivateClick,
+}: RoomTableProps) {
+    if (loading && rooms.length === 0) {
+        return (
+            <div className="divide-y divide-[var(--hms-soft-border)]">
+                {Array.from({ length: 5 }).map((_, index) => (
+                    <div key={index} className="grid gap-3 px-4 py-4 md:grid-cols-8">
+                        {Array.from({ length: 8 }).map((__, cellIndex) => (
+                            <div
+                                key={cellIndex}
+                                className="h-5 animate-pulse rounded-lg bg-slate-100"
+                            />
+                        ))}
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     if (rooms.length === 0) {
         return (
             <div className="flex min-h-60 items-center justify-center px-6 py-12">
@@ -22,7 +47,7 @@ export function RoomTable({ rooms, onDeleteClick, onActivateClick }: RoomTablePr
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-[var(--hms-text-muted)]">
                         <BedDouble className="h-6 w-6" strokeWidth={1.8} />
                     </div>
-                    <p className="mt-4 text-sm font-semibold text-[var(--hms-text)]">Aucune chambre trouvée</p>
+                    <p className="mt-4 text-sm font-semibold text-[var(--hms-text)]">{emptyMessage}</p>
                     <p className="mt-2 text-sm text-[var(--hms-text-muted)]">Aucune chambre ne correspond aux filtres sélectionnés.</p>
                 </div>
             </div>
@@ -35,9 +60,14 @@ export function RoomTable({ rooms, onDeleteClick, onActivateClick }: RoomTablePr
                 <thead className="bg-slate-50">
                     <tr>
                         {["Numéro", "Type", "Étage", "Capacité", "Prix / nuit", "Statut", "Active"].map((h) => (
-                            <th key={h} className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">{h}</th>
+                            <th
+                                key={h}
+                                className={`w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)] ${h === "Statut" ? "text-center" : "text-left"}`}
+                            >
+                                {h}
+                            </th>
                         ))}
-                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Actions</th>
+                        <th className="w-[1%] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white">
@@ -54,7 +84,7 @@ export function RoomTable({ rooms, onDeleteClick, onActivateClick }: RoomTablePr
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-sm text-[var(--hms-text-muted)]">{room.floor}</td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-sm text-[var(--hms-text-muted)]">{room.capacity} pers.</td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-sm font-semibold text-[var(--hms-text)]">{room.pricePerNight} DH</td>
-                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center">
                                 <RoomStatusBadge status={room.status} />
                             </td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3">
@@ -66,30 +96,36 @@ export function RoomTable({ rooms, onDeleteClick, onActivateClick }: RoomTablePr
                                 <div className="flex justify-end gap-1.5">
                                     <Link
                                         href={`/rooms/${room.id}`}
-                                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        aria-label={`Voir la chambre ${room.number}`}
                                         title="Voir le détail"
                                     >
                                         <Eye className="h-4 w-4" strokeWidth={1.8} />
                                     </Link>
                                     <Link
                                         href={`/rooms/${room.id}/edit`}
-                                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        aria-label={`Modifier la chambre ${room.number}`}
                                         title="Modifier"
                                     >
                                         <Pencil className="h-4 w-4" strokeWidth={1.8} />
                                     </Link>
                                     {room.active ? (
                                         <button
+                                            type="button"
                                             onClick={() => onDeleteClick(room)}
-                                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-orange-200 bg-white text-orange-600 transition-colors hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-orange-200 bg-white text-orange-600 transition-colors hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            aria-label={`Désactiver la chambre ${room.number}`}
                                             title="Désactiver la chambre"
                                         >
                                             <Power className="h-4 w-4" strokeWidth={1.8} />
                                         </button>
                                     ) : (
                                         <button
+                                            type="button"
                                             onClick={() => onActivateClick?.(room)}
-                                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-white text-emerald-700 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-emerald-200 bg-white text-emerald-700 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            aria-label={`Réactiver la chambre ${room.number}`}
                                             title="Réactiver la chambre"
                                         >
                                             <RefreshCcw className="h-4 w-4" strokeWidth={1.8} />

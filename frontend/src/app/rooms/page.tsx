@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { Room, RoomStats } from "@/types/room";
 import { RoomService, type RoomFilters as FilterTypes } from "@/services/room.service";
@@ -8,8 +8,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
-import { Plus, RefreshCcw, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, RefreshCw, AlertCircle } from "lucide-react";
 
 import { RoomFilters } from "@/components/rooms/RoomFilters";
 import { RoomTable } from "@/components/rooms/RoomTable";
@@ -34,7 +33,7 @@ export default function RoomsPage() {
     const [roomToActivate, setRoomToActivate] = useState<Room | null>(null);
     const [isActivating, setIsActivating] = useState(false);
 
-    const loadData = async (activeFilters: FilterTypes = filters, isInactive: boolean = showInactive) => {
+    const loadData = useCallback(async (activeFilters: FilterTypes, isInactive: boolean) => {
         setLoading(true);
         setError(null);
         try {
@@ -55,15 +54,15 @@ export default function RoomsPage() {
         } finally {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        void loadData();
     }, []);
 
     useEffect(() => {
-        void loadData(filters, showInactive);
-    }, [showInactive]);
+        const timeoutId = window.setTimeout(() => {
+            void loadData({}, false);
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [loadData]);
 
     const applyFilter = (key: keyof FilterTypes, value: string) => {
         const updated = { ...filters, [key]: value || undefined };
@@ -72,10 +71,11 @@ export default function RoomsPage() {
         void loadData(updated, showInactive);
     };
 
-    const resetFilters = () => {
-        setFilters({});
+    const handleInactiveToggle = () => {
+        const nextShowInactive = !showInactive;
+        setShowInactive(nextShowInactive);
         setCurrentPage(0);
-        void loadData({}, showInactive);
+        void loadData(filters, nextShowInactive);
     };
 
     const totalPages = Math.max(1, Math.ceil(rooms.length / PAGE_SIZE));
@@ -114,13 +114,14 @@ export default function RoomsPage() {
     return (
         <AppLayout>
             <PageHeader
-                title="Gestion des chambres"
-                description="Créez, suivez et pilotez l'inventaire des chambres. Cette interface affiche les chambres avec recherche, filtrage, statut métier et activation administrative."
+                title="Chambres"
+                description="Suivez les chambres, leurs statuts et leur disponibilité."
                 actions={
                     <>
                         <HmsButton
-                            variant={showInactive ? "primary" : "secondary"}
-                            onClick={() => setShowInactive(!showInactive)}
+                            variant="secondary"
+                            onClick={handleInactiveToggle}
+                            className={showInactive ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : undefined}
                         >
                             {showInactive ? "Retour aux actives" : "Chambres désactivées"}
                         </HmsButton>
@@ -135,77 +136,71 @@ export default function RoomsPage() {
             />
 
             <div className="space-y-6">
-                {!error && stats && !showInactive && <RoomStatsCards stats={stats} />}
-
-                <RoomFilters
-                    filters={filters}
-                    onFilterChange={applyFilter}
-                    onReset={resetFilters}
-                    count={rooms.length}
-                />
+                {!error && !showInactive && <RoomStatsCards stats={stats} loading={isLoading} />}
 
                 {error ? (
-                    <HmsCard>
-                        <div className="flex items-start gap-4">
-                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} />
-                            <div>
-                                <p className="font-semibold text-red-700">Impossible de contacter le serveur</p>
-                                <p className="mt-1 text-sm text-red-600">{error}</p>
-                                <button
+                    <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
+                        <div>
+                            <p className="font-semibold">Erreur de chargement</p>
+                            <p className="mt-1">{error}</p>
+                            <button
+                                onClick={() => void loadData(filters, showInactive)}
+                                className="mt-3 cursor-pointer text-sm font-semibold text-red-700 underline transition hover:text-red-900"
+                            >
+                                Réessayer
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <HmsCard className="overflow-hidden p-0">
+                        <div className="flex flex-col gap-2 border-b border-[var(--hms-soft-border)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
+                                {isLoading && rooms.length === 0
+                                    ? "Chargement des chambres"
+                                    : `${rooms.length} chambre${rooms.length > 1 ? "s" : ""} trouvée${rooms.length > 1 ? "s" : ""}`}
+                            </p>
+
+                            <div className="flex items-center gap-1.5">
+                                <HmsButton
+                                    type="button"
+                                    variant="secondary"
                                     onClick={() => void loadData(filters, showInactive)}
-                                    className="mt-3 text-sm font-medium text-red-700 underline transition hover:text-red-900"
+                                    disabled={isLoading}
                                 >
-                                    Réessayer
-                                </button>
+                                    <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                    Actualiser
+                                </HmsButton>
+
+                                <RoomFilters
+                                    filters={filters}
+                                    onFilterChange={applyFilter}
+                                />
+                            </div>
+                        </div>
+
+                        <RoomTable
+                            rooms={paginatedRooms}
+                            loading={isLoading}
+                            emptyMessage="Aucune chambre ne correspond aux filtres."
+                            onDeleteClick={setRoomToDelete}
+                            onActivateClick={setRoomToActivate}
+                        />
+
+                        <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
+                            <p className="text-sm text-[var(--hms-text-muted)]">
+                                Page <span className="font-medium text-[var(--hms-text)]">{currentPage + 1}</span> sur <span className="font-medium text-[var(--hms-text)]">{totalPages}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <HmsButton variant="secondary" onClick={() => setCurrentPage((p) => p - 1)} disabled={isLoading || currentPage === 0} className="min-h-10 px-3">
+                                    Précédent
+                                </HmsButton>
+                                <HmsButton variant="secondary" onClick={() => setCurrentPage((p) => p + 1)} disabled={isLoading || currentPage >= totalPages - 1} className="min-h-10 px-3">
+                                    Suivant
+                                </HmsButton>
                             </div>
                         </div>
                     </HmsCard>
-                ) : isLoading && rooms.length === 0 ? (
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-7">
-                            {Array.from({ length: 7 }).map((_, i) => (
-                                <HmsCard key={i} className="h-20 animate-pulse bg-slate-50">{null}</HmsCard>
-                            ))}
-                        </div>
-                        <HmsCard className="overflow-hidden p-0">
-                            <div className="divide-y divide-[var(--hms-soft-border)]">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="flex items-center gap-4 px-6 py-4">
-                                        <div className="h-4 w-16 animate-pulse rounded bg-slate-100" />
-                                        <div className="h-4 w-24 animate-pulse rounded bg-slate-100" />
-                                        <div className="h-4 w-20 animate-pulse rounded bg-slate-100" />
-                                        <div className="ml-auto h-4 w-16 animate-pulse rounded bg-slate-100" />
-                                    </div>
-                                ))}
-                            </div>
-                        </HmsCard>
-                    </div>
-                ) : (
-                    <div className={cn("transition-opacity duration-200", isLoading && "pointer-events-none opacity-50")}>
-                        <HmsCard className="overflow-hidden p-0">
-                            <RoomTable
-                                rooms={paginatedRooms}
-                                onDeleteClick={setRoomToDelete}
-                                onActivateClick={setRoomToActivate}
-                            />
-
-                            {rooms.length > PAGE_SIZE && (
-                                <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
-                                    <p className="text-sm text-[var(--hms-text-muted)]">
-                                        Page <span className="font-medium text-[var(--hms-text)]">{currentPage + 1}</span> sur <span className="font-medium text-[var(--hms-text)]">{totalPages}</span>
-                                    </p>
-                                    <div className="flex items-center gap-2">
-                                        <HmsButton variant="secondary" onClick={() => setCurrentPage((p) => p - 1)} disabled={currentPage === 0} className="min-h-10 px-3">
-                                            Précédent
-                                        </HmsButton>
-                                        <HmsButton variant="secondary" onClick={() => setCurrentPage((p) => p + 1)} disabled={currentPage >= totalPages - 1} className="min-h-10 px-3">
-                                            Suivant
-                                        </HmsButton>
-                                    </div>
-                                </div>
-                            )}
-                        </HmsCard>
-                    </div>
                 )}
             </div>
 

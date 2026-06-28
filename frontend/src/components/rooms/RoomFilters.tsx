@@ -1,14 +1,15 @@
-import { Search } from "lucide-react";
+"use client";
+
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { ListFilter, Search } from "lucide-react";
 import type { RoomFilters as FilterTypes } from "@/services/room.service";
 import type { RoomStatus, RoomType } from "@/types/room";
 import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
-import { HmsButton } from "@/components/hms/HmsButton";
+import { cn } from "@/lib/utils";
 
 interface RoomFiltersProps {
     filters: FilterTypes;
     onFilterChange: (key: keyof FilterTypes, value: string) => void;
-    onReset: () => void;
-    count: number;
 }
 
 const STATUS_LABELS: Record<RoomStatus, string> = {
@@ -21,61 +22,70 @@ const TYPE_LABELS: Record<RoomType, string> = {
     SUITE: "Suite", FAMILY: "Family", DELUXE: "Deluxe",
 };
 
-export function RoomFilters({ filters, onFilterChange, onReset, count }: RoomFiltersProps) {
-    const hasFilters = Object.values(filters).some(Boolean);
-
+export function RoomFilters({ filters, onFilterChange }: RoomFiltersProps) {
     return (
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-            <div className="relative flex-1">
-                <Search
-                    aria-hidden="true"
-                    className="pointer-events-none absolute left-4 top-[42px] h-4 w-4 text-[var(--hms-text-muted)]"
-                    strokeWidth={1.8}
-                />
-                <HmsInput
-                    id="room-search"
-                    label="Recherche"
-                    type="text"
-                    placeholder="Rechercher par numéro de chambre..."
-                    value={filters.number ?? ""}
-                    onChange={(e) => onFilterChange("number", e.target.value)}
-                    className="[&_input]:pl-10"
-                />
-            </div>
+        <Popover className="relative">
+            {({ open }) => (
+                <>
+                    <PopoverButton
+                        className={cn(
+                            "inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2",
+                            open
+                                ? "bg-[var(--hms-primary-active)]"
+                                : "bg-[var(--hms-primary)] hover:bg-[var(--hms-primary-hover)]"
+                        )}
+                    >
+                        <ListFilter aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Filtrer
+                    </PopoverButton>
 
-            <HmsSelect
-                id="room-type-filter"
-                label="Type"
-                value={filters.type ?? ""}
-                onChange={(e) => onFilterChange("type", e.target.value)}
-            >
-                <option value="">Tous les types</option>
-                {(Object.keys(TYPE_LABELS) as RoomType[]).map((t) => (
-                    <option key={t} value={t}>{TYPE_LABELS[t]}</option>
-                ))}
-            </HmsSelect>
+                    <PopoverPanel className="absolute right-0 top-full z-30 mt-3 w-[min(760px,calc(100vw-2.5rem))] rounded-[20px] border border-[var(--hms-soft-border)] bg-white p-5 shadow-[0_24px_70px_rgba(13,9,7,0.14)]">
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <div className="relative">
+                                <Search
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute bottom-4 left-4 h-4 w-4 text-[var(--hms-text-muted)]"
+                                    strokeWidth={1.8}
+                                />
 
-            <HmsSelect
-                id="room-status-filter"
-                label="Statut"
-                value={filters.status ?? ""}
-                onChange={(e) => onFilterChange("status", e.target.value)}
-            >
-                <option value="">Tous les statuts</option>
-                {(Object.keys(STATUS_LABELS) as RoomStatus[]).map((s) => (
-                    <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                ))}
-            </HmsSelect>
+                                <HmsInput
+                                    id="room-search"
+                                    label="Numéro"
+                                    type="text"
+                                    placeholder="101"
+                                    value={filters.number ?? ""}
+                                    onChange={(event) => onFilterChange("number", event.target.value)}
+                                    className="[&_input]:pl-10"
+                                />
+                            </div>
 
-            {hasFilters && (
-                <HmsButton type="button" variant="secondary" onClick={onReset}>
-                    Réinitialiser
-                </HmsButton>
+                            <HmsSelect
+                                id="room-type-filter"
+                                label="Type"
+                                value={filters.type ?? ""}
+                                onChange={(event) => onFilterChange("type", event.target.value)}
+                            >
+                                <option value="">Tous les types</option>
+                                {(Object.keys(TYPE_LABELS) as RoomType[]).map((type) => (
+                                    <option key={type} value={type}>{TYPE_LABELS[type]}</option>
+                                ))}
+                            </HmsSelect>
+
+                            <HmsSelect
+                                id="room-status-filter"
+                                label="Statut"
+                                value={filters.status ?? ""}
+                                onChange={(event) => onFilterChange("status", event.target.value)}
+                            >
+                                <option value="">Tous les statuts</option>
+                                {(Object.keys(STATUS_LABELS) as RoomStatus[]).map((status) => (
+                                    <option key={status} value={status}>{STATUS_LABELS[status]}</option>
+                                ))}
+                            </HmsSelect>
+                        </div>
+                    </PopoverPanel>
+                </>
             )}
-
-            <span className="shrink-0 px-2 text-sm font-medium text-[var(--hms-text-muted)] lg:ml-auto">
-                {count} chambre{count > 1 ? "s" : ""}
-            </span>
-        </div>
+        </Popover>
     );
 }
