@@ -9,13 +9,13 @@ export default function HomePage() {
             description="Vue générale du système de gestion hôtelière"
         >
             <HmsCard>
-                <p className="text-sm font-medium text-stone-700">Bienvenue dans HMS</p>
+                <p className="text-sm font-medium text-[var(--hms-text-muted)]">Bienvenue dans HMS</p>
 
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">
-                    Système de gestion d’hôtel
+                <h2 className="mt-2 text-2xl font-bold tracking-tight text-[var(--hms-text)]">
+                    Système de gestion d&apos;hôtel
                 </h2>
 
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500">
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--hms-text-muted)]">
                     Le premier module démontrable sera la gestion des chambres. Cette
                     interface servira de base visuelle pour les prochains modules.
                 </p>

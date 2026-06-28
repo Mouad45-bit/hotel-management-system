@@ -1,13 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect, FormEvent } from 'react';
-import { reservationSchema, ReservationFormValues } from '@/schemas/reservation.schema';
-import { Room } from '@/types/room';
-import { Client } from '@/types/client';
-import { RoomService } from '@/services/room.service';
-import { ClientService } from '@/services/client.service';
-import { AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, type FormEvent } from "react";
+import { AlertCircle } from "lucide-react";
+import { reservationSchema, type ReservationFormValues } from "@/schemas/reservation.schema";
+import type { Room } from "@/types/room";
+import type { Client } from "@/types/client";
+import { RoomService } from "@/services/room.service";
+import { ClientService } from "@/services/client.service";
+import { HmsButton } from "@/components/hms/HmsButton";
+import { HmsInput, HmsSelect, HmsTextarea } from "@/components/hms/HmsField";
+import { HmsCard } from "@/components/hms/HmsCard";
 
 interface ReservationFormProps {
     initialData?: Partial<ReservationFormValues>;
@@ -18,19 +20,9 @@ interface ReservationFormProps {
     lockRoomAndClient?: boolean;
 }
 
-const fieldClass = (error?: string) =>
-    cn(
-        'w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:ring-2',
-        error
-            ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-            : 'border-zinc-200 focus:border-zinc-900 focus:ring-zinc-100'
-    );
-
-const labelClass = 'mb-2 block text-sm font-semibold text-zinc-900';
-
-export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, submitLabel = 'Créer', lockRoomAndClient }: ReservationFormProps) {
+export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, submitLabel = "Créer", lockRoomAndClient }: ReservationFormProps) {
     const [formData, setFormData] = useState<Partial<ReservationFormValues>>(
-        initialData ?? { roomId: 0, clientId: 0, checkInDate: '', checkOutDate: '', notes: '' }
+        initialData ?? { roomId: 0, clientId: 0, checkInDate: "", checkOutDate: "", notes: "" }
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -43,7 +35,7 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
 
     const handleChange = (field: keyof ReservationFormValues, value: string | number) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
+        if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -63,7 +55,7 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
         try {
             await onSubmit(validation.data);
         } catch (err) {
-            setErrors({ global: err instanceof Error ? err.message : 'Erreur inattendue' });
+            setErrors({ global: err instanceof Error ? err.message : "Erreur inattendue" });
         }
     };
 
@@ -71,118 +63,106 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
         ? Math.max(0, Math.ceil((new Date(formData.checkOutDate).getTime() - new Date(formData.checkInDate).getTime()) / (1000 * 60 * 60 * 24)))
         : 0;
 
-    const selectedRoom = rooms.find(r => r.id === formData.roomId);
+    const selectedRoom = rooms.find((r) => r.id === formData.roomId);
     const estimatedPrice = selectedRoom ? nights * selectedRoom.pricePerNight : 0;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {errors.global && (
                 <div className="flex items-center gap-3 rounded-xl bg-red-50 p-4 text-red-700">
-                    <AlertCircle size={20} />
+                    <AlertCircle className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                     <span className="text-sm font-medium">{errors.global}</span>
                 </div>
             )}
 
-            <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-zinc-200">
-                <h2 className="text-2xl font-bold text-zinc-950">Détails de la réservation</h2>
+            <HmsCard>
+                <h2 className="text-lg font-bold text-[var(--hms-text)]">Détails de la réservation</h2>
 
-                <div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-                    <div>
-                        <label className={labelClass}>Chambre <span className="text-zinc-400">*</span></label>
-                        <select
-                            value={formData.roomId ?? 0}
-                            onChange={(e) => handleChange('roomId', Number(e.target.value))}
-                            className={fieldClass(errors.roomId)}
-                            disabled={lockRoomAndClient}
-                        >
-                            <option value={0}>Sélectionner une chambre</option>
-                            {rooms.filter(r => r.active && (r.status === 'AVAILABLE' || r.id === formData.roomId)).map((room) => (
+                <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                    <HmsSelect
+                        id="roomId"
+                        label="Chambre *"
+                        value={String(formData.roomId ?? 0)}
+                        onChange={(e) => handleChange("roomId", Number(e.target.value))}
+                        disabled={lockRoomAndClient}
+                        error={errors.roomId}
+                    >
+                        <option value="0">Sélectionner une chambre</option>
+                        {rooms
+                            .filter((r) => r.active && (r.status === "AVAILABLE" || r.id === formData.roomId))
+                            .map((room) => (
                                 <option key={room.id} value={room.id}>
                                     Chambre {room.number} — {room.type} — {room.pricePerNight} DH/nuit
                                 </option>
                             ))}
-                        </select>
-                        {errors.roomId && <p className="mt-1.5 text-xs text-red-600">{errors.roomId}</p>}
-                    </div>
+                    </HmsSelect>
 
-                    <div>
-                        <label className={labelClass}>Client <span className="text-zinc-400">*</span></label>
-                        <select
-                            value={formData.clientId ?? 0}
-                            onChange={(e) => handleChange('clientId', Number(e.target.value))}
-                            className={fieldClass(errors.clientId)}
-                            disabled={lockRoomAndClient}
-                        >
-                            <option value={0}>Sélectionner un client</option>
-                            {clients.filter(c => c.active).map((client) => (
+                    <HmsSelect
+                        id="clientId"
+                        label="Client *"
+                        value={String(formData.clientId ?? 0)}
+                        onChange={(e) => handleChange("clientId", Number(e.target.value))}
+                        disabled={lockRoomAndClient}
+                        error={errors.clientId}
+                    >
+                        <option value="0">Sélectionner un client</option>
+                        {clients
+                            .filter((c) => c.active)
+                            .map((client) => (
                                 <option key={client.id} value={client.id}>
-                                    {client.firstName} {client.lastName} {client.cin ? `— ${client.cin}` : ''}
+                                    {client.firstName} {client.lastName} {client.cin ? `— ${client.cin}` : ""}
                                 </option>
                             ))}
-                        </select>
-                        {errors.clientId && <p className="mt-1.5 text-xs text-red-600">{errors.clientId}</p>}
-                    </div>
+                    </HmsSelect>
 
-                    <div>
-                        <label className={labelClass}>Date d&apos;arrivée <span className="text-zinc-400">*</span></label>
-                        <input
-                            type="date"
-                            value={formData.checkInDate ?? ''}
-                            onChange={(e) => handleChange('checkInDate', e.target.value)}
-                            className={fieldClass(errors.checkInDate)}
-                        />
-                        {errors.checkInDate && <p className="mt-1.5 text-xs text-red-600">{errors.checkInDate}</p>}
-                    </div>
+                    <HmsInput
+                        id="checkInDate"
+                        label="Date d'arrivée *"
+                        type="date"
+                        value={formData.checkInDate ?? ""}
+                        onChange={(e) => handleChange("checkInDate", e.target.value)}
+                        error={errors.checkInDate}
+                    />
 
-                    <div>
-                        <label className={labelClass}>Date de départ <span className="text-zinc-400">*</span></label>
-                        <input
-                            type="date"
-                            value={formData.checkOutDate ?? ''}
-                            onChange={(e) => handleChange('checkOutDate', e.target.value)}
-                            className={fieldClass(errors.checkOutDate)}
-                        />
-                        {errors.checkOutDate && <p className="mt-1.5 text-xs text-red-600">{errors.checkOutDate}</p>}
-                    </div>
+                    <HmsInput
+                        id="checkOutDate"
+                        label="Date de départ *"
+                        type="date"
+                        value={formData.checkOutDate ?? ""}
+                        onChange={(e) => handleChange("checkOutDate", e.target.value)}
+                        error={errors.checkOutDate}
+                    />
                 </div>
 
-                <div className="mt-6">
-                    <label className={labelClass}>Notes</label>
-                    <textarea
+                <div className="mt-5">
+                    <HmsTextarea
+                        id="notes"
+                        label="Notes"
                         rows={3}
                         placeholder="Notes ou demandes spéciales..."
-                        value={formData.notes ?? ''}
-                        onChange={(e) => handleChange('notes', e.target.value)}
-                        className={cn(fieldClass(), 'resize-none')}
+                        value={formData.notes ?? ""}
+                        onChange={(e) => handleChange("notes", e.target.value)}
                     />
                 </div>
 
                 {nights > 0 && selectedRoom && (
-                    <div className="mt-6 rounded-2xl border border-zinc-100 bg-zinc-50 p-5">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Estimation</p>
-                        <p className="mt-1 text-lg font-bold text-zinc-900">
-                            {nights} nuit{nights > 1 ? 's' : ''} × {selectedRoom.pricePerNight} DH = <span className="text-emerald-600">{estimatedPrice} DH</span>
+                    <div className="mt-6 rounded-xl bg-slate-50 p-4 ring-1 ring-inset ring-[var(--hms-soft-border)]">
+                        <p className="text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Estimation</p>
+                        <p className="mt-1 text-lg font-bold text-[var(--hms-text)]">
+                            {nights} nuit{nights > 1 ? "s" : ""} × {selectedRoom.pricePerNight} DH ={" "}
+                            <span className="text-emerald-600">{estimatedPrice} DH</span>
                         </p>
                     </div>
                 )}
-            </div>
+            </HmsCard>
 
             <div className="flex justify-end gap-3">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    disabled={isLoading}
-                    className="rounded-2xl border border-zinc-200 bg-white px-6 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-50"
-                >
+                <HmsButton type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
                     Annuler
-                </button>
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="rounded-2xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
-                >
-                    {isLoading ? 'Enregistrement...' : submitLabel}
-                </button>
+                </HmsButton>
+                <HmsButton type="submit" disabled={isLoading}>
+                    {isLoading ? "Enregistrement..." : submitLabel}
+                </HmsButton>
             </div>
         </form>
     );

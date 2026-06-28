@@ -9,6 +9,7 @@ interface StaffTableProps {
     employees: Employee[];
     loading?: boolean;
     emptyMessage?: string;
+    usernameMap?: Record<number, string>;
     onToggleActive: (employee: Employee) => void;
 }
 
@@ -16,6 +17,7 @@ export function StaffTable({
     employees,
     loading = false,
     emptyMessage = "Aucun employé trouvé.",
+    usernameMap = {},
     onToggleActive,
 }: StaffTableProps) {
     if (loading && employees.length === 0) {
@@ -91,10 +93,10 @@ export function StaffTable({
                                 {employee.authUserId ? (
                                     <>
                                         <p className="text-sm font-semibold text-[var(--hms-text)]">
-                                            Compte système
+                                            @{usernameMap[employee.authUserId] ?? `user-${employee.authUserId}`}
                                         </p>
                                         <p className="mt-1 text-xs text-[var(--hms-text-muted)]">
-                                            Utilisateur #{employee.authUserId}
+                                            Compte système lié
                                         </p>
                                     </>
                                 ) : (

@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { Client } from '@/types/client';
-import { Eye, Pencil, Power, RefreshCcw } from 'lucide-react';
-import { ClientStatusBadge } from './ClientStatusBadge';
+import Link from "next/link";
+import { Eye, Pencil, Power, RefreshCcw, Users } from "lucide-react";
+import type { Client } from "@/types/client";
+import { ClientStatusBadge } from "./ClientStatusBadge";
 
 interface ClientTableProps {
     clients: Client[];
@@ -10,94 +10,106 @@ interface ClientTableProps {
 }
 
 export function ClientTable({ clients, onDeactivateClick, onActivateClick }: ClientTableProps) {
+    if (clients.length === 0) {
+        return (
+            <div className="flex min-h-60 items-center justify-center px-6 py-12">
+                <div className="text-center">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-[var(--hms-text-muted)]">
+                        <Users className="h-6 w-6" strokeWidth={1.8} />
+                    </div>
+                    <p className="mt-4 text-sm font-semibold text-[var(--hms-text)]">Aucun client trouvé</p>
+                    <p className="mt-2 text-sm text-[var(--hms-text-muted)]">Aucun client ne correspond aux critères de recherche.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-200">
-            <table className="w-full text-left text-sm">
-                <thead className="border-b border-zinc-200 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        <div className="overflow-x-auto">
+            <table className="w-full table-auto border-collapse">
+                <thead className="bg-slate-50">
                     <tr>
-                        <th className="px-6 py-4">Nom</th>
-                        <th className="px-6 py-4">Email</th>
-                        <th className="px-6 py-4">Téléphone</th>
-                        <th className="px-6 py-4">CIN</th>
-                        <th className="px-6 py-4">Nationalité</th>
-                        <th className="px-6 py-4">Statut</th>
-                        <th className="px-6 py-4 text-right">Actions</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Nom</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Email</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Téléphone</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">CIN</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Nationalité</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Statut</th>
+                        <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100">
-                    {clients.length === 0 ? (
-                        <tr>
-                            <td colSpan={7} className="px-6 py-12 text-center text-zinc-400">
-                                Aucun client ne correspond aux critères de recherche.
+                <tbody className="bg-white">
+                    {clients.map((client) => (
+                        <tr key={client.id} className="transition-colors hover:bg-slate-50">
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                <p className="text-sm font-bold text-[var(--hms-text)]">
+                                    {client.firstName} {client.lastName}
+                                </p>
+                            </td>
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                <p className="text-sm text-[var(--hms-text-muted)]">
+                                    {client.email ?? "—"}
+                                </p>
+                            </td>
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                <p className="text-sm text-[var(--hms-text-muted)]">
+                                    {client.phone ?? "—"}
+                                </p>
+                            </td>
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                {client.cin ? (
+                                    <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-[var(--hms-text)]">
+                                        {client.cin}
+                                    </span>
+                                ) : (
+                                    <span className="text-sm text-[var(--hms-text-muted)]">—</span>
+                                )}
+                            </td>
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                <p className="text-sm text-[var(--hms-text-muted)]">
+                                    {client.nationality ?? "—"}
+                                </p>
+                            </td>
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                <ClientStatusBadge active={client.active} />
+                            </td>
+                            <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 align-top">
+                                <div className="flex justify-end gap-1.5">
+                                    <Link
+                                        href={`/clients/${client.id}`}
+                                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        title="Voir le détail"
+                                    >
+                                        <Eye className="h-4 w-4" strokeWidth={1.8} />
+                                    </Link>
+                                    <Link
+                                        href={`/clients/${client.id}/edit`}
+                                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        title="Modifier"
+                                    >
+                                        <Pencil className="h-4 w-4" strokeWidth={1.8} />
+                                    </Link>
+                                    {client.active ? (
+                                        <button
+                                            onClick={() => onDeactivateClick(client)}
+                                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-orange-200 bg-white text-orange-600 transition-colors hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            title="Désactiver le client"
+                                        >
+                                            <Power className="h-4 w-4" strokeWidth={1.8} />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => onActivateClick?.(client)}
+                                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-white text-emerald-700 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            title="Réactiver le client"
+                                        >
+                                            <RefreshCcw className="h-4 w-4" strokeWidth={1.8} />
+                                        </button>
+                                    )}
+                                </div>
                             </td>
                         </tr>
-                    ) : (
-                        clients.map((client) => (
-                            <tr key={client.id} className="transition hover:bg-zinc-50">
-                                <td className="px-6 py-4">
-                                    <span className="font-semibold text-zinc-900">
-                                        {client.firstName} {client.lastName}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-zinc-600">
-                                    {client.email ?? <span className="text-zinc-300">—</span>}
-                                </td>
-                                <td className="px-6 py-4 text-zinc-600">
-                                    {client.phone ?? <span className="text-zinc-300">—</span>}
-                                </td>
-                                <td className="px-6 py-4">
-                                    {client.cin ? (
-                                        <span className="inline-flex items-center rounded-lg bg-zinc-100 px-3 py-1 text-sm font-bold text-zinc-900">
-                                            {client.cin}
-                                        </span>
-                                    ) : (
-                                        <span className="text-zinc-300">—</span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 text-zinc-600">
-                                    {client.nationality ?? <span className="text-zinc-300">—</span>}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <ClientStatusBadge active={client.active} />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <Link
-                                            href={`/clients/${client.id}`}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900"
-                                            title="Voir le détail"
-                                        >
-                                            <Eye size={16} />
-                                        </Link>
-                                        <Link
-                                            href={`/clients/${client.id}/edit`}
-                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900"
-                                            title="Modifier"
-                                        >
-                                            <Pencil size={16} />
-                                        </Link>
-                                        {client.active ? (
-                                            <button
-                                                onClick={() => onDeactivateClick(client)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-orange-500 transition hover:bg-orange-50 hover:text-orange-600"
-                                                title="Désactiver le client"
-                                            >
-                                                <Power size={16} />
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => onActivateClick?.(client)}
-                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 transition hover:bg-emerald-50 hover:text-emerald-700"
-                                                title="Réactiver le client"
-                                            >
-                                                <RefreshCcw size={16} />
-                                            </button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))
-                    )}
+                    ))}
                 </tbody>
             </table>
         </div>

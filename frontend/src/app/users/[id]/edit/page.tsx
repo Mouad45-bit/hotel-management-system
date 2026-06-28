@@ -1,24 +1,26 @@
-'use client';
+"use client";
 
-import { useEffect, useState, FormEvent } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { UserRoleBadge } from '@/components/users/UserRoleBadge';
-import { AuthService } from '@/services/auth.service';
-import { User } from '@/types/user';
-import { RefreshCcw, AlertCircle, Power, Check } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HmsButton } from "@/components/hms/HmsButton";
+import { HmsCard } from "@/components/hms/HmsCard";
+import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
+import { UserRoleBadge } from "@/components/users/UserRoleBadge";
+import { AuthService } from "@/services/auth.service";
+import { getEmployees, activateEmployee, deactivateEmployee } from "@/services/staffApi";
+import type { User } from "@/types/user";
+import type { Employee } from "@/types/staff";
+import { RefreshCcw, AlertCircle, Power, Check } from "lucide-react";
 
 const ROLES = [
-    { value: 'ADMIN', label: 'Admin' },
-    { value: 'MANAGER', label: 'Manager' },
-    { value: 'RECEPTIONIST', label: 'Réceptionniste' },
-    { value: 'HOUSEKEEPING_AGENT', label: 'Agent Housekeeping' },
-    { value: 'HR', label: 'Ressources Humaines' },
+    { value: "ADMIN", label: "Admin" },
+    { value: "MANAGER", label: "Manager" },
+    { value: "RECEPTIONIST", label: "Réceptionniste" },
+    { value: "HOUSEKEEPING_AGENT", label: "Agent Housekeeping" },
+    { value: "HR", label: "Ressources Humaines" },
 ];
-
-const fieldClass = 'w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-2 focus:ring-zinc-100';
-const labelClass = 'mb-2 block text-sm font-semibold text-zinc-900';
 
 export default function EditUserPage() {
     const router = useRouter();
@@ -26,23 +28,29 @@ export default function EditUserPage() {
     const id = Number(params.id);
 
     const [user, setUser] = useState<User | null>(null);
+    const [linkedEmployee, setLinkedEmployee] = useState<Employee | null>(null);
     const [isLoading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [form, setForm] = useState({ email: '', firstName: '', lastName: '', role: '' });
+    const [form, setForm] = useState({ email: "", firstName: "", lastName: "", role: "" });
 
-    const fetchUser = () => {
+    const fetchData = () => {
         setLoading(true);
-        AuthService.getUserById(id)
-            .then((u) => {
+        Promise.all([
+            AuthService.getUserById(id),
+            getEmployees({ page: 0, size: 1000 }),
+        ])
+            .then(([u, employeesPage]) => {
                 setUser(u);
-                setForm({ email: u.email ?? '', firstName: u.firstName, lastName: u.lastName, role: u.role });
+                setForm({ email: u.email ?? "", firstName: u.firstName, lastName: u.lastName, role: u.role });
+                const emp = employeesPage.content.find((e) => e.authUserId === u.id) ?? null;
+                setLinkedEmployee(emp);
             })
-            .catch((err) => setError(err instanceof Error ? err.message : 'Utilisateur introuvable'))
+            .catch((err) => setError(err instanceof Error ? err.message : "Utilisateur introuvable"))
             .finally(() => setLoading(false));
     };
 
-    useEffect(() => { fetchUser(); }, [id]);
+    useEffect(() => { fetchData(); }, [id]);
 
     const set = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
 
@@ -51,9 +59,9 @@ export default function EditUserPage() {
         setIsSaving(true);
         try {
             await AuthService.updateUser(id, form);
-            router.push('/users');
+            router.push("/users");
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur');
+            setError(err instanceof Error ? err.message : "Erreur");
         } finally {
             setIsSaving(false);
         }
@@ -64,20 +72,27 @@ export default function EditUserPage() {
         try {
             if (user.active) {
                 await AuthService.deactivateUser(id);
+                if (linkedEmployee) {
+                    await deactivateEmployee(linkedEmployee.id).catch(() => {});
+                }
             } else {
                 await AuthService.activateUser(id);
+                if (linkedEmployee) {
+                    await activateEmployee(linkedEmployee.id).catch(() => {});
+                }
             }
-            fetchUser();
+            fetchData();
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Erreur');
+            alert(err instanceof Error ? err.message : "Erreur");
         }
     };
 
     if (isLoading) {
         return (
             <AppLayout>
-                <div className="flex items-center justify-center py-24 text-zinc-400">
-                    <RefreshCcw size={18} className="mr-2 animate-spin" /> Chargement...
+                <div className="flex items-center justify-center py-24 text-[var(--hms-text-muted)]">
+                    <RefreshCcw className="mr-2 h-4 w-4 animate-spin" strokeWidth={1.8} />
+                    Chargement...
                 </div>
             </AppLayout>
         );
@@ -86,10 +101,12 @@ export default function EditUserPage() {
     if (error && !user) {
         return (
             <AppLayout>
-                <div className="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-6">
-                    <AlertCircle className="mt-0.5 shrink-0 text-red-500" size={20} />
-                    <p className="font-semibold text-red-700">{error}</p>
-                </div>
+                <HmsCard>
+                    <div className="flex items-start gap-4">
+                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} />
+                        <p className="font-semibold text-red-700">{error}</p>
+                    </div>
+                </HmsCard>
             </AppLayout>
         );
     }
@@ -100,66 +117,63 @@ export default function EditUserPage() {
                 backHref="/users"
                 eyebrow={`@${user?.username}`}
                 title={`${user?.firstName} ${user?.lastName}`}
-                description="Modifiez les informations, le rôle ou le statut de cet utilisateur."
+                description={linkedEmployee
+                    ? `Employé lié : ${linkedEmployee.fullName} (CIN ${linkedEmployee.cin})`
+                    : "Ce compte n'est lié à aucun employé."
+                }
                 actions={
-                    <button
+                    <HmsButton
+                        variant={user?.active ? "danger" : "primary"}
                         onClick={handleToggleActive}
-                        className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition ${
-                            user?.active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-emerald-500 hover:bg-emerald-600'
-                        }`}
                     >
-                        {user?.active ? <><Power size={16} /> Désactiver</> : <><Check size={16} /> Activer</>}
-                    </button>
+                        {user?.active ? (
+                            <>
+                                <Power className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                Désactiver
+                            </>
+                        ) : (
+                            <>
+                                <Check className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                Activer
+                            </>
+                        )}
+                    </HmsButton>
                 }
             />
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                     <div className="flex items-center gap-3 rounded-xl bg-red-50 p-4 text-red-700">
-                        <AlertCircle size={20} />
+                        <AlertCircle className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                         <span className="text-sm font-medium">{error}</span>
                     </div>
                 )}
 
-                <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-zinc-200">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold text-zinc-950">Informations</h2>
+                <HmsCard>
+                    <div className="mb-6 flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-[var(--hms-text)]">Informations</h2>
                         {user && <UserRoleBadge role={user.role} />}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-                        <div>
-                            <label className={labelClass}>Prénom</label>
-                            <input type="text" value={form.firstName} onChange={(e) => set('firstName', e.target.value)} className={fieldClass} />
-                        </div>
-                        <div>
-                            <label className={labelClass}>Nom</label>
-                            <input type="text" value={form.lastName} onChange={(e) => set('lastName', e.target.value)} className={fieldClass} />
-                        </div>
-                        <div>
-                            <label className={labelClass}>Email</label>
-                            <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} className={fieldClass} />
-                        </div>
-                        <div>
-                            <label className={labelClass}>Rôle</label>
-                            <select value={form.role} onChange={(e) => set('role', e.target.value)} className={fieldClass}>
-                                {ROLES.map((r) => (
-                                    <option key={r.value} value={r.value}>{r.label}</option>
-                                ))}
-                            </select>
-                        </div>
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                        <HmsInput id="firstName" label="Prénom" type="text" value={form.firstName} onChange={(e) => set("firstName", e.target.value)} />
+                        <HmsInput id="lastName" label="Nom" type="text" value={form.lastName} onChange={(e) => set("lastName", e.target.value)} />
+                        <HmsInput id="email" label="Email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
+                        <HmsSelect id="role" label="Rôle" value={form.role} onChange={(e) => set("role", e.target.value)}>
+                            {ROLES.map((r) => (
+                                <option key={r.value} value={r.value}>{r.label}</option>
+                            ))}
+                        </HmsSelect>
                     </div>
-                </div>
+                </HmsCard>
 
                 <div className="flex justify-end gap-3">
-                    <button type="button" onClick={() => router.push('/users')} disabled={isSaving}
-                        className="rounded-2xl border border-zinc-200 bg-white px-6 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-50">
+                    <HmsButton type="button" variant="secondary" onClick={() => router.push("/users")} disabled={isSaving}>
                         Annuler
-                    </button>
-                    <button type="submit" disabled={isSaving}
-                        className="rounded-2xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50">
-                        {isSaving ? 'Enregistrement...' : 'Enregistrer'}
-                    </button>
+                    </HmsButton>
+                    <HmsButton type="submit" disabled={isSaving}>
+                        {isSaving ? "Enregistrement..." : "Enregistrer"}
+                    </HmsButton>
                 </div>
             </form>
         </AppLayout>

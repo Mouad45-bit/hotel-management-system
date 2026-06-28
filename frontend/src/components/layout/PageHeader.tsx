@@ -5,11 +5,8 @@ import { ArrowLeft } from "lucide-react";
 interface PageHeaderProps {
     title: string;
     description?: string;
-    /** Petit label en majuscules au-dessus du titre (ex: "CRÉATION", "CH-101"). */
     eyebrow?: string;
-    /** Si fourni, affiche un bouton retour rond pointant vers ce lien. */
     backHref?: string;
-    /** Actions alignées à droite (boutons). */
     actions?: ReactNode;
 }
 
@@ -22,14 +19,14 @@ export function PageHeader({ title, description, eyebrow, backHref, actions }: P
                         {backHref && (
                             <Link
                                 href={backHref}
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-900"
+                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                                 aria-label="Retour"
                             >
-                                <ArrowLeft className="h-5 w-5" />
+                                <ArrowLeft className="h-5 w-5" strokeWidth={1.8} />
                             </Link>
                         )}
                         {eyebrow && (
-                            <span className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
+                            <span className="text-sm font-semibold uppercase tracking-wider text-[var(--hms-text-muted)]">
                                 {eyebrow}
                             </span>
                         )}
@@ -37,9 +34,9 @@ export function PageHeader({ title, description, eyebrow, backHref, actions }: P
                 )}
 
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-zinc-950">{title}</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-[var(--hms-text)]">{title}</h1>
                     {description && (
-                        <p className="mt-2 max-w-2xl text-base leading-relaxed text-zinc-500">
+                        <p className="mt-2 max-w-2xl text-base leading-relaxed text-[var(--hms-text-muted)]">
                             {description}
                         </p>
                     )}

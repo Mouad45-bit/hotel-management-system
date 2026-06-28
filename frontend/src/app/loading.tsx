@@ -1,7 +1,7 @@
 export default function Loading() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-            <p className="text-sm font-medium text-zinc-600">Chargement...</p>
+        <div className="flex min-h-screen items-center justify-center bg-[var(--hms-page)]">
+            <p className="text-sm font-medium text-[var(--hms-text-muted)]">Chargement...</p>
         </div>
     );
 }

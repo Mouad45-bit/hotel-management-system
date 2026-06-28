@@ -66,7 +66,7 @@ seed_admin() {
   blue "=== Auth: logging in as admin ==="
 
   local login_response
-  if login_response=$(api_post "/api/auth/login" '{"username":"admin","password":"Admin@123"}'); then
+  if login_response=$(api_post "/api/auth/login" '{"username":"admin","password":"admin123"}'); then
     TOKEN=$(echo "$login_response" | jq -r '.accessToken // .token // empty')
     if [ -n "$TOKEN" ]; then
       green "  Logged in as admin"
@@ -79,7 +79,7 @@ seed_admin() {
   if create_response=$(api_post "/api/auth/users" '{
     "username": "admin",
     "email": "admin@hotel.local",
-    "password": "Admin@123",
+    "password": "admin123",
     "firstName": "Admin",
     "lastName": "System",
     "role": "ADMIN"
@@ -89,7 +89,7 @@ seed_admin() {
     blue "  Admin user may already exist, retrying login..."
   fi
 
-  login_response=$(api_post "/api/auth/login" '{"username":"admin","password":"Admin@123"}') \
+  login_response=$(api_post "/api/auth/login" '{"username":"admin","password":"admin123"}') \
     || die "Cannot login as admin after creation attempt"
   TOKEN=$(echo "$login_response" | jq -r '.accessToken // .token // empty')
   [ -n "$TOKEN" ] || die "Login succeeded but no token returned"

@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { ClientForm } from '@/components/clients/ClientForm';
-import { ClientService } from '@/services/client.service';
-import { Client } from '@/types/client';
-import { ClientFormValues } from '@/schemas/client.schema';
-import { RefreshCcw, AlertCircle } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HmsCard } from "@/components/hms/HmsCard";
+import { ClientForm } from "@/components/clients/ClientForm";
+import { ClientService } from "@/services/client.service";
+import type { Client } from "@/types/client";
+import type { ClientFormValues } from "@/schemas/client.schema";
+import { RefreshCcw, AlertCircle } from "lucide-react";
 
 export default function EditClientPage() {
     const router = useRouter();
@@ -23,7 +24,7 @@ export default function EditClientPage() {
     useEffect(() => {
         ClientService.getClientById(id)
             .then(setClient)
-            .catch((err) => setError(err instanceof Error ? err.message : 'Client introuvable'))
+            .catch((err) => setError(err instanceof Error ? err.message : "Client introuvable"))
             .finally(() => setLoading(false));
     }, [id]);
 
@@ -42,8 +43,8 @@ export default function EditClientPage() {
     if (isLoading) {
         return (
             <AppLayout>
-                <div className="flex items-center justify-center py-24 text-zinc-400">
-                    <RefreshCcw size={18} className="mr-2 animate-spin" />
+                <div className="flex items-center justify-center py-24 text-[var(--hms-text-muted)]">
+                    <RefreshCcw className="mr-2 h-4 w-4 animate-spin" strokeWidth={1.8} />
                     Chargement...
                 </div>
             </AppLayout>
@@ -53,10 +54,12 @@ export default function EditClientPage() {
     if (error || !client) {
         return (
             <AppLayout>
-                <div className="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-6">
-                    <AlertCircle className="mt-0.5 shrink-0 text-red-500" size={20} />
-                    <p className="font-semibold text-red-700">Client introuvable</p>
-                </div>
+                <HmsCard>
+                    <div className="flex items-start gap-4">
+                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} />
+                        <p className="font-semibold text-red-700">Client introuvable</p>
+                    </div>
+                </HmsCard>
             </AppLayout>
         );
     }
@@ -73,13 +76,13 @@ export default function EditClientPage() {
                 initialData={{
                     firstName: client.firstName,
                     lastName: client.lastName,
-                    email: client.email ?? '',
-                    phone: client.phone ?? '',
-                    cin: client.cin ?? '',
-                    passportNumber: client.passportNumber ?? '',
-                    nationality: client.nationality ?? '',
-                    address: client.address ?? '',
-                    birthDate: client.birthDate ?? '',
+                    email: client.email ?? "",
+                    phone: client.phone ?? "",
+                    cin: client.cin ?? "",
+                    passportNumber: client.passportNumber ?? "",
+                    nationality: client.nationality ?? "",
+                    address: client.address ?? "",
+                    birthDate: client.birthDate ?? "",
                 }}
                 onSubmit={handleSubmit}
                 onCancel={() => router.push(`/clients/${id}`)}
