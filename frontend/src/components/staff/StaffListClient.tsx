@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Plus, RefreshCw, TriangleAlert, UserRoundX, CircleCheckBig } from "lucide-react";
+import { Plus, RefreshCw, TriangleAlert, UserRoundX, CircleCheckBig, Trash2 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -13,6 +13,7 @@ import { StaffStatsCards } from "@/components/staff/StaffStatsCards";
 import { StaffTable } from "@/components/staff/StaffTable";
 import {
     activateEmployee,
+    deleteEmployee,
     deactivateEmployee,
     getEmployees,
     getStaffStats,
@@ -75,8 +76,11 @@ export function StaffListClient() {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+    const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
     const [isActionSubmitting, setIsActionSubmitting] = useState(false);
+    const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [usernameMap, setUsernameMap] = useState<Record<number, string>>({});
 
     function updateUrl(nextFilters: StaffFiltersState, page: number) {
@@ -195,6 +199,29 @@ export function StaffListClient() {
         }
     }
 
+    async function handleConfirmDelete() {
+        if (!employeeToDelete) {
+            return;
+        }
+
+        setIsDeleteSubmitting(true);
+        setDeleteError(null);
+
+        try {
+            await deleteEmployee(employeeToDelete.id);
+            if (employeeToDelete.authUserId) {
+                await AuthService.deactivateUser(employeeToDelete.authUserId).catch(() => {});
+            }
+
+            setEmployeeToDelete(null);
+            await loadEmployees(filters, currentPage);
+        } catch (error) {
+            setDeleteError(error instanceof Error ? error.message : "Suppression impossible.");
+        } finally {
+            setIsDeleteSubmitting(false);
+        }
+    }
+
     const employees = pageResponse?.content ?? [];
 
     return (
@@ -249,6 +276,7 @@ export function StaffListClient() {
                     emptyMessage="Aucun employé ne correspond aux filtres."
                     usernameMap={usernameMap}
                     onToggleActive={setSelectedEmployee}
+                    onDelete={setEmployeeToDelete}
                 />
 
                 <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
@@ -282,6 +310,24 @@ export function StaffListClient() {
                     {selectedEmployee ? `${selectedEmployee.fullName} restera dans l’historique du personnel.` : ""}
                 </div>
                 {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
+            </StaffActionModal>
+
+            <StaffActionModal
+                open={Boolean(employeeToDelete)}
+                title="Supprimer l’employé"
+                description="Cette action retire l’employé des listes du personnel. Les données techniques restent conservées côté système."
+                icon={Trash2}
+                iconClassName="bg-red-50 text-red-700"
+                confirmLabel="Supprimer l’employé"
+                danger
+                submitting={isDeleteSubmitting}
+                onClose={() => setEmployeeToDelete(null)}
+                onConfirm={() => void handleConfirmDelete()}
+            >
+                <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
+                    {employeeToDelete ? `${employeeToDelete.fullName} ne sera plus affiché dans la liste du personnel.` : ""}
+                </div>
+                {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
             </StaffActionModal>
         </div>
     );

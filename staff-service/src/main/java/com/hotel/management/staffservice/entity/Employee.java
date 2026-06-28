@@ -43,6 +43,9 @@ public class Employee {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
     @Column(unique = true)
     private Long authUserId;
 
@@ -57,6 +60,9 @@ public class Employee {
         LocalDateTime now = LocalDateTime.now();
         if (active == null) {
             active = true;
+        }
+        if (deleted == null) {
+            deleted = false;
         }
         createdAt = now;
         updatedAt = now;
@@ -129,6 +135,14 @@ public class Employee {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     public Long getAuthUserId() {

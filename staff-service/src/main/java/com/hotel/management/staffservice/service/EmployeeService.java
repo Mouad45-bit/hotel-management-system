@@ -115,6 +115,7 @@ public class EmployeeService {
     public void delete(Long id) {
         Employee employee = getEmployeeEntity(id);
         employee.setActive(false);
+        employee.setDeleted(true);
         employeeRepository.save(employee);
     }
 
@@ -161,8 +162,8 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public List<EmployeeResponse> findByDepartment(Department department, Boolean active) {
         List<Employee> employees = active == null
-                ? employeeRepository.findByDepartment(department)
-                : employeeRepository.findByDepartmentAndActive(department, active);
+                ? employeeRepository.findByDepartmentAndDeletedFalse(department)
+                : employeeRepository.findByDepartmentAndActiveAndDeletedFalse(department, active);
 
         return employees.stream()
                 .map(employeeMapper::toResponse)
@@ -171,6 +172,7 @@ public class EmployeeService {
 
     private Employee getEmployeeEntity(Long id) {
         return employeeRepository.findById(id)
+                .filter(employee -> !Boolean.TRUE.equals(employee.getDeleted()))
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
     }
 
@@ -218,6 +220,7 @@ public class EmployeeService {
             if (active != null) {
                 predicates.add(criteriaBuilder.equal(root.get("active"), active));
             }
+            predicates.add(criteriaBuilder.isFalse(root.get("deleted")));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

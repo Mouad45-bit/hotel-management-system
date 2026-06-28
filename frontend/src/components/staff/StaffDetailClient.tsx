@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
     CircleCheckBig,
     LinkIcon,
     Pencil,
+    Trash2,
     TriangleAlert,
     Unlink,
     UserRoundX,
@@ -19,6 +21,7 @@ import { StaffActionModal } from "@/components/staff/StaffActionModal";
 import { StaffDate } from "@/components/staff/StaffDate";
 import {
     activateEmployee,
+    deleteEmployee,
     deactivateEmployee,
     getEmployeeById,
     unlinkAuthUser,
@@ -30,7 +33,7 @@ interface StaffDetailClientProps {
     employeeId: number;
 }
 
-type ModalType = "activate" | "deactivate" | "unlink" | null;
+type ModalType = "activate" | "deactivate" | "delete" | "unlink" | null;
 
 interface TimelineItem {
     label: string;
@@ -39,6 +42,7 @@ interface TimelineItem {
 }
 
 export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
+    const router = useRouter();
     const [employee, setEmployee] = useState<Employee | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -104,6 +108,16 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                 setLinkedUsername(null);
                 setEmployee(updatedEmployee);
                 setModalType(null);
+                return;
+            }
+
+            if (modalType === "delete") {
+                await deleteEmployee(employee.id);
+                if (employee.authUserId) {
+                    await AuthService.deactivateUser(employee.authUserId).catch(() => {});
+                }
+                setModalType(null);
+                router.push("/staff");
                 return;
             }
 
@@ -187,12 +201,18 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                 title={employee.fullName}
                 description="Fiche opérationnelle du personnel : identité, département et coordonnées."
                 actions={
-                    <Link href={`/staff/${employee.id}/edit`}>
-                        <HmsButton variant="secondary">
-                            <Pencil aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                            Modifier
+                    <>
+                        <Link href={`/staff/${employee.id}/edit`}>
+                            <HmsButton variant="secondary">
+                                <Pencil aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                Modifier
+                            </HmsButton>
+                        </Link>
+                        <HmsButton type="button" variant="danger" onClick={() => openModal("delete")}>
+                            <Trash2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                            Supprimer
                         </HmsButton>
-                    </Link>
+                    </>
                 }
             />
 
@@ -339,6 +359,24 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
             </StaffActionModal>
 
             <StaffActionModal
+                open={modalType === "delete"}
+                title="Supprimer l’employé"
+                description="Cette action retire l’employé des listes du personnel. Les données techniques restent conservées côté système."
+                icon={Trash2}
+                iconClassName="bg-red-50 text-red-700"
+                confirmLabel="Supprimer l’employé"
+                danger
+                submitting={isSubmitting}
+                onClose={() => openModal(null)}
+                onConfirm={() => void handleConfirmAction()}
+            >
+                <p className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
+                    {employee.fullName} ne sera plus affiché dans la liste du personnel.
+                </p>
+                {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
+            </StaffActionModal>
+
+            <StaffActionModal
                 open={modalType === "unlink"}
                 title="Délier le compte système"
                 description="Le compte système sera dissocié de cet employé. Le compte utilisateur ne sera pas supprimé."
@@ -351,7 +389,7 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                 onConfirm={() => void handleConfirmAction()}
             >
                 <p className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
-                    L'employé {employee.fullName} ne pourra plus se connecter au système tant qu'un nouveau compte ne sera pas lié.
+                    L&apos;employé {employee.fullName} ne pourra plus se connecter au système tant qu&apos;un nouveau compte ne sera pas lié.
                 </p>
                 {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
             </StaffActionModal>

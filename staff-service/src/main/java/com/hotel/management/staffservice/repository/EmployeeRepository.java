@@ -20,6 +20,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
 
     Optional<Employee> findByAuthUserId(Long authUserId);
 
-    List<Employee> findByDepartment(Department department);
-    List<Employee> findByDepartmentAndActive(Department department, Boolean active);
+    List<Employee> findByDepartmentAndDeletedFalse(Department department);
+    List<Employee> findByDepartmentAndActiveAndDeletedFalse(Department department, Boolean active);
 }

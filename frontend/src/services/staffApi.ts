@@ -80,6 +80,12 @@ export async function deactivateEmployee(id: number): Promise<Employee> {
     });
 }
 
+export async function deleteEmployee(id: number): Promise<void> {
+    return apiFetch<void>(`/api/employees/${id}`, {
+        method: "DELETE",
+    });
+}
+
 export async function activateEmployee(id: number): Promise<Employee> {
     return apiFetch<Employee>(`/api/employees/${id}/activate`, {
         method: "PATCH",

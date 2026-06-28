@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, Pencil, Power, UserRound } from "lucide-react";
+import { Eye, Pencil, Power, Trash2, UserRound } from "lucide-react";
 import { DepartmentBadge, StaffStatusBadge } from "@/components/staff/StaffBadges";
 import type { Employee } from "@/types/staff";
 
@@ -11,6 +11,7 @@ interface StaffTableProps {
     emptyMessage?: string;
     usernameMap?: Record<number, string>;
     onToggleActive: (employee: Employee) => void;
+    onDelete: (employee: Employee) => void;
 }
 
 export function StaffTable({
@@ -19,6 +20,7 @@ export function StaffTable({
     emptyMessage = "Aucun employé trouvé.",
     usernameMap = {},
     onToggleActive,
+    onDelete,
 }: StaffTableProps) {
     if (loading && employees.length === 0) {
         return (
@@ -70,7 +72,7 @@ export function StaffTable({
                         <th className="w-[120px] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Statut
                         </th>
-                        <th className="w-[140px] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
+                        <th className="w-[180px] whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">
                             Actions
                         </th>
                     </tr>
@@ -137,6 +139,15 @@ export function StaffTable({
                                     >
                                         <Eye aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                     </Link>
+                                    <button
+                                        type="button"
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-red-200 bg-white p-0 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2"
+                                        onClick={() => onDelete(employee)}
+                                        aria-label={`Supprimer ${employee.fullName}`}
+                                        title="Supprimer"
+                                    >
+                                        <Trash2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                    </button>
                                 </div>
                             </td>
                         </tr>
