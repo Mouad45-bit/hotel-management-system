@@ -13,7 +13,9 @@ import com.hotel.management.staffservice.exception.EmployeeEmailAlreadyExistsExc
 import com.hotel.management.staffservice.exception.EmployeeNotFoundException;
 import com.hotel.management.staffservice.mapper.EmployeeMapper;
 import com.hotel.management.staffservice.repository.EmployeeRepository;
+import com.hotel.management.staffservice.service.client.AuthUserClient;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,20 +32,52 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
+    private final AuthUserClient authUserClient;
 
     public EmployeeService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper) {
+        this(employeeRepository, employeeMapper, null);
+    }
+
+    @Autowired
+    public EmployeeService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper, AuthUserClient authUserClient) {
         this.employeeRepository = employeeRepository;
         this.employeeMapper = employeeMapper;
+        this.authUserClient = authUserClient;
     }
 
     @Transactional
     public EmployeeResponse create(CreateEmployeeRequest request) {
+        return create(request, null);
+    }
+
+    @Transactional
+    public EmployeeResponse create(CreateEmployeeRequest request, String authorizationHeader) {
         assertUniqueCin(cleanRequired(request.cin()), null);
         assertUniqueEmail(cleanOptional(request.email()), null);
 
         Employee employee = employeeMapper.toEntity(request);
         employee.setActive(true);
-        return employeeMapper.toResponse(employeeRepository.save(employee));
+
+        if (request.systemAccount() == null) {
+            return employeeMapper.toResponse(employeeRepository.save(employee));
+        }
+
+        if (authUserClient == null) {
+            throw new IllegalStateException("Auth user client is not configured");
+        }
+
+        Long createdAuthUserId = null;
+        try {
+            Employee savedEmployee = employeeRepository.saveAndFlush(employee);
+            createdAuthUserId = authUserClient.createUser(authorizationHeader, request).id();
+            savedEmployee.setAuthUserId(createdAuthUserId);
+            return employeeMapper.toResponse(employeeRepository.saveAndFlush(savedEmployee));
+        } catch (RuntimeException exception) {
+            if (createdAuthUserId != null) {
+                deactivateCreatedAuthUser(authorizationHeader, createdAuthUserId);
+            }
+            throw exception;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -223,5 +257,13 @@ public class EmployeeService {
         }
 
         return value.trim();
+    }
+
+    private void deactivateCreatedAuthUser(String authorizationHeader, Long authUserId) {
+        try {
+            authUserClient.deactivateUser(authorizationHeader, authUserId);
+        } catch (RuntimeException ignored) {
+            // The employee transaction still rolls back; best effort prevents an active orphan auth account.
+        }
     }
 }

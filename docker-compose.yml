@@ -394,6 +394,7 @@ services:
       STAFF_DB_NAME: db_staff
       STAFF_DB_USER: hotel_user
       STAFF_DB_PASSWORD: hotel_pass
+      AUTH_SERVICE_URL: "http://auth-service:8081"
     ports:
       - "8087:8087"
     networks:

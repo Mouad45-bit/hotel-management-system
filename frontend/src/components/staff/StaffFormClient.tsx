@@ -18,7 +18,6 @@ import { DepartmentBadge } from "@/components/staff/StaffBadges";
 import {
     createEmployee,
     getEmployeeById,
-    linkAuthUser,
     updateEmployee,
 } from "@/services/staffApi";
 import { AuthService } from "@/services/auth.service";
@@ -27,8 +26,10 @@ import {
     DEPARTMENT_LABELS,
     DEPARTMENTS,
     type Department,
+    type CreateEmployeeRequest,
     type Employee,
 } from "@/types/staff";
+import { ApiError } from "@/lib/api";
 import { extractFormErrors } from "@/lib/formErrors";
 
 interface StaffFormState {
@@ -70,6 +71,16 @@ const DEFAULT_ACCOUNT_FORM: StaffAccountFormState = {
 
 type StaffFormField = keyof StaffFormState;
 type StaffAccountField = keyof StaffAccountFormState;
+
+const DEPARTMENT_TO_ROLE: Record<Department, string> = {
+    RECEPTION: "RECEPTIONIST",
+    HOUSEKEEPING: "HOUSEKEEPING_AGENT",
+    MANAGEMENT: "MANAGER",
+    HR: "HR",
+    MAINTENANCE: "RECEPTIONIST",
+    SECURITY: "RECEPTIONIST",
+    KITCHEN: "RECEPTIONIST",
+};
 
 interface PasswordFieldProps {
     id: string;
@@ -148,6 +159,13 @@ function toFormState(employee: Employee): StaffFormState {
         phone: employee.phone ?? "",
         department: employee.department,
     };
+}
+
+function mapAccountErrorField(field: string): StaffAccountField | null {
+    if (field === "systemAccount.username") return "username";
+    if (field === "systemAccount.password") return "initialPassword";
+    if (field === "systemAccount.role") return "hasSystemAccount";
+    return null;
 }
 
 export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
@@ -243,6 +261,8 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
 
             if (!accountForm.initialPassword) {
                 nextAccountErrors.initialPassword = "Le mot de passe initial est obligatoire pour un compte lié.";
+            } else if (accountForm.initialPassword.length < 6) {
+                nextAccountErrors.initialPassword = "Le mot de passe doit contenir au moins 6 caractères.";
             }
         }
 
@@ -264,33 +284,18 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
         setIsSubmitting(true);
 
         try {
-            const payload = validationResult.data as StaffFormValues;
+            const payload: CreateEmployeeRequest = { ...(validationResult.data as StaffFormValues) };
+            if (!isEdit && wantsNewLink) {
+                payload.systemAccount = {
+                    username: accountForm.username.trim(),
+                    password: accountForm.initialPassword,
+                    role: DEPARTMENT_TO_ROLE[payload.department] ?? "RECEPTIONIST",
+                };
+            }
+
             const savedEmployee = isEdit && employeeId
                 ? await updateEmployee(employeeId, payload)
                 : await createEmployee(payload);
-
-            if (accountForm.hasSystemAccount && !hasLinkedAccount) {
-                const departmentToRole: Record<Department, string> = {
-                    RECEPTION: "RECEPTIONIST",
-                    HOUSEKEEPING: "HOUSEKEEPING_AGENT",
-                    MANAGEMENT: "MANAGER",
-                    HR: "HR",
-                    MAINTENANCE: "RECEPTIONIST",
-                    SECURITY: "RECEPTIONIST",
-                    KITCHEN: "RECEPTIONIST",
-                };
-
-                const createdUser = await AuthService.createUser({
-                    username: accountForm.username.trim(),
-                    password: accountForm.initialPassword,
-                    firstName: form.firstName.trim(),
-                    lastName: form.lastName.trim(),
-                    email: form.email.trim() || undefined,
-                    role: departmentToRole[form.department] ?? "RECEPTIONIST",
-                });
-
-                await linkAuthUser(savedEmployee.id, { userId: createdUser.id });
-            }
 
             if (isEdit && hasLinkedAccount && employee?.authUserId) {
                 await AuthService.updateUser(employee.authUserId, {
@@ -311,7 +316,28 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
             setSuccessMessage(isEdit ? "Les modifications ont été enregistrées." : "L’employé a été créé.");
             router.push(`/staff/${savedEmployee.id}`);
         } catch (error) {
-            setErrorMessage(error instanceof Error ? error.message : "Impossible d’enregistrer l’employé.");
+            if (error instanceof ApiError && Object.keys(error.fieldErrors).length > 0) {
+                const nextErrors: Partial<Record<StaffFormField, string>> = {};
+                const nextAccountFieldErrors: Partial<Record<StaffAccountField, string>> = {};
+
+                Object.entries(error.fieldErrors).forEach(([field, message]) => {
+                    const accountField = mapAccountErrorField(field);
+                    if (accountField) {
+                        nextAccountFieldErrors[accountField] = message;
+                        return;
+                    }
+
+                    if (field in form) {
+                        nextErrors[field as StaffFormField] = message;
+                    }
+                });
+
+                setErrors(nextErrors);
+                setAccountErrors(nextAccountFieldErrors);
+                setErrorMessage("Vérifiez les champs signalés.");
+            } else {
+                setErrorMessage(error instanceof Error ? error.message : "Impossible d’enregistrer l’employé.");
+            }
         } finally {
             setIsSubmitting(false);
         }

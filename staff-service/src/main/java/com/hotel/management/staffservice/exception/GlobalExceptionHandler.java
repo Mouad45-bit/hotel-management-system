@@ -57,6 +57,26 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, "AUTH_USER_ALREADY_LINKED", exception.getMessage(), request);
     }
 
+    @ExceptionHandler(ExternalAuthValidationException.class)
+    public ResponseEntity<ValidationError> handleExternalAuthValidation(
+            ExternalAuthValidationException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ValidationError(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "VALIDATION_ERROR",
+                "Validation failed",
+                request.getRequestURI(),
+                exception.getFieldErrors()
+        ));
+    }
+
+    @ExceptionHandler(ExternalAuthServiceException.class)
+    public ResponseEntity<ApiError> handleExternalAuthService(ExternalAuthServiceException exception, HttpServletRequest request) {
+        return build(exception.getStatus(), exception.getError(), exception.getMessage(), request);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(Exception exception, HttpServletRequest request) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "Unexpected server error", request);

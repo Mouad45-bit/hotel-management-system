@@ -1,6 +1,7 @@
 package com.hotel.management.staffservice.dto;
 
 import com.hotel.management.staffservice.entity.Department;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +28,19 @@ public record CreateEmployeeRequest(
         String cin,
 
         @NotNull(message = "Department is required")
-        Department department
+        Department department,
+
+        @Valid
+        EmployeeSystemAccountRequest systemAccount
 ) {
+        public CreateEmployeeRequest(
+                String firstName,
+                String lastName,
+                String email,
+                String phone,
+                String cin,
+                Department department
+        ) {
+                this(firstName, lastName, email, phone, cin, department, null);
+        }
 }

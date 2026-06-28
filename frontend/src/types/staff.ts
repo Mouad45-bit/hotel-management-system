@@ -36,9 +36,14 @@ export interface CreateEmployeeRequest {
     phone?: string;
     cin: string;
     department: Department;
+    systemAccount?: {
+        username: string;
+        password: string;
+        role: string;
+    };
 }
 
-export type UpdateEmployeeRequest = CreateEmployeeRequest;
+export type UpdateEmployeeRequest = Omit<CreateEmployeeRequest, "systemAccount">;
 
 export interface LinkAuthUserRequest {
     userId: number;

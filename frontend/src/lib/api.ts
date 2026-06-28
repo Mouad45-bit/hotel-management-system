@@ -4,7 +4,8 @@ const API_BASE_URL =
 export class ApiError extends Error {
     constructor(
         public readonly status: number,
-        message: string
+        message: string,
+        public readonly fieldErrors: Record<string, string> = {}
     ) {
         super(message);
         this.name = "ApiError";
@@ -34,13 +35,18 @@ export async function apiFetch<T>(
 
     if (!response.ok) {
         let message = `Erreur ${response.status}`;
+        let fieldErrors: Record<string, string> = {};
         try {
-            const body = await response.json() as { message?: string };
+            const body = await response.json() as {
+                message?: string;
+                fieldErrors?: Record<string, string>;
+            };
             if (body.message) message = body.message;
+            if (body.fieldErrors) fieldErrors = body.fieldErrors;
         } catch {
             // corps non-JSON, on garde le message générique
         }
-        throw new ApiError(response.status, message);
+        throw new ApiError(response.status, message, fieldErrors);
     }
 
     if (response.status === 204) {
