@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { Reservation } from "@/types/reservation";
@@ -9,8 +9,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
-import { Plus, RefreshCcw, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, RefreshCw, AlertCircle } from "lucide-react";
 import { RoomService } from "@/services/room.service";
 import { ClientService } from "@/services/client.service";
 
@@ -25,14 +24,15 @@ export default function ReservationsPage() {
     const searchParams = useSearchParams();
     const initialRoomId = searchParams.get("roomId") ? Number(searchParams.get("roomId")) : undefined;
     const initialClientId = searchParams.get("clientId") ? Number(searchParams.get("clientId")) : undefined;
+    const initialFilters = useMemo<FilterTypes>(() => ({
+        ...(initialRoomId ? { roomId: initialRoomId } : {}),
+        ...(initialClientId ? { clientId: initialClientId } : {}),
+    }), [initialClientId, initialRoomId]);
 
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [isLoading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filters, setFilters] = useState<FilterTypes>({
-        ...(initialRoomId ? { roomId: initialRoomId } : {}),
-        ...(initialClientId ? { clientId: initialClientId } : {}),
-    });
+    const [filters, setFilters] = useState<FilterTypes>(initialFilters);
 
     const [roomMap, setRoomMap] = useState<Record<number, string>>({});
     const [clientMap, setClientMap] = useState<Record<number, string>>({});
@@ -42,7 +42,7 @@ export default function ReservationsPage() {
     const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
 
-    const loadData = async (activeFilters: FilterTypes = filters) => {
+    const loadData = useCallback(async (activeFilters: FilterTypes) => {
         setLoading(true);
         setError(null);
         try {
@@ -63,23 +63,21 @@ export default function ReservationsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
-        void loadData();
-    }, []);
+        const timeoutId = window.setTimeout(() => {
+            void loadData(initialFilters);
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [initialFilters, loadData]);
 
     const applyFilter = (key: keyof FilterTypes, value: string) => {
         const updated = { ...filters, [key]: value || undefined };
         setFilters(updated);
         setCurrentPage(0);
         void loadData(updated);
-    };
-
-    const resetFilters = () => {
-        setFilters({});
-        setCurrentPage(0);
-        void loadData({});
     };
 
     const totalPages = Math.max(1, Math.ceil(reservations.length / PAGE_SIZE));
@@ -103,8 +101,8 @@ export default function ReservationsPage() {
     return (
         <AppLayout>
             <PageHeader
-                title="Gestion des réservations"
-                description="Créez, suivez et gérez les réservations de l'hôtel. Chaque réservation relie un client à une chambre pour une période donnée."
+                title="Réservations"
+                description="Suivez les séjours, les chambres et les statuts de réservation."
                 actions={
                     <Link href="/reservations/create">
                         <HmsButton>
@@ -116,9 +114,7 @@ export default function ReservationsPage() {
             />
 
             <div className="space-y-6">
-                {!error && reservations.length > 0 && (
-                    <ReservationStatsCards reservations={reservations} />
-                )}
+                {!error && <ReservationStatsCards reservations={reservations} loading={isLoading} />}
 
                 {(initialRoomId || initialClientId) && (
                     <HmsCard className="flex items-center justify-between bg-indigo-50">
@@ -132,77 +128,71 @@ export default function ReservationsPage() {
                     </HmsCard>
                 )}
 
-                <ReservationFilters
-                    filters={filters}
-                    onFilterChange={applyFilter}
-                    onReset={resetFilters}
-                    count={reservations.length}
-                />
-
                 {error ? (
-                    <HmsCard>
-                        <div className="flex items-start gap-4">
-                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} />
-                            <div>
-                                <p className="font-semibold text-red-700">Impossible de contacter le serveur</p>
-                                <p className="mt-1 text-sm text-red-600">{error}</p>
-                                <button
+                    <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
+                        <div>
+                            <p className="font-semibold">Erreur de chargement</p>
+                            <p className="mt-1">{error}</p>
+                            <button
+                                type="button"
+                                onClick={() => void loadData(filters)}
+                                className="mt-3 cursor-pointer text-sm font-semibold text-red-700 underline transition hover:text-red-900"
+                            >
+                                Réessayer
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <HmsCard className="overflow-hidden p-0">
+                        <div className="flex flex-col gap-2 border-b border-[var(--hms-soft-border)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-sm font-semibold text-[var(--hms-text-muted)]">
+                                {isLoading && reservations.length === 0
+                                    ? "Chargement des réservations"
+                                    : `${reservations.length} réservation${reservations.length > 1 ? "s" : ""} trouvée${reservations.length > 1 ? "s" : ""}`}
+                            </p>
+
+                            <div className="flex items-center gap-1.5">
+                                <HmsButton
+                                    type="button"
+                                    variant="secondary"
                                     onClick={() => void loadData(filters)}
-                                    className="mt-3 text-sm font-medium text-red-700 underline transition hover:text-red-900"
+                                    disabled={isLoading}
                                 >
-                                    Réessayer
-                                </button>
+                                    <RefreshCw aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                    Actualiser
+                                </HmsButton>
+
+                                <ReservationFilters
+                                    filters={filters}
+                                    onFilterChange={applyFilter}
+                                />
+                            </div>
+                        </div>
+
+                        <ReservationTable
+                            reservations={paginatedReservations}
+                            loading={isLoading}
+                            emptyMessage="Aucune réservation ne correspond aux filtres."
+                            onCancelClick={setReservationToCancel}
+                            roomMap={roomMap}
+                            clientMap={clientMap}
+                        />
+
+                        <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
+                            <p className="text-sm text-[var(--hms-text-muted)]">
+                                Page <span className="font-medium text-[var(--hms-text)]">{currentPage + 1}</span> sur <span className="font-medium text-[var(--hms-text)]">{totalPages}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <HmsButton type="button" variant="secondary" onClick={() => setCurrentPage((p) => p - 1)} disabled={isLoading || currentPage === 0} className="min-h-10 px-3">
+                                    Précédent
+                                </HmsButton>
+                                <HmsButton type="button" variant="secondary" onClick={() => setCurrentPage((p) => p + 1)} disabled={isLoading || currentPage >= totalPages - 1} className="min-h-10 px-3">
+                                    Suivant
+                                </HmsButton>
                             </div>
                         </div>
                     </HmsCard>
-                ) : isLoading && reservations.length === 0 ? (
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <HmsCard key={i} className="h-20 animate-pulse bg-slate-50">{null}</HmsCard>
-                            ))}
-                        </div>
-                        <HmsCard className="overflow-hidden p-0">
-                            <div className="divide-y divide-[var(--hms-soft-border)]">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="flex items-center gap-4 px-6 py-4">
-                                        <div className="h-4 w-20 animate-pulse rounded bg-slate-100" />
-                                        <div className="h-4 w-28 animate-pulse rounded bg-slate-100" />
-                                        <div className="h-4 w-24 animate-pulse rounded bg-slate-100" />
-                                        <div className="h-4 w-20 animate-pulse rounded bg-slate-100" />
-                                        <div className="ml-auto h-4 w-16 animate-pulse rounded bg-slate-100" />
-                                    </div>
-                                ))}
-                            </div>
-                        </HmsCard>
-                    </div>
-                ) : (
-                    <div className={cn("transition-opacity duration-200", isLoading && "pointer-events-none opacity-50")}>
-                        <HmsCard className="overflow-hidden p-0">
-                            <ReservationTable
-                                reservations={paginatedReservations}
-                                onCancelClick={setReservationToCancel}
-                                roomMap={roomMap}
-                                clientMap={clientMap}
-                            />
-
-                            {reservations.length > PAGE_SIZE && (
-                                <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
-                                    <p className="text-sm text-[var(--hms-text-muted)]">
-                                        Page <span className="font-medium text-[var(--hms-text)]">{currentPage + 1}</span> sur <span className="font-medium text-[var(--hms-text)]">{totalPages}</span>
-                                    </p>
-                                    <div className="flex items-center gap-2">
-                                        <HmsButton variant="secondary" onClick={() => setCurrentPage((p) => p - 1)} disabled={currentPage === 0} className="min-h-10 px-3">
-                                            Précédent
-                                        </HmsButton>
-                                        <HmsButton variant="secondary" onClick={() => setCurrentPage((p) => p + 1)} disabled={currentPage >= totalPages - 1} className="min-h-10 px-3">
-                                            Suivant
-                                        </HmsButton>
-                                    </div>
-                                </div>
-                            )}
-                        </HmsCard>
-                    </div>
                 )}
             </div>
 

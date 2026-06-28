@@ -1,16 +1,15 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { ListFilter } from "lucide-react";
 import type { ReservationFilters as FilterTypes } from "@/services/reservation.service";
 import type { ReservationStatus } from "@/types/reservation";
 import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
-import { HmsButton } from "@/components/hms/HmsButton";
+import { cn } from "@/lib/utils";
 
 interface ReservationFiltersProps {
     filters: FilterTypes;
     onFilterChange: (key: keyof FilterTypes, value: string) => void;
-    onReset: () => void;
-    count: number;
 }
 
 const STATUS_LABELS: Record<ReservationStatus, string> = {
@@ -22,49 +21,60 @@ const STATUS_LABELS: Record<ReservationStatus, string> = {
     NO_SHOW: "No-show",
 };
 
-export function ReservationFilters({ filters, onFilterChange, onReset, count }: ReservationFiltersProps) {
-    const hasFilters = Object.values(filters).some(Boolean);
-
+export function ReservationFilters({ filters, onFilterChange }: ReservationFiltersProps) {
     return (
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-            <div className="relative flex-1">
-                <Search
-                    aria-hidden="true"
-                    className="pointer-events-none absolute left-4 top-[42px] h-4 w-4 text-[var(--hms-text-muted)]"
-                    strokeWidth={1.8}
-                />
-                <HmsInput
-                    id="reservation-search"
-                    label="Recherche"
-                    type="text"
-                    placeholder="Rechercher par ID chambre ou client..."
-                    value={filters.roomId ?? ""}
-                    onChange={(e) => onFilterChange("roomId", e.target.value)}
-                    className="[&_input]:pl-10"
-                />
-            </div>
+        <Popover className="relative">
+            {({ open }) => (
+                <>
+                    <PopoverButton
+                        className={cn(
+                            "inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2",
+                            open
+                                ? "bg-[var(--hms-primary-active)]"
+                                : "bg-[var(--hms-primary)] hover:bg-[var(--hms-primary-hover)]"
+                        )}
+                    >
+                        <ListFilter aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+                        Filtrer
+                    </PopoverButton>
 
-            <HmsSelect
-                id="reservation-status-filter"
-                label="Statut"
-                value={filters.status ?? ""}
-                onChange={(e) => onFilterChange("status", e.target.value)}
-            >
-                <option value="">Tous les statuts</option>
-                {(Object.keys(STATUS_LABELS) as ReservationStatus[]).map((s) => (
-                    <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                ))}
-            </HmsSelect>
+                    <PopoverPanel className="absolute right-0 top-full z-30 mt-3 w-[min(760px,calc(100vw-2.5rem))] rounded-[20px] border border-[var(--hms-soft-border)] bg-white p-5 shadow-[0_24px_70px_rgba(13,9,7,0.14)]">
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <HmsInput
+                                id="reservation-room-filter"
+                                label="Chambre"
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="201"
+                                value={filters.roomId ?? ""}
+                                onChange={(event) => onFilterChange("roomId", event.target.value)}
+                            />
 
-            {hasFilters && (
-                <HmsButton type="button" variant="secondary" onClick={onReset}>
-                    Réinitialiser
-                </HmsButton>
+                            <HmsInput
+                                id="reservation-client-filter"
+                                label="Client"
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="15"
+                                value={filters.clientId ?? ""}
+                                onChange={(event) => onFilterChange("clientId", event.target.value)}
+                            />
+
+                            <HmsSelect
+                                id="reservation-status-filter"
+                                label="Statut"
+                                value={filters.status ?? ""}
+                                onChange={(event) => onFilterChange("status", event.target.value)}
+                            >
+                                <option value="">Tous les statuts</option>
+                                {(Object.keys(STATUS_LABELS) as ReservationStatus[]).map((status) => (
+                                    <option key={status} value={status}>{STATUS_LABELS[status]}</option>
+                                ))}
+                            </HmsSelect>
+                        </div>
+                    </PopoverPanel>
+                </>
             )}
-
-            <span className="shrink-0 px-2 text-sm font-medium text-[var(--hms-text-muted)] lg:ml-auto">
-                {count} réservation{count > 1 ? "s" : ""}
-            </span>
-        </div>
+        </Popover>
     );
 }
