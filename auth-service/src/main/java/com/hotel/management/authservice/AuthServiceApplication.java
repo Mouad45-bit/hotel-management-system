@@ -32,6 +32,18 @@ public class AuthServiceApplication {
                         .build();
                 userRepository.save(admin);
             }
+
+            if (!userRepository.existsByUsername("mouad")) {
+                User mouad = User.builder()
+                        .username("mouad")
+                        .email("mouad@hotel.com")
+                        .password(passwordEncoder.encode("mouad"))
+                        .firstName("Mouad")
+                        .lastName("User")
+                        .role(Role.ADMIN)
+                        .build();
+                userRepository.save(mouad);
+            }
         };
     }
 }
