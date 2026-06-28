@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-    ArrowLeft,
-    TriangleAlert,
-} from "lucide-react";
+import { TriangleAlert } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { HmsCard } from "@/components/hms/HmsCard";
 import {
     HousekeepingTaskForm,
@@ -135,24 +132,11 @@ export function HousekeepingTaskCreateClient() {
 
     return (
         <div className="space-y-8">
-            <section>
-                <Link
-                    href="/housekeeping/tasks"
-                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                    Retour aux tâches
-                </Link>
-
-                <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                    Créer une tâche
-                </h2>
-
-                <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                    Planifiez une intervention housekeeping,
-                    <br className="hidden md:block" /> choisissez la chambre, la priorité et l’agent si l’affectation est déjà connue.
-                </p>
-            </section>
+            <PageHeader
+                backHref="/housekeeping/tasks"
+                title="Créer une tâche"
+                description="Planifiez une intervention housekeeping, choisissez la chambre, la priorité et l’agent si l’affectation est déjà connue."
+            />
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

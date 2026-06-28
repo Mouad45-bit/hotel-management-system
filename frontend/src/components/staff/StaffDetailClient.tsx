@@ -5,12 +5,15 @@ import Link from "next/link";
 import {
     ArrowLeft,
     CircleCheckBig,
+    LinkIcon,
     Pencil,
     TriangleAlert,
+    Unlink,
     UserRoundX,
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { DepartmentBadge, StaffStatusBadge } from "@/components/staff/StaffBadges";
 import { StaffActionModal } from "@/components/staff/StaffActionModal";
 import { StaffDate } from "@/components/staff/StaffDate";
@@ -18,14 +21,16 @@ import {
     activateEmployee,
     deactivateEmployee,
     getEmployeeById,
+    unlinkAuthUser,
 } from "@/services/staffApi";
+import { AuthService } from "@/services/auth.service";
 import type { Employee } from "@/types/staff";
 
 interface StaffDetailClientProps {
     employeeId: number;
 }
 
-type ModalType = "activate" | "deactivate" | null;
+type ModalType = "activate" | "deactivate" | "unlink" | null;
 
 interface TimelineItem {
     label: string;
@@ -40,6 +45,7 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
     const [modalType, setModalType] = useState<ModalType>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [linkedUsername, setLinkedUsername] = useState<string | null>(null);
 
     async function loadEmployee() {
         if (!Number.isFinite(employeeId) || employeeId <= 0) {
@@ -55,6 +61,13 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
         try {
             const loadedEmployee = await getEmployeeById(employeeId);
             setEmployee(loadedEmployee);
+            if (loadedEmployee.authUserId) {
+                AuthService.getUserById(loadedEmployee.authUserId)
+                    .then((u) => setLinkedUsername(u.username))
+                    .catch(() => setLinkedUsername(null));
+            } else {
+                setLinkedUsername(null);
+            }
         } catch (error) {
             setErrorMessage(error instanceof Error ? error.message : "Impossible de charger l’employé.");
         } finally {
@@ -86,10 +99,24 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
         try {
             let updatedEmployee: Employee;
 
+            if (modalType === "unlink") {
+                updatedEmployee = await unlinkAuthUser(employee.id);
+                setLinkedUsername(null);
+                setEmployee(updatedEmployee);
+                setModalType(null);
+                return;
+            }
+
             if (modalType === "activate") {
                 updatedEmployee = await activateEmployee(employee.id);
+                if (employee.authUserId) {
+                    await AuthService.activateUser(employee.authUserId).catch(() => {});
+                }
             } else {
                 updatedEmployee = await deactivateEmployee(employee.id);
+                if (employee.authUserId) {
+                    await AuthService.deactivateUser(employee.authUserId).catch(() => {});
+                }
             }
 
             setEmployee(updatedEmployee);
@@ -154,40 +181,20 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
 
     return (
         <div className="space-y-8">
-            <section className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-                <div className="min-w-0">
-                    <Link
-                        href="/staff"
-                        className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                        Retour au personnel
+            <PageHeader
+                backHref="/staff"
+                eyebrow={`Employé #${employee.id}`}
+                title={employee.fullName}
+                description="Fiche opérationnelle du personnel : identité, département et coordonnées."
+                actions={
+                    <Link href={`/staff/${employee.id}/edit`}>
+                        <HmsButton variant="secondary">
+                            <Pencil aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                            Modifier
+                        </HmsButton>
                     </Link>
-
-                    <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
-                        Employé #{employee.id}
-                    </p>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                        <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                            {employee.fullName}
-                        </h2>
-                        <DepartmentBadge department={employee.department} />
-                    </div>
-
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Fiche opérationnelle du personnel : identité, département et coordonnées.
-                    </p>
-                </div>
-
-                <Link
-                    href={`/staff/${employee.id}/edit`}
-                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <Pencil aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                    Modifier
-                </Link>
-            </section>
+                }
+            />
 
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="min-w-0 space-y-6">
@@ -229,27 +236,43 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
                         </dl>
                     </HmsCard>
 
-                    {hasSystemAccount && (
-                        <HmsCard className="p-6">
-                            <h3 className="text-lg font-bold text-[var(--hms-text)]">Actions métier</h3>
-                            <p className="mt-1 text-sm text-[var(--hms-text-muted)]">
-                                L’activation et la désactivation sont des actions dédiées.
+                    <HmsCard className="p-6">
+                        <h3 className="text-lg font-bold text-[var(--hms-text)]">Compte système</h3>
+                        {hasSystemAccount ? (
+                            <>
+                                <div className="mt-4 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                                    <LinkIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-emerald-600" strokeWidth={1.8} />
+                                    <div>
+                                        <p className="text-sm font-bold text-[var(--hms-text)]">
+                                            @{linkedUsername ?? `user-${employee.authUserId}`}
+                                        </p>
+                                        <p className="text-xs text-emerald-700">Compte système lié</p>
+                                    </div>
+                                </div>
+                                <div className="mt-5 flex flex-wrap gap-3">
+                                    {employee.active ? (
+                                        <HmsButton type="button" variant="danger" onClick={() => openModal("deactivate")}>
+                                            <UserRoundX aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                            Désactiver
+                                        </HmsButton>
+                                    ) : (
+                                        <HmsButton type="button" onClick={() => openModal("activate")}>
+                                            <CircleCheckBig aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                            Activer
+                                        </HmsButton>
+                                    )}
+                                    <HmsButton type="button" variant="secondary" onClick={() => openModal("unlink")}>
+                                        <Unlink aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                        Délier le compte
+                                    </HmsButton>
+                                </div>
+                            </>
+                        ) : (
+                            <p className="mt-3 text-sm text-[var(--hms-text-muted)]">
+                                Aucun compte système lié. Vous pouvez en créer un depuis la page de modification.
                             </p>
-                            <div className="mt-5">
-                                {employee.active ? (
-                                    <HmsButton type="button" variant="danger" onClick={() => openModal("deactivate")}>
-                                        <UserRoundX aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                        Désactiver l’employé
-                                    </HmsButton>
-                                ) : (
-                                    <HmsButton type="button" onClick={() => openModal("activate")}>
-                                        <CircleCheckBig aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                        Activer l’employé
-                                    </HmsButton>
-                                )}
-                            </div>
-                        </HmsCard>
-                    )}
+                        )}
+                    </HmsCard>
                 </div>
 
                 <div className="min-w-0 space-y-6">
@@ -311,6 +334,24 @@ export function StaffDetailClient({ employeeId }: StaffDetailClientProps) {
             >
                 <p className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
                     {employee.fullName} pourra de nouveau être utilisé dans les opérations.
+                </p>
+                {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
+            </StaffActionModal>
+
+            <StaffActionModal
+                open={modalType === "unlink"}
+                title="Délier le compte système"
+                description="Le compte système sera dissocié de cet employé. Le compte utilisateur ne sera pas supprimé."
+                icon={Unlink}
+                iconClassName="bg-amber-50 text-amber-700"
+                confirmLabel="Délier le compte"
+                danger
+                submitting={isSubmitting}
+                onClose={() => openModal(null)}
+                onConfirm={() => void handleConfirmAction()}
+            >
+                <p className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 text-sm text-[var(--hms-text-muted)]">
+                    L'employé {employee.fullName} ne pourra plus se connecter au système tant qu'un nouveau compte ne sera pas lié.
                 </p>
                 {actionError && <p className="mt-3 text-sm text-red-600">{actionError}</p>}
             </StaffActionModal>

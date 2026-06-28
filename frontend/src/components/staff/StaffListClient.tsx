@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, RefreshCw, TriangleAlert, UserRoundX, CircleCheckBig } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { StaffActionModal } from "@/components/staff/StaffActionModal";
 import { StaffFilters } from "@/components/staff/StaffFilters";
 import { StaffStatsCards } from "@/components/staff/StaffStatsCards";
@@ -16,6 +17,7 @@ import {
     getEmployees,
     getStaffStats,
 } from "@/services/staffApi";
+import { AuthService } from "@/services/auth.service";
 import {
     staffFiltersSchema,
     toStaffSearchParams,
@@ -75,6 +77,7 @@ export function StaffListClient() {
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
     const [isActionSubmitting, setIsActionSubmitting] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [usernameMap, setUsernameMap] = useState<Record<number, string>>({});
 
     function updateUrl(nextFilters: StaffFiltersState, page: number) {
         const validationResult = staffFiltersSchema.safeParse(nextFilters);
@@ -109,10 +112,15 @@ export function StaffListClient() {
 
         try {
             const search = toStaffSearchParams(validationResult.data as StaffFiltersFormValues);
-            const [employeesPage, staffStats] = await Promise.all([
+            const [employeesPage, staffStats, allUsers] = await Promise.all([
                 getEmployees({ ...search, page, size: PAGE_SIZE, sort: "lastName,asc" }),
                 getStaffStats(),
+                AuthService.getUsers().catch(() => []),
             ]);
+
+            const uMap: Record<number, string> = {};
+            for (const u of allUsers) { uMap[u.id] = u.username; }
+            setUsernameMap(uMap);
 
             setPageResponse(employeesPage);
             setStats(staffStats);
@@ -168,8 +176,14 @@ export function StaffListClient() {
         try {
             if (selectedEmployee.active) {
                 await deactivateEmployee(selectedEmployee.id);
+                if (selectedEmployee.authUserId) {
+                    await AuthService.deactivateUser(selectedEmployee.authUserId).catch(() => {});
+                }
             } else {
                 await activateEmployee(selectedEmployee.id);
+                if (selectedEmployee.authUserId) {
+                    await AuthService.activateUser(selectedEmployee.authUserId).catch(() => {});
+                }
             }
 
             setSelectedEmployee(null);
@@ -185,24 +199,18 @@ export function StaffListClient() {
 
     return (
         <div className="space-y-8">
-            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Personnel
-                    </h2>
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Gestion des employés et de leur statut opérationnel.
-                    </p>
-                </div>
-
-                <Link
-                    href="/staff/create"
-                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                    Ajouter un employé
-                </Link>
-            </section>
+            <PageHeader
+                title="Personnel"
+                description="Gestion des employés et de leur statut opérationnel."
+                actions={
+                    <Link href="/staff/create">
+                        <HmsButton>
+                            <Plus aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                            Ajouter un employé
+                        </HmsButton>
+                    </Link>
+                }
+            />
 
             <StaffStatsCards stats={stats} loading={isLoading} />
 
@@ -239,12 +247,13 @@ export function StaffListClient() {
                     employees={employees}
                     loading={isLoading}
                     emptyMessage="Aucun employé ne correspond aux filtres."
+                    usernameMap={usernameMap}
                     onToggleActive={setSelectedEmployee}
                 />
 
                 <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
                     <p className="text-sm text-[var(--hms-text-muted)]">
-                        Page <span className="font-medium text-zinc-900">{pageResponse ? pageResponse.page + 1 : 1}</span> sur <span className="font-medium text-zinc-900">{pageResponse?.totalPages || 1}</span>
+                        Page <span className="font-medium text-[var(--hms-text)]">{pageResponse ? pageResponse.page + 1 : 1}</span> sur <span className="font-medium text-[var(--hms-text)]">{pageResponse?.totalPages || 1}</span>
                     </p>
                     <div className="flex items-center gap-2">
                         <HmsButton type="button" variant="secondary" onClick={handlePreviousPage} disabled={isLoading || currentPage === 0} className="min-h-10 px-3">

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    ArrowLeft,
     Ban,
     CheckCircle2,
     Eye,
@@ -13,6 +12,7 @@ import {
     TriangleAlert,
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingDate } from "@/components/housekeeping/HousekeepingDate";
 import { HousekeepingStatusBadge } from "@/components/housekeeping/HousekeepingStatusBadge";
@@ -280,25 +280,11 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
 
     return (
         <div className="space-y-8">
-            <section>
-                <Link
-                    href="/housekeeping"
-                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                    Retour au dashboard
-                </Link>
-
-                <div className="mt-6">
-                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Mes tâches
-                    </h2>
-
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Suivez vos tâches assignées et mettez à jour leur avancement.
-                    </p>
-                </div>
-            </section>
+            <PageHeader
+                backHref="/housekeeping"
+                title="Mes tâches"
+                description="Suivez vos tâches assignées et mettez à jour leur avancement."
+            />
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-    ArrowLeft,
     CircleCheckBig,
     Eye,
     EyeOff,
@@ -13,13 +12,16 @@ import {
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { HmsInput, HmsSelect } from "@/components/hms/HmsField";
 import { DepartmentBadge } from "@/components/staff/StaffBadges";
 import {
     createEmployee,
     getEmployeeById,
+    linkAuthUser,
     updateEmployee,
 } from "@/services/staffApi";
+import { AuthService } from "@/services/auth.service";
 import { staffFormSchema, type StaffFormValues } from "@/schemas/staff.schema";
 import {
     DEPARTMENT_LABELS,
@@ -232,7 +234,9 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
             setErrors({});
         }
 
-        if (!isEdit && accountForm.hasSystemAccount) {
+        const wantsNewLink = accountForm.hasSystemAccount && !hasLinkedAccount;
+
+        if (wantsNewLink) {
             if (!accountForm.username.trim()) {
                 nextAccountErrors.username = "Le nom d’utilisateur est obligatoire pour un compte lié.";
             }
@@ -242,7 +246,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
             }
         }
 
-        if (isEdit && accountForm.hasSystemAccount && accountForm.newPassword) {
+        if (isEdit && hasLinkedAccount && accountForm.newPassword) {
             nextAccountErrors.newPassword = "La mise à jour du mot de passe nécessite une API Auth indisponible dans ce projet.";
         }
 
@@ -257,13 +261,6 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
 
         setAccountErrors({});
 
-        if (!isEdit && accountForm.hasSystemAccount) {
-            setAccountForm((current) => ({ ...current, initialPassword: "" }));
-            setShowInitialPassword(false);
-            setErrorMessage("La création d’un compte système nécessite une API Auth absente du projet. La fiche employé n’a pas été créée.");
-            return;
-        }
-
         setIsSubmitting(true);
 
         try {
@@ -271,6 +268,37 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
             const savedEmployee = isEdit && employeeId
                 ? await updateEmployee(employeeId, payload)
                 : await createEmployee(payload);
+
+            if (accountForm.hasSystemAccount && !hasLinkedAccount) {
+                const departmentToRole: Record<Department, string> = {
+                    RECEPTION: "RECEPTIONIST",
+                    HOUSEKEEPING: "HOUSEKEEPING_AGENT",
+                    MANAGEMENT: "MANAGER",
+                    HR: "HR",
+                    MAINTENANCE: "RECEPTIONIST",
+                    SECURITY: "RECEPTIONIST",
+                    KITCHEN: "RECEPTIONIST",
+                };
+
+                const createdUser = await AuthService.createUser({
+                    username: accountForm.username.trim(),
+                    password: accountForm.initialPassword,
+                    firstName: form.firstName.trim(),
+                    lastName: form.lastName.trim(),
+                    email: form.email.trim() || undefined,
+                    role: departmentToRole[form.department] ?? "RECEPTIONIST",
+                });
+
+                await linkAuthUser(savedEmployee.id, { userId: createdUser.id });
+            }
+
+            if (isEdit && hasLinkedAccount && employee?.authUserId) {
+                await AuthService.updateUser(employee.authUserId, {
+                    firstName: form.firstName.trim(),
+                    lastName: form.lastName.trim(),
+                    email: form.email.trim() || undefined,
+                }).catch(() => {});
+            }
 
             setAccountForm((current) => ({
                 ...current,
@@ -309,29 +337,12 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
 
     return (
         <div className="space-y-8">
-            <section>
-                <Link
-                    href={isEdit && employee ? `/staff/${employee.id}` : "/staff"}
-                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                    Retour
-                </Link>
-
-                {isEdit && employee && (
-                    <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[var(--hms-text-muted)]">
-                        Employé #{employee.id}
-                    </p>
-                )}
-
-                <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                    {isEdit ? "Modifier l’employé" : "Ajouter un employé"}
-                </h2>
-                <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                    Renseignez l’identité opérationnelle, le CIN et le département.
-                    <br className="hidden md:block" /> Les informations du compte système sont demandées uniquement pour un employé lié.
-                </p>
-            </section>
+            <PageHeader
+                backHref={isEdit && employee ? `/staff/${employee.id}` : "/staff"}
+                eyebrow={isEdit && employee ? `Employé #${employee.id}` : undefined}
+                title={isEdit ? "Modifier l’employé" : "Ajouter un employé"}
+                description="Renseignez l’identité opérationnelle, le CIN et le département. Les informations du compte système sont demandées uniquement pour un employé lié."
+            />
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -413,7 +424,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                             className="md:col-span-2"
                         />
 
-                        {!isEdit && (
+                        {!hasLinkedAccount && (
                             <div className="md:col-span-2">
                                 <button
                                     type="button"
@@ -452,7 +463,7 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                             </div>
                         )}
 
-                        {!isEdit && accountForm.hasSystemAccount && (
+                        {!hasLinkedAccount && accountForm.hasSystemAccount && (
                             <>
                                 <HmsInput
                                     id="staff-account-username"
@@ -473,26 +484,15 @@ export function StaffFormClient({ mode, employeeId }: StaffFormClientProps) {
                             </>
                         )}
 
-                        {isEdit && (
-                            <div className="rounded-2xl border border-[var(--hms-soft-border)] bg-slate-50 p-4 md:col-span-2">
-                                <p className="text-xs font-semibold text-[var(--hms-text-muted)]">
-                                    Compte système
-                                </p>
-                                <p className="mt-1 text-sm font-bold text-[var(--hms-text)]">
-                                    {hasLinkedAccount ? "Lié" : "Non lié"}
-                                </p>
-                            </div>
-                        )}
-
-                        {isEdit && hasLinkedAccount && (
+                        {hasLinkedAccount && (
                             <>
-                                <div className="md:col-span-2">
-                                    <p className="text-xs font-semibold text-[var(--hms-text-muted)]">
-                                        Nom d’utilisateur
+                                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 md:col-span-2">
+                                    <p className="text-xs font-semibold text-emerald-700">
+                                        Compte système
                                     </p>
-                                    <div className="mt-2 flex h-12 items-center rounded-xl border border-[var(--hms-border)] bg-slate-50 px-4 text-sm font-semibold text-[var(--hms-text)]">
-                                        Utilisateur #{employee?.authUserId}
-                                    </div>
+                                    <p className="mt-1 text-sm font-bold text-[var(--hms-text)]">
+                                        Lié — Utilisateur #{employee?.authUserId}
+                                    </p>
                                 </div>
                                 <PasswordField
                                     id="staff-account-new-password"

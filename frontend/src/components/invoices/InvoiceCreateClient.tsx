@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-    ArrowLeft,
     CircleCheckBig,
     FileText,
     TriangleAlert,
 } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HmsInput, HmsTextarea } from "@/components/hms/HmsField";
@@ -84,6 +84,8 @@ function calculatePreviewAmounts(
 
 export function InvoiceCreateClient() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const preselectedReservationId = searchParams.get("reservationId") ? Number(searchParams.get("reservationId")) : null;
 
     const [reservationSources, setReservationSources] = useState<
         ReservationInvoiceSource[]
@@ -112,7 +114,16 @@ export function InvoiceCreateClient() {
             const sources = await getReservationInvoiceSources();
             setReservationSources(sources);
 
-            const firstAvailableSource = sources.find(
+            const preselected = preselectedReservationId
+                ? sources.find(
+                      (s) =>
+                          s.reservationId === preselectedReservationId &&
+                          s.reservationStatus === "CHECKED_OUT" &&
+                          !s.hasActiveInvoice
+                  )
+                : null;
+
+            const firstAvailableSource = preselected ?? sources.find(
                 (source) =>
                     source.reservationStatus === "CHECKED_OUT" &&
                     !source.hasActiveInvoice
@@ -230,25 +241,11 @@ export function InvoiceCreateClient() {
 
     return (
         <div className="space-y-8">
-            <section>
-                <Link
-                    href="/invoices"
-                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                    Retour aux factures
-                </Link>
-
-                <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                    Générer une facture
-                </h2>
-
-                <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                    Sélectionnez une réservation terminée,
-                    <br className="hidden md:block" />{" "}
-                    ajustez les paramètres puis vérifiez le montant avant génération.
-                </p>
-            </section>
+            <PageHeader
+                backHref="/invoices"
+                title="Générer une facture"
+                description="Sélectionnez une réservation terminée, ajustez les paramètres puis vérifiez le montant avant génération."
+            />
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

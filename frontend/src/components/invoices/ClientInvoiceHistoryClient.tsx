@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-    ArrowLeft,
-    TriangleAlert,
-} from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 import {
     ClientInvoiceSummaryCards,
     type ClientInvoiceSummary,
@@ -126,25 +124,11 @@ export function ClientInvoiceHistoryClient({
 
     return (
         <div className="space-y-8">
-            <section>
-                <div>
-                    <Link
-                        href="/invoices"
-                        className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                        Retour aux factures
-                    </Link>
-
-                    <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Historique des factures
-                    </h2>
-
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Consultation des factures, paiements, remboursements et montants liés à {clientName}.
-                    </p>
-                </div>
-            </section>
+            <PageHeader
+                backHref="/invoices"
+                title="Historique des factures"
+                description={`Consultation des factures, paiements, remboursements et montants liés à ${clientName}.`}
+            />
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

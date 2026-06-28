@@ -9,6 +9,8 @@ import {
     UserRoundCheck,
     UserRoundPlus,
 } from "lucide-react";
+import { HmsButton } from "@/components/hms/HmsButton";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { TodayHousekeepingTasks } from "@/components/housekeeping/TodayHousekeepingTasks";
 import { getTodayHousekeepingTasks } from "@/services/housekeepingApi";
 import type { HousekeepingTask } from "@/types/housekeeping";
@@ -50,45 +52,32 @@ export function HousekeepingDashboardClient() {
 
     return (
         <div className="space-y-8">
-            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Housekeeping
-                    </h2>
-
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Suivez les chambres à nettoyer,
-                        <br />
-                        les priorités du jour et les tâches à affecter avant remise en vente.
-                    </p>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row">
-                    <Link
-                        href="/housekeeping/my-tasks"
-                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <UserRoundCheck aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                        Mes tâches
-                    </Link>
-
-                    <Link
-                        href="/housekeeping/tasks"
-                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[var(--hms-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <ClipboardList aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                        Liste des tâches
-                    </Link>
-
-                    <Link
-                        href="/housekeeping/tasks/create"
-                        className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                    >
-                        <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                        Créer une tâche
-                    </Link>
-                </div>
-            </section>
+            <PageHeader
+                title="Housekeeping"
+                description="Suivez les chambres à nettoyer, les priorités du jour et les tâches à affecter avant remise en vente."
+                actions={
+                    <>
+                        <Link href="/housekeeping/my-tasks">
+                            <HmsButton variant="secondary">
+                                <UserRoundCheck aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                Mes tâches
+                            </HmsButton>
+                        </Link>
+                        <Link href="/housekeeping/tasks">
+                            <HmsButton variant="secondary">
+                                <ClipboardList aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                Liste des tâches
+                            </HmsButton>
+                        </Link>
+                        <Link href="/housekeeping/tasks/create">
+                            <HmsButton>
+                                <Plus aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                                Créer une tâche
+                            </HmsButton>
+                        </Link>
+                    </>
+                }
+            />
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">

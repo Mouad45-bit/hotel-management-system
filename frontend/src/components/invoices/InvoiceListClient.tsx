@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
 import { HmsCard } from "@/components/hms/HmsCard";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { InvoiceFilters } from "@/components/invoices/InvoiceFilters";
 import { InvoiceStatsCards } from "@/components/invoices/InvoiceStatsCards";
 import { InvoiceTable } from "@/components/invoices/InvoiceTable";
@@ -161,25 +162,18 @@ export function InvoiceListClient() {
 
     return (
         <div className="space-y-8">
-            <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <h2 className="text-4xl font-extrabold tracking-tight text-[var(--hms-text)]">
-                        Facturation
-                    </h2>
-
-                    <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--hms-text-muted)]">
-                        Gestion, suivi et traitement des factures liées aux réservations.
-                    </p>
-                </div>
-
-                <Link
-                    href="/invoices/create"
-                    className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hms-primary)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--hms-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                >
-                    <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                    Générer une facture
-                </Link>
-            </section>
+            <PageHeader
+                title="Facturation"
+                description="Gestion, suivi et traitement des factures liées aux réservations."
+                actions={
+                    <Link href="/invoices/create">
+                        <HmsButton>
+                            <Plus aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
+                            Générer une facture
+                        </HmsButton>
+                    </Link>
+                }
+            />
 
             <InvoiceStatsCards stats={stats} loading={isLoading} />
 
@@ -232,11 +226,11 @@ export function InvoiceListClient() {
                 <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
                     <p className="text-sm text-[var(--hms-text-muted)]">
                         Page{" "}
-                        <span className="font-medium text-zinc-900">
+                        <span className="font-medium text-[var(--hms-text)]">
                             {pageResponse ? pageResponse.page + 1 : 1}
                         </span>{" "}
                         sur{" "}
-                        <span className="font-medium text-zinc-900">
+                        <span className="font-medium text-[var(--hms-text)]">
                             {pageResponse?.totalPages || 1}
                         </span>
                     </p>
