@@ -94,24 +94,6 @@ export function ReservationTable({
                             </td>
                             <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3">
                                 <div className="flex justify-end gap-1.5">
-                                    <Link
-                                        href={`/reservations/${r.id}`}
-                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                        aria-label={`Voir la réservation ${r.id}`}
-                                        title="Voir"
-                                    >
-                                        <Eye className="h-4 w-4" strokeWidth={1.8} />
-                                    </Link>
-                                    {r.status === "CREATED" && (
-                                        <Link
-                                            href={`/reservations/${r.id}/edit`}
-                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                            aria-label={`Modifier la réservation ${r.id}`}
-                                            title="Modifier"
-                                        >
-                                            <Pencil className="h-4 w-4" strokeWidth={1.8} />
-                                        </Link>
-                                    )}
                                     {(r.status === "CREATED" || r.status === "CONFIRMED") && (
                                         <button
                                             type="button"
@@ -123,6 +105,24 @@ export function ReservationTable({
                                             <XCircle className="h-4 w-4" strokeWidth={1.8} />
                                         </button>
                                     )}
+                                    {r.status === "CREATED" && (
+                                        <Link
+                                            href={`/reservations/${r.id}/edit`}
+                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            aria-label={`Modifier la réservation ${r.id}`}
+                                            title="Modifier"
+                                        >
+                                            <Pencil className="h-4 w-4" strokeWidth={1.8} />
+                                        </Link>
+                                    )}
+                                    <Link
+                                        href={`/reservations/${r.id}`}
+                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                        aria-label={`Voir la réservation ${r.id}`}
+                                        title="Voir"
+                                    >
+                                        <Eye className="h-4 w-4" strokeWidth={1.8} />
+                                    </Link>
                                 </div>
                             </td>
                         </tr>

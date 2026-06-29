@@ -76,7 +76,12 @@ export default function UsersPage() {
                             <thead className="bg-slate-50">
                                 <tr>
                                     {["Utilisateur", "Employé", "Rôle", "Statut"].map((h) => (
-                                        <th key={h} className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">{h}</th>
+                                        <th
+                                            key={h}
+                                            className={`whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)] ${h === "Rôle" || h === "Statut" ? "text-center" : "text-left"}`}
+                                        >
+                                            {h}
+                                        </th>
                                     ))}
                                     <th className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-[var(--hms-text-muted)]">Actions</th>
                                 </tr>
@@ -104,10 +109,10 @@ export default function UsersPage() {
                                             <p className="text-sm font-bold text-[var(--hms-text)]">{emp.fullName}</p>
                                             <p className="text-xs text-[var(--hms-text-muted)]">CIN {emp.cin}</p>
                                         </td>
-                                        <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3">
+                                        <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center">
                                             <UserRoleBadge role={u.role} />
                                         </td>
-                                        <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3">
+                                        <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-center">
                                             <ClientStatusBadge active={u.active} />
                                         </td>
                                         <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right">
