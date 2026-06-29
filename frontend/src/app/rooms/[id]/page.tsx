@@ -25,6 +25,8 @@ import {
     Repeat,
     Users,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { canPerformAction } from "@/lib/rbac";
 
 const TYPE_LABELS: Record<RoomType, string> = {
     SINGLE: "Single", DOUBLE: "Double", TWIN: "Twin",
@@ -32,6 +34,7 @@ const TYPE_LABELS: Record<RoomType, string> = {
 };
 
 export default function RoomDetailPage() {
+    const { user } = useAuth();
     const router = useRouter();
     const params = useParams<{ id: string }>();
     const id = Number(params.id);
@@ -43,6 +46,11 @@ export default function RoomDetailPage() {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+    const canEditRoom = canPerformAction(user?.role, "rooms:edit");
+    const canDeactivateRoom = canPerformAction(user?.role, "rooms:deactivate");
+    const canChangeStatus = canPerformAction(user?.role, "rooms:change-status");
+    const canReserveRoom = canPerformAction(user?.role, "rooms:reserve");
+    const canViewReservationHistory = canPerformAction(user?.role, "rooms:reservation-history");
 
     const fetchRoom = () => {
         setLoading(true);
@@ -108,6 +116,7 @@ export default function RoomDetailPage() {
         { icon: Building2, label: "Étage", value: `Étage ${room.floor}` },
         { icon: Users, label: "Capacité", value: `${room.capacity} personne${room.capacity > 1 ? "s" : ""}` },
     ];
+    const canReserveAvailableRoom = canReserveRoom && room.active && room.status === "AVAILABLE";
 
     return (
         <AppLayout>
@@ -118,16 +127,20 @@ export default function RoomDetailPage() {
                 description="Tableau de bord de la chambre : informations générales, statut métier, disponibilité administrative et accès aux actions principales."
                 actions={
                     <>
-                        <Link href={`/rooms/${id}/edit`}>
-                            <HmsButton>
-                                <Pencil className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                                Modifier
+                        {canEditRoom && (
+                            <Link href={`/rooms/${id}/edit`}>
+                                <HmsButton>
+                                    <Pencil className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                    Modifier
+                                </HmsButton>
+                            </Link>
+                        )}
+                        {canDeactivateRoom && (
+                            <HmsButton variant="danger" onClick={() => setConfirmDelete(true)}>
+                                <Power className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                Désactiver
                             </HmsButton>
-                        </Link>
-                        <HmsButton variant="danger" onClick={() => setConfirmDelete(true)}>
-                            <Power className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                            Désactiver
-                        </HmsButton>
+                        )}
                     </>
                 }
             />
@@ -170,22 +183,28 @@ export default function RoomDetailPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                    <HmsButton variant="secondary" onClick={() => setStatusDialogOpen(true)}>
-                        <Repeat className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                        Changer statut
-                    </HmsButton>
-                    <Link href={`/reservations?roomId=${id}`}>
-                        <HmsButton variant="secondary">
-                            <History className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                            Historique
+                    {canChangeStatus && (
+                        <HmsButton variant="secondary" onClick={() => setStatusDialogOpen(true)}>
+                            <Repeat className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                            Changer statut
                         </HmsButton>
-                    </Link>
-                    <Link href={`/reservations/create?roomId=${id}`}>
-                        <HmsButton>
-                            <CalendarPlus className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                            Réserver
-                        </HmsButton>
-                    </Link>
+                    )}
+                    {canViewReservationHistory && (
+                        <Link href={`/reservations?roomId=${id}`}>
+                            <HmsButton variant="secondary">
+                                <History className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                Historique
+                            </HmsButton>
+                        </Link>
+                    )}
+                    {canReserveAvailableRoom && (
+                        <Link href={`/reservations/create?roomId=${id}`}>
+                            <HmsButton>
+                                <CalendarPlus className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                Réserver
+                            </HmsButton>
+                        </Link>
+                    )}
                 </div>
             </HmsCard>
 

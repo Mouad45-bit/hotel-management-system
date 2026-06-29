@@ -18,9 +18,18 @@ interface ReservationFormProps {
     isLoading?: boolean;
     submitLabel?: string;
     lockRoomAndClient?: boolean;
+    requireAvailableRoom?: boolean;
 }
 
-export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, submitLabel = "Créer", lockRoomAndClient }: ReservationFormProps) {
+export function ReservationForm({
+    initialData,
+    onSubmit,
+    onCancel,
+    isLoading,
+    submitLabel = "Créer",
+    lockRoomAndClient,
+    requireAvailableRoom = false,
+}: ReservationFormProps) {
     const [formData, setFormData] = useState<Partial<ReservationFormValues>>(
         initialData ?? { roomId: 0, clientId: 0, checkInDate: "", checkOutDate: "", notes: "" }
     );
@@ -52,6 +61,12 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
             return;
         }
 
+        const room = rooms.find((r) => r.id === validation.data.roomId);
+        if (requireAvailableRoom && room && (!room.active || room.status !== "AVAILABLE")) {
+            setErrors({ roomId: "Seules les chambres disponibles peuvent être réservées." });
+            return;
+        }
+
         try {
             await onSubmit(validation.data);
         } catch (err) {
@@ -64,6 +79,7 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
         : 0;
 
     const selectedRoom = rooms.find((r) => r.id === formData.roomId);
+    const selectedRoomUnavailable = Boolean(requireAvailableRoom && selectedRoom && (!selectedRoom.active || selectedRoom.status !== "AVAILABLE"));
     const estimatedPrice = selectedRoom ? nights * selectedRoom.pricePerNight : 0;
 
     return (
@@ -89,7 +105,7 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
                     >
                         <option value="0">Sélectionner une chambre</option>
                         {rooms
-                            .filter((r) => r.active && (r.status === "AVAILABLE" || r.id === formData.roomId))
+                            .filter((r) => r.active && (r.status === "AVAILABLE" || (!requireAvailableRoom && r.id === formData.roomId)))
                             .map((room) => (
                                 <option key={room.id} value={room.id}>
                                     Chambre {room.number} — {room.type} — {room.pricePerNight} DH/nuit
@@ -152,6 +168,15 @@ export function ReservationForm({ initialData, onSubmit, onCancel, isLoading, su
                             {nights} nuit{nights > 1 ? "s" : ""} × {selectedRoom.pricePerNight} DH ={" "}
                             <span className="text-emerald-600">{estimatedPrice} DH</span>
                         </p>
+                    </div>
+                )}
+
+                {selectedRoomUnavailable && (
+                    <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.8} />
+                        <span className="font-medium">
+                            Cette chambre n’est pas disponible. Sélectionnez une chambre disponible pour créer une réservation.
+                        </span>
                     </div>
                 )}
             </HmsCard>

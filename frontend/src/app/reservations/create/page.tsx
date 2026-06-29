@@ -49,6 +49,7 @@ export default function CreateReservationPage() {
                 onCancel={handleCancel}
                 isLoading={isSubmitting}
                 submitLabel="Créer la réservation"
+                requireAvailableRoom
             />
         </AppLayout>
     );
