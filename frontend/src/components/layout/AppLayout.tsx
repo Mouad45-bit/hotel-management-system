@@ -1,7 +1,10 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { PageHeader } from "./PageHeader";
+import { RoleGuard } from "@/components/rbac/RoleGuard";
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -18,8 +21,10 @@ export function AppLayout({ children, title, description }: AppLayoutProps) {
                 <Topbar />
 
                 <main className="mx-auto max-w-7xl space-y-8 px-6 py-8">
-                    {title && <PageHeader title={title} description={description} />}
-                    {children}
+                    <RoleGuard>
+                        {title && <PageHeader title={title} description={description} />}
+                        {children}
+                    </RoleGuard>
                 </main>
             </div>
         </div>

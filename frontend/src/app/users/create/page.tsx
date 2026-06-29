@@ -15,7 +15,6 @@ const ROLES = [
     { value: "MANAGER", label: "Manager" },
     { value: "RECEPTIONIST", label: "Réceptionniste" },
     { value: "HOUSEKEEPING_AGENT", label: "Agent Housekeeping" },
-    { value: "HR", label: "Ressources Humaines" },
 ];
 
 export default function CreateUserPage() {

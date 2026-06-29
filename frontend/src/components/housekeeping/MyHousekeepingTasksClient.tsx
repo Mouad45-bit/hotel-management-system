@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
-    Ban,
     CheckCircle2,
     Eye,
     FileText,
@@ -19,21 +19,17 @@ import { HousekeepingStatusBadge } from "@/components/housekeeping/HousekeepingS
 import { PriorityBadge } from "@/components/housekeeping/PriorityBadge";
 import { TaskTypeBadge } from "@/components/housekeeping/TaskTypeBadge";
 import {
-    canCancelTask,
     canCompleteTask,
     canStartTask,
 } from "@/lib/housekeepingHelpers";
 import {
-    cancelHousekeepingTask,
     completeHousekeepingTask,
     getHousekeepingTasksByAgentId,
     startHousekeepingTask,
 } from "@/services/housekeepingApi";
 import type { HousekeepingTask } from "@/types/housekeeping";
-
-interface MyHousekeepingTasksClientProps {
-    agentId: number;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import { getEmployees } from "@/services/staffApi";
 
 interface MyTasksTableProps {
     tasks: HousekeepingTask[];
@@ -42,7 +38,6 @@ interface MyTasksTableProps {
     actionLoadingId?: number | null;
     onStart?: (task: HousekeepingTask) => void;
     onComplete?: (task: HousekeepingTask) => void;
-    onCancel?: (task: HousekeepingTask) => void;
 }
 
 function formatAssignedTaskCount(count: number) {
@@ -56,7 +51,6 @@ function MyTasksTable({
     actionLoadingId = null,
     onStart,
     onComplete,
-    onCancel,
 }: MyTasksTableProps) {
     if (loading && tasks.length === 0) {
         return (
@@ -172,18 +166,6 @@ function MyTasksTable({
 
                                 <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
                                     <div className="flex justify-end gap-1.5">
-                                        {canCancelTask(task) && onCancel && (
-                                            <button
-                                                type="button"
-                                                onClick={() => onCancel(task)}
-                                                disabled={disabled}
-                                                className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-red-200 bg-white text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                                                aria-label={`Annuler la tâche ${task.id}`}
-                                                title="Annuler"
-                                            >
-                                                <Ban aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                            </button>
-                                        )}
                                         {canStartTask(task) && onStart && (
                                             <button
                                                 type="button"
@@ -227,19 +209,44 @@ function MyTasksTable({
     );
 }
 
-export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClientProps) {
+const DEMO_HOUSEKEEPING_AGENT_ID = 101;
+
+export function MyHousekeepingTasksClient() {
+    const { user } = useAuth();
+    const searchParams = useSearchParams();
     const [tasks, setTasks] = useState<HousekeepingTask[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [agentId, setAgentId] = useState<number | null>(null);
+    const hasUnauthorizedMessage = searchParams.get("unauthorized") === "1";
+
+    useEffect(() => {
+        if (!user) return;
+
+        getEmployees({ page: 0, size: 1000 })
+            .then((employeesPage) => {
+                const linkedEmployee = employeesPage.content.find(
+                    (employee) => employee.authUserId === user.id
+                );
+                setAgentId(linkedEmployee?.id ?? DEMO_HOUSEKEEPING_AGENT_ID);
+            })
+            .catch(() => setAgentId(DEMO_HOUSEKEEPING_AGENT_ID));
+    }, [user]);
 
     async function loadTasks() {
+        if (!agentId) return;
         setIsLoading(true);
         setErrorMessage(null);
 
         try {
             const agentTasks = await getHousekeepingTasksByAgentId(agentId);
-            setTasks(agentTasks);
+            const statusFilter = searchParams.get("status");
+            setTasks(
+                statusFilter === "TODO" || statusFilter === "IN_PROGRESS"
+                    ? agentTasks.filter((task) => task.status === statusFilter)
+                    : agentTasks
+            );
         } catch (error) {
             setErrorMessage(
                 error instanceof Error
@@ -257,7 +264,7 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
         }, 0);
 
         return () => window.clearTimeout(timeoutId);
-    }, [agentId]);
+    }, [agentId, searchParams]);
 
     async function runAction(
         task: HousekeepingTask,
@@ -281,10 +288,15 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
     return (
         <div className="space-y-8">
             <PageHeader
-                backHref="/housekeeping"
                 title="Mes tâches"
                 description="Suivez vos tâches assignées et mettez à jour leur avancement."
             />
+
+            {hasUnauthorizedMessage && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                    Accès non autorisé. Cette tâche ne vous est pas affectée.
+                </div>
+            )}
 
             {errorMessage && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -322,13 +334,6 @@ export function MyHousekeepingTasksClient({ agentId }: MyHousekeepingTasksClient
                     onStart={(task) => void runAction(task, () => startHousekeepingTask(task.id))}
                     onComplete={(task) =>
                         void runAction(task, () => completeHousekeepingTask(task.id))
-                    }
-                    onCancel={(task) =>
-                        void runAction(task, () =>
-                            cancelHousekeepingTask(task.id, {
-                                reason: "Annulation depuis My tasks.",
-                            })
-                        )
                     }
                 />
             </HmsCard>

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const reservationSchema = z.object({
-    roomId: z.number({ required_error: "La chambre est obligatoire" }).min(1, "La chambre est obligatoire"),
-    clientId: z.number({ required_error: "Le client est obligatoire" }).min(1, "Le client est obligatoire"),
+    roomId: z.number("La chambre est obligatoire").min(1, "La chambre est obligatoire"),
+    clientId: z.number("Le client est obligatoire").min(1, "Le client est obligatoire"),
     checkInDate: z.string().min(1, "La date d'arrivée est obligatoire"),
     checkOutDate: z.string().min(1, "La date de départ est obligatoire"),
     notes: z.string().optional().or(z.literal("")),

@@ -30,6 +30,10 @@ interface HousekeepingTaskTableProps {
     onStart?: (task: HousekeepingTask) => void;
     onComplete?: (task: HousekeepingTask) => void;
     onCancel?: (task: HousekeepingTask) => void;
+    canAssign?: boolean;
+    canStart?: boolean;
+    canComplete?: boolean;
+    canCancel?: boolean;
 }
 
 export function HousekeepingTaskTable({
@@ -41,6 +45,10 @@ export function HousekeepingTaskTable({
     onStart,
     onComplete,
     onCancel,
+    canAssign = true,
+    canStart = true,
+    canComplete = true,
+    canCancel = true,
 }: HousekeepingTaskTableProps) {
     if (loading && tasks.length === 0) {
         return (
@@ -156,7 +164,7 @@ export function HousekeepingTaskTable({
 
                                 <td className="whitespace-nowrap border-b border-[var(--hms-soft-border)] px-3 py-3 text-right align-top">
                                     <div className="flex justify-end gap-1.5">
-                                        {canCancelTask(task) && onCancel && (
+                                        {canCancel && canCancelTask(task) && onCancel && (
                                             <button
                                                 type="button"
                                                 onClick={() => onCancel(task)}
@@ -168,7 +176,7 @@ export function HousekeepingTaskTable({
                                                 <Ban aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                             </button>
                                         )}
-                                        {canAssignTask(task) && onAssign && (
+                                        {canAssign && canAssignTask(task) && onAssign && (
                                             <button
                                                 type="button"
                                                 onClick={() => onAssign(task)}
@@ -180,7 +188,7 @@ export function HousekeepingTaskTable({
                                                 <UserPlus aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                             </button>
                                         )}
-                                        {canStartTask(task) && onStart && (
+                                        {canStart && canStartTask(task) && onStart && (
                                             <button
                                                 type="button"
                                                 onClick={() => onStart(task)}
@@ -192,7 +200,7 @@ export function HousekeepingTaskTable({
                                                 <Play aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                                             </button>
                                         )}
-                                        {canCompleteTask(task) && onComplete && (
+                                        {canComplete && canCompleteTask(task) && onComplete && (
                                             <button
                                                 type="button"
                                                 onClick={() => onComplete(task)}

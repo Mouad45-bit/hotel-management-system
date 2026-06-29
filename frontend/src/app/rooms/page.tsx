@@ -15,10 +15,13 @@ import { RoomTable } from "@/components/rooms/RoomTable";
 import { DeleteRoomDialog } from "@/components/rooms/DeleteRoomDialog";
 import { RoomStatsCards } from "@/components/rooms/RoomStatsCards";
 import { ActivateRoomDialog } from "@/components/rooms/ActivateRoomDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { canPerformAction } from "@/lib/rbac";
 
 const PAGE_SIZE = 10;
 
 export default function RoomsPage() {
+    const { user } = useAuth();
     const [rooms, setRooms] = useState<Room[]>([]);
     const [stats, setStats] = useState<RoomStats | null>(null);
     const [isLoading, setLoading] = useState(true);
@@ -32,6 +35,10 @@ export default function RoomsPage() {
 
     const [roomToActivate, setRoomToActivate] = useState<Room | null>(null);
     const [isActivating, setIsActivating] = useState(false);
+    const canCreateRoom = canPerformAction(user?.role, "rooms:create");
+    const canDeactivateRoom = canPerformAction(user?.role, "rooms:deactivate");
+    const canActivateRoom = canPerformAction(user?.role, "rooms:activate");
+    const canEditRoom = canPerformAction(user?.role, "rooms:edit");
 
     const loadData = useCallback(async (activeFilters: FilterTypes, isInactive: boolean) => {
         setLoading(true);
@@ -118,19 +125,23 @@ export default function RoomsPage() {
                 description="Suivez les chambres, leurs statuts et leur disponibilité."
                 actions={
                     <>
-                        <HmsButton
-                            variant="secondary"
-                            onClick={handleInactiveToggle}
-                            className={showInactive ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : undefined}
-                        >
-                            {showInactive ? "Retour aux actives" : "Chambres désactivées"}
-                        </HmsButton>
-                        <Link href="/rooms/create">
-                            <HmsButton>
-                                <Plus className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-                                Nouvelle chambre
+                        {(canDeactivateRoom || canActivateRoom) && (
+                            <HmsButton
+                                variant="secondary"
+                                onClick={handleInactiveToggle}
+                                className={showInactive ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : undefined}
+                            >
+                                {showInactive ? "Retour aux actives" : "Chambres désactivées"}
                             </HmsButton>
-                        </Link>
+                        )}
+                        {canCreateRoom && (
+                            <Link href="/rooms/create">
+                                <HmsButton>
+                                    <Plus className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                                    Nouvelle chambre
+                                </HmsButton>
+                            </Link>
+                        )}
                     </>
                 }
             />
@@ -185,6 +196,9 @@ export default function RoomsPage() {
                             emptyMessage="Aucune chambre ne correspond aux filtres."
                             onDeleteClick={setRoomToDelete}
                             onActivateClick={setRoomToActivate}
+                            canEdit={canEditRoom}
+                            canDeactivate={canDeactivateRoom}
+                            canActivate={canActivateRoom}
                         />
 
                         <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">

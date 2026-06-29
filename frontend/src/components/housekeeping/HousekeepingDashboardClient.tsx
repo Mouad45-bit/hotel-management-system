@@ -6,7 +6,6 @@ import {
     ClipboardList,
     Plus,
     TriangleAlert,
-    UserRoundCheck,
     UserRoundPlus,
 } from "lucide-react";
 import { HmsButton } from "@/components/hms/HmsButton";
@@ -57,12 +56,6 @@ export function HousekeepingDashboardClient() {
                 description="Suivez les chambres à nettoyer, les priorités du jour et les tâches à affecter avant remise en vente."
                 actions={
                     <>
-                        <Link href="/housekeeping/my-tasks">
-                            <HmsButton variant="secondary">
-                                <UserRoundCheck aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
-                                Mes tâches
-                            </HmsButton>
-                        </Link>
                         <Link href="/housekeeping/tasks">
                             <HmsButton variant="secondary">
                                 <ClipboardList aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />

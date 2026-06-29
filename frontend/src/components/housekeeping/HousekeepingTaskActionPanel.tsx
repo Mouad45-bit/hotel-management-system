@@ -34,6 +34,8 @@ import type {
     HousekeepingAgentOption,
     HousekeepingTask,
 } from "@/types/housekeeping";
+import { useAuth } from "@/contexts/AuthContext";
+import { canPerformAction } from "@/lib/rbac";
 
 interface HousekeepingTaskActionPanelProps {
     task: HousekeepingTask;
@@ -95,6 +97,7 @@ export function HousekeepingTaskActionPanel({
     task,
     onTaskUpdated,
 }: HousekeepingTaskActionPanelProps) {
+    const { user } = useAuth();
     const [agents, setAgents] = useState<HousekeepingAgentOption[]>([]);
     const [activeModal, setActiveModal] = useState<ActiveHousekeepingModal>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -149,10 +152,10 @@ export function HousekeepingTaskActionPanel({
         );
     }
 
-    const assignAllowed = canAssignTask(task) && !task.assignedAgentId;
-    const startAllowed = canStartTask(task);
-    const completeAllowed = canCompleteTask(task);
-    const cancelAllowed = canCancelTask(task);
+    const assignAllowed = canPerformAction(user?.role, "housekeeping:assign-agent") && canAssignTask(task) && !task.assignedAgentId;
+    const startAllowed = canPerformAction(user?.role, "housekeeping:start-task") && canStartTask(task);
+    const completeAllowed = canPerformAction(user?.role, "housekeeping:complete-task") && canCompleteTask(task);
+    const cancelAllowed = canPerformAction(user?.role, "housekeeping:cancel-task") && canCancelTask(task);
     const hasActions = assignAllowed || startAllowed || completeAllowed || cancelAllowed;
 
     return (

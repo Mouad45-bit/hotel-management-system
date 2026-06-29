@@ -9,6 +9,9 @@ interface RoomTableProps {
     emptyMessage?: string;
     onDeleteClick: (room: Room) => void;
     onActivateClick?: (room: Room) => void;
+    canEdit?: boolean;
+    canDeactivate?: boolean;
+    canActivate?: boolean;
 }
 
 const TYPE_LABELS: Record<RoomType, string> = {
@@ -22,6 +25,9 @@ export function RoomTable({
     emptyMessage = "Aucune chambre trouvée.",
     onDeleteClick,
     onActivateClick,
+    canEdit = true,
+    canDeactivate = true,
+    canActivate = true,
 }: RoomTableProps) {
     if (loading && rooms.length === 0) {
         return (
@@ -102,15 +108,17 @@ export function RoomTable({
                                     >
                                         <Eye className="h-4 w-4" strokeWidth={1.8} />
                                     </Link>
-                                    <Link
-                                        href={`/rooms/${room.id}/edit`}
-                                        className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
-                                        aria-label={`Modifier la chambre ${room.number}`}
-                                        title="Modifier"
-                                    >
-                                        <Pencil className="h-4 w-4" strokeWidth={1.8} />
-                                    </Link>
-                                    {room.active ? (
+                                    {canEdit && (
+                                        <Link
+                                            href={`/rooms/${room.id}/edit`}
+                                            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--hms-border)] bg-white text-[var(--hms-text-muted)] transition-colors hover:bg-slate-50 hover:text-[var(--hms-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
+                                            aria-label={`Modifier la chambre ${room.number}`}
+                                            title="Modifier"
+                                        >
+                                            <Pencil className="h-4 w-4" strokeWidth={1.8} />
+                                        </Link>
+                                    )}
+                                    {room.active ? canDeactivate && (
                                         <button
                                             type="button"
                                             onClick={() => onDeleteClick(room)}
@@ -120,7 +128,7 @@ export function RoomTable({
                                         >
                                             <Power className="h-4 w-4" strokeWidth={1.8} />
                                         </button>
-                                    ) : (
+                                    ) : canActivate && (
                                         <button
                                             type="button"
                                             onClick={() => onActivateClick?.(room)}

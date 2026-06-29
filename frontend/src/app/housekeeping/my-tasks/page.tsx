@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 export default function MyHousekeepingTasksPage() {
     return (
         <AppLayout>
-            <MyHousekeepingTasksClient agentId={101} />
+            <MyHousekeepingTasksClient />
         </AppLayout>
     );
 }

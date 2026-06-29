@@ -6,6 +6,7 @@ import {
     BedDouble,
     Building2,
     CalendarDays,
+    ClipboardList,
     FileText,
     LayoutGrid,
     LogOut,
@@ -16,21 +17,24 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { getRoleLabel, getSidebarItemsForRole } from "@/lib/rbac";
 
-const navigation = [
-    { name: "Accueil", href: "/", icon: LayoutGrid },
-    { name: "Chambres", href: "/rooms", icon: BedDouble, soon: false },
-    { name: "Clients", href: "/clients", icon: Users, soon: false },
-    { name: "Réservations", href: "/reservations", icon: CalendarDays, soon: false },
-    { name: "Factures", href: "/invoices", icon: FileText, soon: false },
-    { name: "Housekeeping", href: "/housekeeping", icon: Sparkles, soon: false },
-    { name: "Personnel", href: "/staff", icon: UserRoundCog, soon: false },
-    { name: "Comptes système", href: "/users", icon: Shield, soon: false, adminOnly: true },
-];
+const ICONS = {
+    BedDouble,
+    CalendarDays,
+    ClipboardList,
+    FileText,
+    LayoutGrid,
+    Shield,
+    Sparkles,
+    UserRoundCog,
+    Users,
+};
 
 export function Sidebar() {
     const pathname = usePathname();
     const { user, logout } = useAuth();
+    const navigation = getSidebarItemsForRole(user?.role);
 
     return (
         <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-[var(--hms-border)] bg-[var(--hms-surface)] lg:flex lg:flex-col">
@@ -45,15 +49,14 @@ export function Sidebar() {
 
             <nav className="flex-1 space-y-1 px-3 py-2">
                 {navigation
-                    .filter((item) => !("adminOnly" in item && item.adminOnly) || user?.role === "ADMIN")
                     .map((item) => {
-                        const Icon = item.icon;
+                        const Icon = ICONS[item.icon as keyof typeof ICONS] ?? LayoutGrid;
                         const active = item.href !== "#" && pathname.startsWith(item.href) && item.href !== "/";
                         const isRoot = item.href === "/" && pathname === "/";
 
                         return (
                             <Link
-                                key={item.name}
+                                key={item.id}
                                 href={item.href}
                                 className={cn(
                                     "flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
@@ -63,7 +66,7 @@ export function Sidebar() {
                                 )}
                             >
                                 <Icon className="h-5 w-5" strokeWidth={1.8} />
-                                {item.name}
+                                {item.label}
                             </Link>
                         );
                     })}
@@ -76,7 +79,7 @@ export function Sidebar() {
                             <p className="truncate text-sm font-semibold text-[var(--hms-text)]">
                                 {user.firstName} {user.lastName}
                             </p>
-                            <p className="truncate text-xs text-[var(--hms-text-muted)]">{user.role}</p>
+                            <p className="truncate text-xs text-[var(--hms-text-muted)]">{getRoleLabel(user.role)}</p>
                         </div>
                         <button
                             type="button"

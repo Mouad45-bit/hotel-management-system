@@ -36,6 +36,8 @@ import {
     type HousekeepingTaskFiltersState,
     type PageResponse,
 } from "@/types/housekeeping";
+import { useAuth } from "@/contexts/AuthContext";
+import { canPerformAction } from "@/lib/rbac";
 
 const PAGE_SIZE = 8;
 
@@ -72,6 +74,7 @@ function formatTaskCount(count: number, singularSuffix: string, pluralSuffix = `
 }
 
 export function HousekeepingTasksListClient() {
+    const { user } = useAuth();
     const [filters, setFilters] = useState<HousekeepingTaskFiltersState>(
         DEFAULT_HOUSEKEEPING_FILTERS
     );
@@ -205,6 +208,11 @@ export function HousekeepingTasksListClient() {
     }
 
     const tasks = pageResponse?.content ?? [];
+    const canCreateTask = canPerformAction(user?.role, "housekeeping:create-task");
+    const canAssignAgent = canPerformAction(user?.role, "housekeeping:assign-agent");
+    const canStartTaskAction = canPerformAction(user?.role, "housekeeping:start-task");
+    const canCompleteTaskAction = canPerformAction(user?.role, "housekeeping:complete-task");
+    const canCancelTaskAction = canPerformAction(user?.role, "housekeeping:cancel-task");
 
     return (
         <div className="space-y-8">
@@ -212,14 +220,14 @@ export function HousekeepingTasksListClient() {
                 backHref="/housekeeping"
                 title="Tâches housekeeping"
                 description="Suivez les tâches liées aux chambres, leur priorité, leur agent et leur statut opérationnel."
-                actions={
+                actions={canCreateTask && (
                     <Link href="/housekeeping/tasks/create">
                         <HmsButton>
                             <Plus aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
                             Créer une tâche
                         </HmsButton>
                     </Link>
-                }
+                )}
             />
 
             <HousekeepingStatsCards stats={stats} loading={isLoading} />
@@ -268,11 +276,15 @@ export function HousekeepingTasksListClient() {
                     loading={isLoading}
                     actionLoadingId={actionLoadingId}
                     emptyMessage="Aucune tâche ne correspond aux filtres."
-                    onAssign={handleAssign}
-                    onStart={handleStart}
-                    onComplete={handleComplete}
-                    onCancel={handleCancel}
-                />
+                        onAssign={handleAssign}
+                        onStart={handleStart}
+                        onComplete={handleComplete}
+                        onCancel={handleCancel}
+                        canAssign={canAssignAgent}
+                        canStart={canStartTaskAction}
+                        canComplete={canCompleteTaskAction}
+                        canCancel={canCancelTaskAction}
+                    />
 
                 <div className="flex items-center justify-between border-t border-[var(--hms-soft-border)] px-6 py-5">
                     <p className="text-sm text-[var(--hms-text-muted)]">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, TriangleAlert } from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { HousekeepingTaskActionPanel } from "@/components/housekeeping/HousekeepingTaskActionPanel";
@@ -10,19 +11,47 @@ import { HousekeepingTaskInfoCards } from "@/components/housekeeping/Housekeepin
 import { HousekeepingTaskTimeline } from "@/components/housekeeping/HousekeepingTaskTimeline";
 import { getHousekeepingTaskById } from "@/services/housekeepingApi";
 import type { HousekeepingTask } from "@/types/housekeeping";
+import { useAuth } from "@/contexts/AuthContext";
+import { getEmployees } from "@/services/staffApi";
 
 interface HousekeepingTaskDetailClientProps {
     taskId: number;
 }
 
+const DEMO_HOUSEKEEPING_AGENT_ID = 101;
+
 export function HousekeepingTaskDetailClient({
     taskId,
 }: HousekeepingTaskDetailClientProps) {
+    const { user } = useAuth();
+    const router = useRouter();
     const [task, setTask] = useState<HousekeepingTask | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [agentId, setAgentId] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!user || user.role !== "HOUSEKEEPING_AGENT") {
+            setAgentId(null);
+            return;
+        }
+
+        getEmployees({ page: 0, size: 1000 })
+            .then((employeesPage) => {
+                const linkedEmployee = employeesPage.content.find(
+                    (employee) => employee.authUserId === user.id
+                );
+                setAgentId(linkedEmployee?.id ?? DEMO_HOUSEKEEPING_AGENT_ID);
+            })
+            .catch(() => setAgentId(DEMO_HOUSEKEEPING_AGENT_ID));
+    }, [user]);
 
     async function loadTask() {
+        if (user?.role === "HOUSEKEEPING_AGENT" && !agentId) {
+            setIsLoading(true);
+            return;
+        }
+
         if (!Number.isFinite(taskId) || taskId <= 0) {
             setTask(null);
             setErrorMessage("Identifiant de tâche invalide.");
@@ -35,6 +64,14 @@ export function HousekeepingTaskDetailClient({
 
         try {
             const loadedTask = await getHousekeepingTaskById(taskId);
+            if (
+                user?.role === "HOUSEKEEPING_AGENT" &&
+                agentId &&
+                loadedTask.assignedAgentId !== agentId
+            ) {
+                router.replace("/housekeeping/my-tasks?unauthorized=1");
+                return;
+            }
             setTask(loadedTask);
         } catch (error) {
             setErrorMessage(
@@ -53,7 +90,7 @@ export function HousekeepingTaskDetailClient({
         }, 0);
 
         return () => window.clearTimeout(timeoutId);
-    }, [taskId]);
+    }, [agentId, router, taskId, user?.role]);
 
     if (isLoading) {
         return (
@@ -78,7 +115,7 @@ export function HousekeepingTaskDetailClient({
         return (
             <div className="space-y-6">
                 <Link
-                    href="/housekeeping/tasks"
+                    href={user?.role === "HOUSEKEEPING_AGENT" ? "/housekeeping/my-tasks" : "/housekeeping/tasks"}
                     className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--hms-border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--hms-text)] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hms-focus)] focus-visible:ring-offset-2"
                 >
                     <ArrowLeft aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
