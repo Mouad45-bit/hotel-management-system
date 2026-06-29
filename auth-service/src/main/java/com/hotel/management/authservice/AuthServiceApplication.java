@@ -44,6 +44,73 @@ public class AuthServiceApplication {
                         .build();
                 userRepository.save(mouad);
             }
+
+            seedUserIfMissing(
+                    userRepository,
+                    passwordEncoder,
+                    "admin.test",
+                    "admin.test@hotel.com",
+                    "Admin@123",
+                    "Sara",
+                    "El Amrani",
+                    Role.ADMIN
+            );
+            seedUserIfMissing(
+                    userRepository,
+                    passwordEncoder,
+                    "manager.test",
+                    "manager.test@hotel.com",
+                    "Manager@123",
+                    "Youssef",
+                    "Bennani",
+                    Role.MANAGER
+            );
+            seedUserIfMissing(
+                    userRepository,
+                    passwordEncoder,
+                    "reception.test",
+                    "reception.test@hotel.com",
+                    "Reception@123",
+                    "Salma",
+                    "Idrissi",
+                    Role.RECEPTIONIST
+            );
+            seedUserIfMissing(
+                    userRepository,
+                    passwordEncoder,
+                    "housekeeping.test",
+                    "housekeeping.test@hotel.com",
+                    "Housekeeping@123",
+                    "Hamza",
+                    "Alaoui",
+                    Role.HOUSEKEEPING_AGENT
+            );
         };
+    }
+
+    private void seedUserIfMissing(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            String username,
+            String email,
+            String password,
+            String firstName,
+            String lastName,
+            Role role
+    ) {
+        if (userRepository.existsByUsername(username)) {
+            return;
+        }
+
+        User user = User.builder()
+                .username(username)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .firstName(firstName)
+                .lastName(lastName)
+                .role(role)
+                .build();
+
+        userRepository.save(user);
     }
 }
