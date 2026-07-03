@@ -34,7 +34,7 @@ export default function LoginPage() {
                         <Building2 className="h-8 w-8" strokeWidth={1.8} />
                     </div>
                     <h1 className="text-2xl font-bold text-[var(--hms-text)]">HMS</h1>
-                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">Connectez-vous pour accéder au système</p>
+                    <p className="mt-1 text-sm text-[var(--hms-text-muted)]">Maison Lumière · Back-office</p>
                 </div>
 
                 <form
@@ -76,7 +76,7 @@ export default function LoginPage() {
                 </form>
 
                 <p className="mt-6 text-center text-xs text-[var(--hms-text-muted)]">
-                    Hotel Management System &copy; 2026
+                    Maison Lumière · HMS &copy; 2026
                 </p>
             </div>
         </div>

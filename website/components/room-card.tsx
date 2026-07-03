@@ -33,7 +33,7 @@ export function RoomCard({ room, showDetails = false }: RoomCardProps) {
             <p className="mt-1 text-sm text-muted-foreground">N° {room.number}</p>
           </div>
           <div className="text-right">
-            <p className="font-serif text-2xl text-gold">{room.pricePerNight} €</p>
+            <p className="font-serif text-2xl text-gold">{room.pricePerNight} DH</p>
             <p className="text-xs text-muted-foreground">/ nuit</p>
           </div>
         </div>

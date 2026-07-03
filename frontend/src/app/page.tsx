@@ -1,31 +1,46 @@
-import { HmsButton } from "@/components/hms/HmsButton";
+"use client";
+
+import Link from "next/link";
+import { BedDouble, CalendarDays, FileText, Sparkles, UserRoundCog, Users } from "lucide-react";
 import { HmsCard } from "@/components/hms/HmsCard";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { useAuth } from "@/contexts/AuthContext";
+
+const modules = [
+    { name: "Chambres", href: "/rooms", icon: BedDouble, description: "Inventaire et statut des chambres" },
+    { name: "Clients", href: "/clients", icon: Users, description: "Fiches clients et historique" },
+    { name: "Réservations", href: "/reservations", icon: CalendarDays, description: "Suivi des séjours" },
+    { name: "Factures", href: "/invoices", icon: FileText, description: "Facturation et paiements" },
+    { name: "Housekeeping", href: "/housekeeping", icon: Sparkles, description: "Tâches de ménage" },
+    { name: "Personnel", href: "/staff", icon: UserRoundCog, description: "Gestion des employés" },
+];
 
 export default function HomePage() {
+    const { user } = useAuth();
+
     return (
-        <AppLayout
-            title="Dashboard"
-            description="Vue générale du système de gestion hôtelière"
-        >
-            <HmsCard>
-                <p className="text-sm font-medium text-[var(--hms-text-muted)]">Bienvenue dans HMS</p>
+        <AppLayout>
+            <PageHeader
+                title={`Bonjour${user?.firstName ? `, ${user.firstName}` : ""}`}
+                description="Bienvenue dans le back-office de Maison Lumière. Accédez rapidement à vos modules."
+            />
 
-                <h2 className="mt-2 text-2xl font-bold tracking-tight text-[var(--hms-text)]">
-                    Système de gestion d&apos;hôtel
-                </h2>
-
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--hms-text-muted)]">
-                    Le premier module démontrable sera la gestion des chambres. Cette
-                    interface servira de base visuelle pour les prochains modules.
-                </p>
-
-                <div className="mt-6">
-                    <a href="/rooms">
-                        <HmsButton>Ouvrir le module Chambres</HmsButton>
-                    </a>
-                </div>
-            </HmsCard>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {modules.map(({ name, href, icon: Icon, description }) => (
+                    <Link key={href} href={href}>
+                        <HmsCard className="flex items-center gap-4 transition-shadow hover:shadow-md">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--hms-primary)] text-white">
+                                <Icon className="h-6 w-6" strokeWidth={1.8} />
+                            </div>
+                            <div>
+                                <p className="font-semibold text-[var(--hms-text)]">{name}</p>
+                                <p className="text-xs text-[var(--hms-text-muted)]">{description}</p>
+                            </div>
+                        </HmsCard>
+                    </Link>
+                ))}
+            </div>
         </AppLayout>
     );
 }

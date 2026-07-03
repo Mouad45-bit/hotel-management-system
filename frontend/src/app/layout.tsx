@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "HMS - Hotel Management System",
-    description: "Frontend application for the Hotel Management System",
+    title: "HMS · Maison Lumière",
+    description: "Back-office de gestion hôtelière — Maison Lumière",
 };
 
 export default function RootLayout({

@@ -18,7 +18,6 @@ export const metadata: Metadata = {
   title: 'Maison Lumière — Hôtel 5 Étoiles',
   description:
     "L'art de recevoir. Découvrez Maison Lumière, un hôtel 5 étoiles où le luxe rencontre l'élégance intemporelle.",
-  generator: 'v0.app',
 }
 
 export const viewport: Viewport = {

@@ -11,6 +11,7 @@ const TYPES: Array<{ value: RoomType | 'all'; label: string }> = [
   { value: 'all', label: 'Tous les types' },
   { value: 'SINGLE', label: 'Simple' },
   { value: 'DOUBLE', label: 'Double' },
+  { value: 'TWIN', label: 'Twin' },
   { value: 'SUITE', label: 'Suite' },
   { value: 'DELUXE', label: 'Deluxe' },
   { value: 'FAMILY', label: 'Familiale' },

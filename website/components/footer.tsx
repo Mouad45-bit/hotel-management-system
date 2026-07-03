@@ -55,11 +55,11 @@ export function Footer() {
             <ul className="mt-5 space-y-4 text-sm text-muted-foreground">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-gold" />
-                <span>12 Avenue des Lumières, 75008 Paris, France</span>
+                <span>12 Avenue des Lumières, Casablanca, Maroc</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-4 shrink-0 text-gold" />
-                <span>+33 1 42 00 00 00</span>
+                <span>+212 5 22 00 00 00</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="size-4 shrink-0 text-gold" />

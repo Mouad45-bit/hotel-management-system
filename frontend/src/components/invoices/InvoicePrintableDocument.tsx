@@ -30,19 +30,19 @@ export function InvoicePrintableDocument({
 
                         <div>
                             <p className="text-lg font-bold tracking-tight text-[var(--hms-text)]">
-                                Hotel Management System
+                                Maison Lumière
                             </p>
 
                             <p className="mt-1 text-sm leading-6 text-[var(--hms-text-muted)]">
-                                Gestion hôtelière · Facturation · Paiements
+                                Hôtel 5 étoiles · Facturation
                             </p>
                         </div>
                     </div>
 
                     <div className="mt-6 space-y-1 text-sm leading-6 text-[var(--hms-text-muted)]">
                         <p>Adresse : Casablanca, Maroc</p>
-                        <p>Téléphone : +212 5 00 00 00 00</p>
-                        <p>Email : billing@hms.local</p>
+                        <p>Téléphone : +212 5 22 00 00 00</p>
+                        <p>Email : contact@maison-lumiere.fr</p>
                     </div>
                 </div>
 

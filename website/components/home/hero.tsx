@@ -22,7 +22,7 @@ export function Hero() {
           ))}
         </div>
         <span className="mt-6 inline-block text-xs uppercase tracking-[0.4em] text-gold-soft">
-          Hôtel 5 étoiles · Paris
+          Hôtel 5 étoiles · Casablanca
         </span>
         <h1 className="mt-6 text-balance font-serif text-5xl leading-[1.05] text-cream sm:text-6xl lg:text-7xl">
           L&apos;art de recevoir, l&apos;élégance d&apos;un séjour inoubliable

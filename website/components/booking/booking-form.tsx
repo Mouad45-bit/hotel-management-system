@@ -51,7 +51,6 @@ export function BookingForm({ room }: { room: Room }) {
 
   const nights = useMemo(() => nightsBetween(checkIn, checkOut), [checkIn, checkOut])
   const total = nights * room.pricePerNight
-  const taxes = Math.round(total * 0.1)
 
   const update = (key: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -131,7 +130,7 @@ export function BookingForm({ room }: { room: Room }) {
             <div>
               <label htmlFor="ph" className={labelClass}>Téléphone</label>
               <input id="ph" type="tel" value={form.phone} onChange={update('phone')}
-                className={fieldClass} placeholder="+33 6 12 34 56 78" required />
+                className={fieldClass} placeholder="+212 6 12 34 56 78" required />
             </div>
           </div>
           <div className="mt-5">
@@ -216,16 +215,12 @@ export function BookingForm({ room }: { room: Room }) {
 
             <div className="mt-6 space-y-3 border-t border-border pt-6 text-sm">
               <div className="flex items-center justify-between text-muted-foreground">
-                <span>{room.pricePerNight} € × {nights} nuit{nights > 1 ? 's' : ''}</span>
-                <span className="text-cream">{total} €</span>
-              </div>
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span>Taxes &amp; services (10%)</span>
-                <span className="text-cream">{taxes} €</span>
+                <span>{room.pricePerNight} DH × {nights} nuit{nights > 1 ? 's' : ''}</span>
+                <span className="text-cream">{total} DH</span>
               </div>
               <div className="flex items-center justify-between border-t border-border pt-4">
                 <span className="font-serif text-lg text-cream">Total</span>
-                <span className="font-serif text-2xl text-gold">{total + taxes} €</span>
+                <span className="font-serif text-2xl text-gold">{total} DH</span>
               </div>
             </div>
 
@@ -234,7 +229,7 @@ export function BookingForm({ room }: { room: Room }) {
               {submitting ? (
                 <><Loader2 className="size-4 animate-spin" /> Traitement…</>
               ) : (
-                <>Confirmer et payer {total + taxes} €</>
+                <>Confirmer et payer {total} DH</>
               )}
             </button>
             <p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">

@@ -38,7 +38,7 @@ export function BookingDetails({ booking }: { booking: Booking }) {
             <div>
               <h3 className="font-serif text-2xl text-cream">Chambre {ROOM_TYPE_LABELS[booking.room.type] ?? booking.room.type}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                N° {booking.room.number} · Étage {booking.room.floor}
+                N° {booking.room.number}{booking.room.floor > 0 && ` · Étage ${booking.room.floor}`}
               </p>
             </div>
             <span className="rounded-full border border-gold/40 px-3 py-1 text-xs uppercase tracking-[0.15em] text-gold">
@@ -59,7 +59,7 @@ export function BookingDetails({ booking }: { booking: Booking }) {
 
           <div className="mt-6 flex items-center justify-between border-t border-border pt-6">
             <span className="text-sm text-muted-foreground">Total payé</span>
-            <span className="font-serif text-2xl text-gold">{booking.total} €</span>
+            <span className="font-serif text-2xl text-gold">{booking.total} DH</span>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
-    { name: "Vue générale", href: "/", icon: LayoutGrid, soon: true },
+    { name: "Vue générale", href: "/", icon: LayoutGrid, soon: false },
     { name: "Chambres", href: "/rooms", icon: BedDouble, soon: false },
     { name: "Clients", href: "/clients", icon: Users, soon: false },
     { name: "Réservations", href: "/reservations", icon: CalendarDays, soon: false },
@@ -49,7 +49,7 @@ export function Sidebar() {
                 <div>
                     <p className="text-lg font-bold leading-tight text-[var(--hms-text)]">HMS</p>
                     <p className="text-xs leading-tight text-[var(--hms-text-muted)]">
-                        Gérez votre hôtel avec clarté
+                        Maison Lumière
                     </p>
                 </div>
             </Link>
