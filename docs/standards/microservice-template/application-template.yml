@@ -1,0 +1,12 @@
+# application.yml local minimal pour un microservice HMS.
+#
+# Ce fichier reste dans le microservice.
+# Il sert uniquement au bootstrap de l'application.
+# La configuration détaillée doit être fournie par config-server.
+
+spring:
+  application:
+    name: service-name
+
+  config:
+    import: ${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:8888}

@@ -1,0 +1,498 @@
+name: hotel-management-system
+
+services:
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: config-server
+    environment:
+      CONFIG_SERVER_PORT: 8888
+    ports:
+      - "8888:8888"
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_SERVER_PORT: 8761
+    ports:
+      - "8761:8761"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+  db-auth:
+    image: mariadb:11.4
+    container_name: db-auth
+    ports:
+      - "3307:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${AUTH_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${AUTH_DB_NAME:-db_auth}
+      MARIADB_USER: ${AUTH_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${AUTH_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-auth-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-room:
+    image: mariadb:11.4
+    container_name: db-room
+    ports:
+      - "3308:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${ROOM_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${ROOM_DB_NAME:-db_room}
+      MARIADB_USER: ${ROOM_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${ROOM_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-room-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-client:
+    image: mariadb:11.4
+    container_name: db-client
+    ports:
+      - "3309:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${CLIENT_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${CLIENT_DB_NAME:-db_client}
+      MARIADB_USER: ${CLIENT_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${CLIENT_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-client-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-reservation:
+    image: mariadb:11.4
+    container_name: db-reservation
+    ports:
+      - "3310:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${RESERVATION_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${RESERVATION_DB_NAME:-db_reservation}
+      MARIADB_USER: ${RESERVATION_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${RESERVATION_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-reservation-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-invoice:
+    image: mariadb:11.4
+    container_name: db-invoice
+    ports:
+      - "3311:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${INVOICE_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${INVOICE_DB_NAME:-db_invoice}
+      MARIADB_USER: ${INVOICE_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${INVOICE_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-invoice-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-housekeeping:
+    image: mariadb:11.4
+    container_name: db-housekeeping
+    ports:
+      - "3312:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${HOUSEKEEPING_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${HOUSEKEEPING_DB_NAME:-db_housekeeping}
+      MARIADB_USER: ${HOUSEKEEPING_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${HOUSEKEEPING_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-housekeeping-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  db-staff:
+    image: mariadb:11.4
+    container_name: db-staff
+    ports:
+      - "3313:3306"
+    networks:
+      - hotel-network
+    environment:
+      MARIADB_ROOT_PASSWORD: ${STAFF_DB_ROOT_PASSWORD:-root_hotel}
+      MARIADB_DATABASE: ${STAFF_DB_NAME:-db_staff}
+      MARIADB_USER: ${STAFF_DB_USER:-hotel_user}
+      MARIADB_PASSWORD: ${STAFF_DB_PASSWORD:-hotel_pass}
+    volumes:
+      - db-staff-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p$${MARIADB_ROOT_PASSWORD} --silent" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  room-service:
+    build:
+      context: ./room-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8082
+    container_name: room-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      ROOM_SERVICE_PORT: 8082
+      ROOM_DB_HOST: db-room
+      ROOM_DB_PORT: 3306
+      ROOM_DB_NAME: db_room
+      ROOM_DB_USER: hotel_user
+      ROOM_DB_PASSWORD: hotel_pass
+    ports:
+      - "8082:8082"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-room:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  client-service:
+    build:
+      context: ./client-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8083
+    container_name: client-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      CLIENT_SERVICE_PORT: 8083
+      CLIENT_DB_HOST: db-client
+      CLIENT_DB_PORT: 3306
+      CLIENT_DB_NAME: db_client
+      CLIENT_DB_USER: hotel_user
+      CLIENT_DB_PASSWORD: hotel_pass
+    ports:
+      - "8083:8083"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-client:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  reservation-service:
+    build:
+      context: ./reservation-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8084
+    container_name: reservation-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      RESERVATION_SERVICE_PORT: 8084
+      RESERVATION_DB_HOST: db-reservation
+      RESERVATION_DB_PORT: 3306
+      RESERVATION_DB_NAME: db_reservation
+      RESERVATION_DB_USER: hotel_user
+      RESERVATION_DB_PASSWORD: hotel_pass
+      GATEWAY_URL: "http://api-gateway:8080"
+    ports:
+      - "8084:8084"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-reservation:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  invoice-service:
+    build:
+      context: ./invoice-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8085
+    container_name: invoice-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      INVOICE_SERVICE_PORT: 8085
+      INVOICE_DB_HOST: db-invoice
+      INVOICE_DB_PORT: 3306
+      INVOICE_DB_NAME: db_invoice
+      INVOICE_DB_USER: hotel_user
+      INVOICE_DB_PASSWORD: hotel_pass
+    ports:
+      - "8085:8085"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-invoice:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  housekeeping-service:
+    build:
+      context: ./housekeeping-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8086
+    container_name: housekeeping-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      HOUSEKEEPING_SERVICE_PORT: 8086
+      HOUSEKEEPING_DB_HOST: db-housekeeping
+      HOUSEKEEPING_DB_PORT: 3306
+      HOUSEKEEPING_DB_NAME: db_housekeeping
+      HOUSEKEEPING_DB_USER: hotel_user
+      HOUSEKEEPING_DB_PASSWORD: hotel_pass
+      ROOM_SERVICE_URL: "http://room-service:8082"
+      STAFF_SERVICE_URL: "http://staff-service:8087"
+      RESERVATION_SERVICE_URL: "http://reservation-service:8084"
+    ports:
+      - "8086:8086"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-housekeeping:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  staff-service:
+    build:
+      context: ./staff-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8087
+    container_name: staff-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      STAFF_SERVICE_PORT: 8087
+      STAFF_DB_HOST: db-staff
+      STAFF_DB_PORT: 3306
+      STAFF_DB_NAME: db_staff
+      STAFF_DB_USER: hotel_user
+      STAFF_DB_PASSWORD: hotel_pass
+      AUTH_SERVICE_URL: "http://auth-service:8081"
+    ports:
+      - "8087:8087"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-staff:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8087/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      API_GATEWAY_PORT: 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+      args:
+        SERVICE_PORT: 8081
+    container_name: auth-service
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      EUREKA_DEFAULT_ZONE: "http://eureka-server:8761/eureka/"
+      AUTH_SERVICE_PORT: 8081
+      AUTH_DB_HOST: db-auth
+      AUTH_DB_PORT: 3306
+      AUTH_DB_NAME: db_auth
+      AUTH_DB_USER: hotel_user
+      AUTH_DB_PASSWORD: hotel_pass
+      JWT_SECRET: "dGhpcyBpcyBhIHZlcnkgc2VjdXJlIGtleSBmb3IgaG90ZWwgbWFuYWdlbWVudCBzeXN0ZW0gand0"
+    ports:
+      - "8081:8081"
+    networks:
+      - hotel-network
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      db-auth:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 50s
+    restart: unless-stopped
+
+networks:
+  hotel-network:
+    name: hotel-network
+    driver: bridge
+
+volumes:
+  db-auth-data:
+    name: db-auth-data
+  db-room-data:
+    name: db-room-data
+  db-client-data:
+    name: db-client-data
+  db-reservation-data:
+    name: db-reservation-data
+  db-invoice-data:
+    name: db-invoice-data
+  db-housekeeping-data:
+    name: db-housekeeping-data
+  db-staff-data:
+    name: db-staff-data
